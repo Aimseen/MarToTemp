@@ -1,0 +1,97 @@
+
+
+State : vecteur d'entier
+
+Hyperrectangle : paire de State
+
+StateSet :
+ | hyperrectangle
+ | point isolé
+ | union de StateSet
+
+
+
+Transition :
+- transitionState : (Event, State) -> State
+- transitionHR : (Event, HR) -> StateSet
+- transitionUnion : (Event, Union) -> StateSet
+- listes paramètres (pour vérification du fichier de config)
+- EventGeneratorCheck
+- EventCheck
+
+Générateur d'événement :
+- transition
+- taux
+- paramètres formels
+- structure pour récupérer les paramètres
+
+Event :
+- Générateur d'événement (pour récup transition)
+- tableau de paramètres effectifs
+
+RandomGenerator :
+- name
+- loi (uniformeSansRemise)
+- paramètres (liste de valeurs, ...)
+- nbValues (nombres d'entiers générés)
+
+
+
+
+Exemple de config :
+
+Première version :
+
+RandomGenerator
+- name: couple
+- loi: uniformeSansRemise
+- values: 1, 3, 4
+- nbValues: 2
+
+EventGenerator
+- name: JSQ
+- from: 1
+- to: couple
+- rate: 2.0
+
+
+
+
+
+
+int JSQ_phi(Event *ev, State *st) {
+  EventGenerator evGen=ev->generator();
+  int *from = ev->params->debut("from");
+  int *to = ev->params->debut("to");
+  int nb = ev->params->taille("to");
+  int min = to[0];
+  for (int i=1; i<nb; i++) {
+    if(taille_queue(st, to[i])<taille_queue(st, min)) {
+      min = to[i]
+    }
+  }
+  move(st, from, min); // effet de bord
+  return 0; // code de retour
+}
+
+
+
+
+
+
+Seconde version :
+
+RandomGenerator
+- name: toto
+- params: a
+- loi: uniformeSansRemise
+- values: 1, 3, 4
+- nbValues: a
+
+EventGenerator
+- name: JSQ
+- from: 1
+- to: toto(toto(1))
+
+
+
