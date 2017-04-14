@@ -95,3 +95,59 @@ EventGenerator
 
 
 
+Structure de données envisagée à l’issue de la dernière réunion :
+
+Ensemble:
+- point			// un type de base
+- hyper-rectangle	// un autre (on peut en rajouter)
+- union d’ensemble
+
+Méthodes nécessaires:
+pour le point: 
+- test d’égalité
+- comparaison
+- min, max
+
+pour un ensemble:
+- test d’inclusion (y compris appartenance)
+- cardinal
+- itérateur : 
+	- sur tous les points inclus 	// pour le splitting
+	- sur les pts du bord 		// pour la création de points isolés)
+- ajout/suppression
+- (pour plus tard) : restructure (découpage en cas d’intersection…)
+
+
+« Ensemble » : contient attribut qui définit la structure sous-jacente
+(hypercube, union de sous-ensemble)
+		Ensemble 			// vu par l’utilisateur
+
+Truc (indirection / boite contenant un sous-ensemble)
+
+		contient
+	sous-ensemble (SE)   			// il faut trouver un meilleur nom : c’est la version « interne » de l’ensemble
+
+sous-ensemble de l’espace d’états ; ensemble d’états…
+
+	/  		|		 \
+union	Hypercube	point 
+de 						\
+SE						vecteur STL
+
+la différence que fait l’ajout de l’étage Truc c’est:
+Truc e1;
+(…)
+e1=new Truc(new Point)
+(…)
+e1.ajoute(x) 	// transforme l’ensemble contenu dans e1 en union de points
+
+Il existe la notion de collection mais ne marche pas pour des structures comme les volumes (hyper-rectangle…)
+- point cloud library pour traiter les ensembles de points (splitting) 
+- polylib pour les polyedres
+
+[Limiter le nb dépendances pour faciliter la maintenance mais voir ce qui pourrait être utile]
+
+Les fonctions de point sont déjà codées dans la STL
+
+
+— 
