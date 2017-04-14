@@ -27,7 +27,7 @@ namespace psi4 {
 		/** Apply transition to a set of states with
 		 * hyperrectangle structure
 		 */
-		SetImpl apply(HyperRectangle h, Event) {
+		SetImpl& apply(HyperRectangle &h, Event) {
 			// Split
 			Union myUnion;
 			myUnion = new Union();
@@ -44,7 +44,7 @@ namespace psi4 {
 			return myTransition(h);
 		}
 			
-		SetImpl apply(Union, Event);
+		SetImpl& apply(Union&, Event);
 			
 	}
 

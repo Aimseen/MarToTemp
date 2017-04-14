@@ -35,7 +35,7 @@ namespace psi4 {
 	/** Class that is a bridge to the actual set implementation
 	 */
 	public class Set {
-		private SetImpl realset;
+		private SetImpl *realset;
 	}
 }
 
