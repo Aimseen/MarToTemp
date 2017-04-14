@@ -1,0 +1,7 @@
+
+ACLOCAL_AMFLAGS = -I m4
+
+SUBDIRS= \
+	src/core
+
+EXTRA_FILES=NEWS
