@@ -7,27 +7,30 @@
 namespace psi4 {
 	/** Set implementation ; internal structure
 	 */
-	abstract public class SetImpl {
-
+	class SetImpl {
+		/** used to call the transition:apply function
+		 * corresponding to the SetImpl type
+		 */
+	public:
+		virtual void accept(Transition *t, Event *ev) = 0;
 	}
 
-	/** One point in the state space 
-	 */ 
+	/** One point in the state space
+	 */
 	public class Point : vector<int>, SetImpl {
 		
 	}
 
 	/** Subset of the state space with a shape of hyperrectangle
-	 */ 
+	 */
 	public class HyperRectangle : SetImpl {
 		private Point inf, sup;
-		
 	}
 
-	/** Union of subsets of the state space 
-	 */ 
+	/** Union of subsets of the state space
+	 */
 	public class Union : SetImpl {
-		private List<SetImpl> list;
+		private List<SetImpl *> list;
 	}
 
 	

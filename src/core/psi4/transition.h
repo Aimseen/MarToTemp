@@ -9,46 +9,66 @@ namespace psi4 {
 	abstract public class Transition {
 		
 	public:
-		int apply(Set s, Event ev)
-		{
-			SetImpl &src=s.realset;
-			SetImpl &res=apply(src, ev)
-			s.realset = res;
-		}
-		/** Apply transition to a point 
+		/** in: s, ev
+		 *  out: s
 		 */
-		SetImpl& apply(Point &p, Event)
-		{
-			foreach (int ind: p) {
-				p[ind] = max(0,p[ind] -1);
-			}
-			return p;
-		}
+		int apply(Set *s, Event *ev);
+
+	protected:
+		/**
+		   Does nothing except calling apply for the proper SetImpl subtype
+		*/
+		SetImpl *apply(SetImpl *s, Event *ev);
+		
+		/** Apply transition to a point 
+		    Should be implemented in each concrete Transition class
+		 */
+		virtual SetImpl *apply(Point *p, Event *ev) = 0;
+
 		/** Apply transition to a set of states with
 		 * hyperrectangle structure
+		 * default : applies transition to each point of the hyperrectangle
 		 */
-		SetImpl& apply(HyperRectangle &h, Event) {
-			// Split
-			Union myUnion;
-			myUnion = new Union();
-			// En place
-			myTransition(h);
-			myUnion.add(h);
-			foreach (Point p : findPointsOutside(h)) {
-				myUnion.add(p);
-			}
-			return myUnion;
+		virtual SetImpl *apply(HyperRectangle *h, Event *ev);
 
-
-			// Classique
-			return myTransition(h);
-		}
-			
-		SetImpl& apply(Union&, Event);
+		/** Apply transition to a set of states with
+		 * union structure;   
+		 * default : applies transition to each point of the union
+		 */	
+		virtual SetImpl *apply(Union *u, Event *ev);
 			
 	}
 
-
+	/* Pseudo code d'explication :
+- ma poltique :
+class MaPolitique : Transition {
+  SetImpl apply(Point *p, Event *ev) {
+    calcul(p);
+    return p;
+  }
 }
+
+- enveloppe :
+class MesEnveloppes : MaPolitique {
+  SetImpl apply(HyperRectangle *h, Event *ev) {
+    calcul(h);
+    return h;
+  }
+}
+
+ou
+
+class MesEnveloppes : Transition {
+  SetImpl apply(Point *p, Event *ev) {
+    calcul(p);
+    return p;
+  }
+
+  SetImpl apply(HyperRectangle *h, Event *ev) {
+    calcul(h);
+    return h;
+  }
+}
+	*/
 
 #endif
