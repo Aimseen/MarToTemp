@@ -1,0 +1,7 @@
+
+# Testsuite for psi4 when installed
+
+m4_define([_PSI4_INSTALLED],[true])
+
+m4_include([testsuite.at])
+
