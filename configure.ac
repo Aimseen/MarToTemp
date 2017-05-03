@@ -23,9 +23,24 @@ AC_PROG_MAKE_SET
 AX_PTHREAD([],[
   AC_MSG_ERROR([The C compiler must be able to compile PThread programs])])
 
+AC_MSG_CHECKING([whether $CXX works])
+AC_LANG_PUSH([C++])
+AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],[return 0;])],
+            [have_cxx=yes],
+            [have_cxx=no])
+AC_LANG_POP([C++])
+AC_MSG_RESULT([$have_cxx])
+AM_CONDITIONAL([HAVE_CXX],[test $have_cxx = yes])
+
 # Default compilation flags
 CFLAGS="-O2 -g -Wall"
 AC_SUBST([CFLAGS])
+
+AC_SUBST([AM_CPPFLAGS])
+AC_SUBST([AM_CFLAGS])
+AC_SUBST([AM_CXXFLAGS])
+AC_SUBST([AM_LDFLAGS])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ldl':
@@ -37,9 +52,50 @@ AC_CHECK_HEADERS([])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+dnl ----------------------------------------------------------------
+dnl Define libs and progs created by this software
+dnl ----------------------------------------------------------------
+ACX_LIB_NEW_LIB([PSI4LIB], [-L\${libdir} -lpsi4], [psi4])
+ACX_LIB_ADD_PUBLIC_FLAGS([PSI4LIB], [-I\${includedir}])
+
+ACX_LIB_NEW_PRG([PSI4PROGS])
+
+PSI4_AT_TESTSUITES="core"
+AC_SUBST([PSI4_AT_TESTSUITES])
+
+dnl -----------------------------------------------------------------------
+dnl Dependencies between libs
+dnl -----------------------------------------------------------------------
+ACX_LIB_LINK([PSI4PROGS], [PSI4LIB])
+ACX_LIB_ADD_BUILD_FLAGS([PSI4PROGS],
+        [-I\$(top_srcdir)/src/core],[],[],
+        [\$(top_builddir)/src/core/libpsi4.la])
+
 # Checks for library functions.
 AC_CONFIG_FILES([
 	src/core/Makefile
 	Makefile
 ])
 AC_OUTPUT
+
+AC_MSG_NOTICE([*************************************])
+AC_MSG_NOTICE([*             Summary               *])
+AC_MSG_NOTICE([*************************************])
+ACX_LIB_SHOW_EXTERNAL_LIBS
+AC_MSG_NOTICE([*************************************])
+ACX_LIB_SHOW_NEW_LIBS
+AC_MSG_NOTICE([*************************************])
+ACX_LIB_SHOW_NEW_PRGS
+AC_MSG_NOTICE([*************************************])
+list=""
+for flag in CC CXX CFLAGS CPPFLAGS CXXFLAGS; do
+  for f in AM@&t@_$flag $flag ; do
+    val=`eval echo '"$'$f'"'`
+    val=`echo "$val" | sed 's/^ *//'`
+    if test x"$val" != x ; then
+       list="$list
+  $f: $val"
+    fi
+  done
+done
+
