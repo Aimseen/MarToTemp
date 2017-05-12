@@ -1,7 +1,16 @@
 AT_BANNER([Basic tests on marto library])
 
+dnl Start a new tests group
 AT_SETUP([Header file can be loaded])
+dnl define env variables
+AT_EXPORT([MARTO_ENV_EXAMPLE],[useless])
+dnl Runs a shell command (ocl_test in this case)
+dnl additional parameters are:
+dnl - expected return code
+dnl - expected stdout (or keyword stdout to store, or ignore)
+dnl - expected stderr (or keyword stderr to store, or ignore)
 AT_CHECK([ocl_test], 0, [No platforms found!
 ], [stderr])
+dnl Ends the ongoing tests group
 AT_CLEANUP
 
