@@ -6,3 +6,9 @@ dnl ******************************************************
 dnl checking headers
 MARTO_AT_TEST_HEADERS()
 
+dnl Marto main test
+AT_SETUP([Main test])
+AT_KEYWORDS([core])
+AT_EXPORT([PATH],[$abs_top_builddir/src/core:$PATH])
+AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
+AT_CLEANUP

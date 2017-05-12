@@ -5,9 +5,3 @@ PACKAGE_TARNAME="@PACKAGE_TARNAME@"
 datarootdir="@datarootdir@"
 docdir="@docdir@"
 
-MARTO_AT_EX_CURRENT_LIST=
-for i in $(make -C ${abs_top_builddir}/examples list_examples | \
-	sed -e '/^[*]\{59\}$/,/^[*]\{59\}$/{s/^ [*] //p;d};d' ) ; do 
-  MARTO_AT_EX_CURRENT_LIST="$MARTO_AT_EX_CURRENT_LIST $i"
-done
-
