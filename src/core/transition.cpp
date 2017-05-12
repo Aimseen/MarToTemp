@@ -1,14 +1,14 @@
-#include <psi4/transition.h>
+#include <marto/transition.h>
 #include <config.h>
 #include <stdexcept>
 
-using namespace psi4;
+using namespace marto;
 
-SetImpl *psi4::Transition::apply(SetImpl *s, Event *ev) {
-  throw std::domain_error("A psi4::Transition::apply specialized method should have been called" );
+SetImpl *marto::Transition::apply(SetImpl *s, Event *ev) {
+  throw std::domain_error("A marto::Transition::apply specialized method should have been called" );
 }
 
-int psi4::Transition::apply(Set *s, Event *ev) {
+int marto::Transition::apply(Set *s, Event *ev) {
   SetImpl *src=s->realset();
   SetImpl *res=apply(src, ev);
   s->realset(res);
@@ -16,7 +16,7 @@ int psi4::Transition::apply(Set *s, Event *ev) {
 }
 
 // Specialisation: a Point always gives a Point
-Point *psi4::Transition::apply(Point *s, Event *ev) {
+Point *marto::Transition::apply(Point *s, Event *ev) {
   return s->accept(this, ev);
 }
 
@@ -24,14 +24,14 @@ Point *psi4::Transition::apply(Point *s, Event *ev) {
  * hyperrectangle structure;
  */
 #if 1
-SetImpl *psi4::Transition::apply(HyperRectangle *h, Event *ev) {
+SetImpl *marto::Transition::apply(HyperRectangle *h, Event *ev) {
   h->inf(apply(h->inf(), ev));
   h->sup(apply(h->sup(), ev));
   return h;
 }
 #endif
 
-SetImpl *psi4::Transition::apply(Union *u, Event *ev) {
+SetImpl *marto::Transition::apply(Union *u, Event *ev) {
   for (auto it = u->begin(); it != u->end(); it++)
     (*it) = apply(*it, ev);
 }

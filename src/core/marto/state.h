@@ -1,13 +1,13 @@
 /* State representation */
-#ifndef PSI4_STATE_H
-#define PSI4_STATE_H
+#ifndef MARTO_STATE_H
+#define MARTO_STATE_H
 
 #ifdef __cplusplus
 
 #include <vector>
 #include <list>
 
-namespace psi4 {
+namespace marto {
 	/* Forward declarations */
 	class Transition;
 	class Event;
@@ -35,22 +35,22 @@ namespace psi4 {
 	class HyperRectangle : public SetImpl {
 	public:
 		virtual SetImpl* accept(Transition *t, Event *ev);
-		psi4::Point* inf() const {
+		marto::Point* inf() const {
 			return inf_;
 		}
-		psi4::Point* inf(psi4::Point *p) {
+		marto::Point* inf(marto::Point *p) {
 			inf_ = p;
 			return inf_;
 		}
-		psi4::Point* sup() const {
+		marto::Point* sup() const {
 			return sup_;
 		}
-		psi4::Point* sup(psi4::Point *p) {
+		marto::Point* sup(marto::Point *p) {
 			sup_ = p;
 			return sup_;
 		}
 	private:
-		psi4::Point *inf_, *sup_;
+		marto::Point *inf_, *sup_;
 	};
 
 	/** Union of subsets of the state space

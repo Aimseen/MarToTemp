@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([PSI4], [0.0.1], [https://gitlab.inria.fr/PSI/psi4], [psi4])
-AC_CONFIG_SRCDIR([src/core/psi4.h])
+AC_INIT([MARTO], [0.0.1], [https://gitlab.inria.fr/PSI/marto], [marto])
+AC_CONFIG_SRCDIR([src/core/marto.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.9 tar-pax check-news color-tests parallel-tests])
@@ -55,19 +55,19 @@ AC_CHECK_HEADERS([])
 dnl ----------------------------------------------------------------
 dnl Define libs and progs created by this software
 dnl ----------------------------------------------------------------
-ACX_LIB_NEW_LIB([PSI4LIB], [-L\${libdir} -lpsi4], [psi4])
-ACX_LIB_ADD_PUBLIC_FLAGS([PSI4LIB], [-I\${includedir}])
+ACX_LIB_NEW_LIB([MARTOLIB], [-L\${libdir} -lpsi4], [psi4])
+ACX_LIB_ADD_PUBLIC_FLAGS([MARTOLIB], [-I\${includedir}])
 
-ACX_LIB_NEW_PRG([PSI4PROGS])
+ACX_LIB_NEW_PRG([MARTOPROGS])
 
-PSI4_AT_TESTSUITES="core"
-AC_SUBST([PSI4_AT_TESTSUITES])
+MARTO_AT_TESTSUITES="core"
+AC_SUBST([MARTO_AT_TESTSUITES])
 
 dnl -----------------------------------------------------------------------
 dnl Dependencies between libs
 dnl -----------------------------------------------------------------------
-ACX_LIB_LINK([PSI4PROGS], [PSI4LIB])
-ACX_LIB_ADD_BUILD_FLAGS([PSI4PROGS],
+ACX_LIB_LINK([MARTOPROGS], [MARTOLIB])
+ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
         [-I\$(top_srcdir)/src/core],[],[],
         [\$(top_builddir)/src/core/libpsi4.la])
 

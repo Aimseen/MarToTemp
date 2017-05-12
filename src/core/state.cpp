@@ -1,19 +1,19 @@
-#include <psi4/state.h>
-#include <psi4/transition.h>
+#include <marto/state.h>
+#include <marto/transition.h>
 #include <vector>
 
-using namespace psi4;
+using namespace marto;
 
 // Specialisation: a Point always gives a Point
-Point* psi4::Point::accept(Transition *t, Event *ev) {
+Point* marto::Point::accept(Transition *t, Event *ev) {
   return t->apply(this, ev);
 }
 
-SetImpl* psi4::HyperRectangle::accept(Transition *t, Event *ev) {
+SetImpl* marto::HyperRectangle::accept(Transition *t, Event *ev) {
   return t->apply(this, ev);
 }
 
-SetImpl* psi4::Union::accept(Transition *t, Event *ev) {
+SetImpl* marto::Union::accept(Transition *t, Event *ev) {
   return t->apply(this, ev);
 }
   

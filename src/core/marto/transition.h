@@ -1,12 +1,12 @@
 /* Transition representation */
-#ifndef PSI4_TRANSITION_H
-#define PSI4_TRANSITION_H
+#ifndef MARTO_TRANSITION_H
+#define MARTO_TRANSITION_H
 
 #ifdef __cplusplus
 
-#include <psi4/state.h>
+#include <marto/state.h>
 
-namespace psi4 {
+namespace marto {
 
 	class Transition {
 		
