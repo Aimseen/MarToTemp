@@ -6,8 +6,11 @@ AT_INIT()
 AT_COPYRIGHT ([Copyright (c) 2017 Vincent Danjean <Vincent.Danjean@ens-lyon.org>])
 AT_COLOR_TESTS
 
+# test only at compilation step
 MARTO_BUILDING([
 	m4_include([testsuite-basic.at])
 ])
+
+# test both at compilation step and after install step
 m4_include([testsuite-marto.at])
 
