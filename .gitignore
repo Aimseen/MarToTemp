@@ -9,7 +9,7 @@
 
 Makefile.in
 
-/tests/psi4/check-headers/*/*.c++
+/tests/marto/check-headers/*/*.c++
 /tests/testsuite
 /tests/testsuite-installed
 

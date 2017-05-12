@@ -79,7 +79,7 @@ AC_CONFIG_FILES([
 	Makefile
 	tests/Makefile
 	tests/check-headers/Makefile
-	tests/psi4/Makefile
+	tests/marto/Makefile
 
 	tests/atlocal
 ])

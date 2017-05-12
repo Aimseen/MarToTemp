@@ -1,0 +1,8 @@
+
+MARTO_AT_BANNER([marto - core MARTO library],
+  [core],[marto libmarto],[tests/marto],[all])
+
+dnl ******************************************************
+dnl checking headers
+MARTO_AT_TEST_HEADERS()
+

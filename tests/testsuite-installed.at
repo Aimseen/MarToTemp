@@ -1,7 +1,7 @@
 
-# Testsuite for psi4 when installed
+# Testsuite for marto when installed
 
-m4_define([_PSI4_INSTALLED],[true])
+m4_define([_MARTO_INSTALLED],[true])
 
 m4_include([testsuite.at])
 

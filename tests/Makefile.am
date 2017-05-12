@@ -3,7 +3,7 @@ SUBDIRS=check-headers
 
 # Subdirs not to be built by default (will be built by the testsuite)
 # but we want them to be cleaned up anyway
-NOBUILD_SUBDIRS=psi4
+NOBUILD_SUBDIRS=marto
 DIST_SUBDIRS=$(NOBUILD_SUBDIRS) $(SUBDIRS)
 clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 
@@ -30,7 +30,7 @@ $(srcdir)/package.m4: $(top_srcdir)/configure.ac
 TESTSUITES_SRC = testsuite.at testsuite-basic.at \
 	check-headers/check-headers.m4 \
 	m4/atenv.m4 \
-	m4/psi4-autotest.m4
+	m4/marto-autotest.m4
 EXTRA_DIST = $(TESTSUITES_SRC) $(srcdir)/package.m4 $(TESTSUITE) $(INSTTESTSUITE) atlocal.in
 TESTSUITE = $(srcdir)/testsuite
 INSTTESTSUITE = $(srcdir)/testsuite-installed
