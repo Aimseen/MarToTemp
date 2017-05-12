@@ -1,0 +1,7 @@
+AT_BANNER([Basic tests on psi4 library])
+
+AT_SETUP([Header file can be loaded])
+AT_CHECK([ocl_test], 0, [No platforms found!
+], [stderr])
+AT_CLEANUP
+

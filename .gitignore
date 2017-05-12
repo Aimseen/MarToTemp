@@ -8,3 +8,8 @@
 /m4/libtool.m4
 
 Makefile.in
+
+/tests/psi4/check-headers/*/*.c++
+/tests/testsuite
+/tests/testsuite-installed
+

@@ -1,0 +1,8 @@
+
+PSI4_AT_BANNER([psi4 - core PSI4 library],
+  [core],[psi4 libpsi4],[tests/psi4],[all])
+
+dnl ******************************************************
+dnl checking headers
+PSI4_AT_TEST_HEADERS()
+

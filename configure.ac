@@ -6,12 +6,14 @@ AC_INIT([MARTO], [0.0.1], [https://gitlab.inria.fr/MarTo/marto], [marto])
 AC_CONFIG_SRCDIR([src/core/marto.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.9 tar-pax check-news color-tests parallel-tests])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.9 tar-pax check-news color-tests parallel-tests subdir-objects])
 AMX_SILENT_RULES([AM_DEFAULT_VERBOSITY=1])
 AC_CONFIG_HEADERS([config.h])
 
 AM_PROG_AR
 LT_INIT
+
+AC_CONFIG_TESTDIR([tests], [.])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -75,6 +77,11 @@ ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
 AC_CONFIG_FILES([
 	src/core/Makefile
 	Makefile
+	tests/Makefile
+	tests/check-headers/Makefile
+	tests/psi4/Makefile
+
+	tests/atlocal
 ])
 AC_OUTPUT
 
