@@ -9,6 +9,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.9 tar-pax check-news color-tests parallel-tests subdir-objects])
 AMX_SILENT_RULES([AM_DEFAULT_VERBOSITY=1])
 AC_CONFIG_HEADERS([config.h])
+ACX_NTG_INIT
+ACX_NTG_ADD_DEFAULT_GROUP([core])
 
 AM_PROG_AR
 LT_INIT
@@ -61,9 +63,6 @@ ACX_LIB_NEW_LIB([MARTOLIB], [-L\${libdir} -lmarto], [marto])
 ACX_LIB_ADD_PUBLIC_FLAGS([MARTOLIB], [-I\${includedir}])
 
 ACX_LIB_NEW_PRG([MARTOPROGS])
-
-MARTO_AT_TESTSUITES="core"
-AC_SUBST([MARTO_AT_TESTSUITES])
 
 dnl -----------------------------------------------------------------------
 dnl Dependencies between libs

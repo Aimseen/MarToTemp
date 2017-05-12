@@ -27,9 +27,10 @@ $(srcdir)/package.m4: $(top_srcdir)/configure.ac
 	  echo '  [$(OPENCL_VERSION)])'; \
 	} >'$(srcdir)/package.m4'
 
-TESTSUITES_SRC = testsuite.at testsuite-basic.at \
+TESTSUITES_SRC = testsuite.at testsuite-basic.at testsuite-marto.at \
 	check-headers/check-headers.m4 \
-	m4/atenv.m4 \
+	m4/at_env.m4 \
+	m4/at_named-test-groups.m4 \
 	m4/marto-autotest.m4
 EXTRA_DIST = $(TESTSUITES_SRC) $(srcdir)/package.m4 $(TESTSUITE) $(INSTTESTSUITE) atlocal.in
 TESTSUITE = $(srcdir)/testsuite

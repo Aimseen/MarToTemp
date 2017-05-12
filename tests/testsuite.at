@@ -7,7 +7,7 @@ AT_COPYRIGHT ([Copyright (c) 2017 Vincent Danjean <Vincent.Danjean@ens-lyon.org>
 AT_COLOR_TESTS
 
 # test only at compilation step
-MARTO_BUILDING([
+AT_NTG_BUILDING([
 	m4_include([testsuite-basic.at])
 ])
 

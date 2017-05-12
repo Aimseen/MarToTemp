@@ -1,14 +1,17 @@
 
-MARTO_AT_BANNER([marto - core MARTO library],
-  [core],[marto libmarto],[tests/marto],[all])
+AT_NTG_CH_TEST_HEADERS([core], [tests/marto])
+
+AT_NTG_BANNER([marto - core MARTO library],
+  [core],[marto libmarto],[src/core],[all])
 
 dnl ******************************************************
 dnl checking headers
 MARTO_AT_TEST_HEADERS()
 
+dnl Marto main test using ATX_NTG
+AT_NTG_TEST_PROG([test_core], [Main test], [], [], [], [], [ignore], [ignore])
+
 dnl Marto main test
-AT_SETUP([Main test])
-AT_KEYWORDS([core])
-AT_EXPORT([PATH],[$abs_top_builddir/src/core:$PATH])
+AT_NTG_SETUP([Manual test])
 AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
-AT_CLEANUP
+AT_NTG_CLEANUP

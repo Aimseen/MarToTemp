@@ -1,7 +1,7 @@
 
 # Testsuite for marto when installed
 
-m4_define([_MARTO_INSTALLED],[true])
+ATX_NTS_INSTALL_TESTSUITE
 
 m4_include([testsuite.at])
 

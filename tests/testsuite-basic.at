@@ -1,9 +1,12 @@
-AT_BANNER([Basic tests on marto library])
+AT_NTG_BANNER([Basic tests on marto library], [core])
 
 dnl Start a new tests group
-AT_SETUP([Header file can be loaded])
+AT_SETUP([Failing documentation test])
+AT_KEYWORDS([onemorekeyword])
+dnl ignore this test if the command return 0
+AT_SKIP_IF(true)
 dnl define env variables
-AT_EXPORT([MARTO_ENV_EXAMPLE],[useless])
+AT_ENV_EXPORT([MARTO_ENV_EXAMPLE],[useless])
 dnl Runs a shell command (ocl_test in this case)
 dnl additional parameters are:
 dnl - expected return code
