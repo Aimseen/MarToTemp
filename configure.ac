@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.67])
-AC_INIT([MARTO], [0.0.1], [https://gitlab.inria.fr/PSI/marto], [marto])
+AC_INIT([MARTO], [0.0.1], [https://gitlab.inria.fr/MarTo/marto], [marto])
 AC_CONFIG_SRCDIR([src/core/marto.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -55,7 +55,7 @@ AC_CHECK_HEADERS([])
 dnl ----------------------------------------------------------------
 dnl Define libs and progs created by this software
 dnl ----------------------------------------------------------------
-ACX_LIB_NEW_LIB([MARTOLIB], [-L\${libdir} -lpsi4], [psi4])
+ACX_LIB_NEW_LIB([MARTOLIB], [-L\${libdir} -lmarto], [marto])
 ACX_LIB_ADD_PUBLIC_FLAGS([MARTOLIB], [-I\${includedir}])
 
 ACX_LIB_NEW_PRG([MARTOPROGS])
@@ -69,7 +69,7 @@ dnl -----------------------------------------------------------------------
 ACX_LIB_LINK([MARTOPROGS], [MARTOLIB])
 ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
         [-I\$(top_srcdir)/src/core],[],[],
-        [\$(top_builddir)/src/core/libpsi4.la])
+        [\$(top_builddir)/src/core/libmarto.la])
 
 # Checks for library functions.
 AC_CONFIG_FILES([

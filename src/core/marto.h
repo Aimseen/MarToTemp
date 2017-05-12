@@ -1,5 +1,5 @@
-#ifndef PSI4_H
-#define PSI4_H
+#ifndef MARTO_H
+#define MARTO_H
 
 #include <marto/state.h>
 #include <marto/transition.h>
