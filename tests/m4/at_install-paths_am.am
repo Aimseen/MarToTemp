@@ -1,0 +1,12 @@
+
+$(srcdir)/atinstallpath.in: $(srcdir)/Makefile.in
+	echo "at_MAKE_var=\"$(MAKE) -s --no-print-directory\"" > $@
+	echo "at_load_makevar dummy undef" >> $@
+	$(SED) < $< \
+		'/^[[:alnum:]_]*\(dir\|prefix\) *= *@[[:alnum:]_]*\(dir\|prefix\)@$$/s/^\([^ =]\+\)\ *=.*/at_load_makevar \1 "@\1@"/p;d' \
+		| $(EGREP) -v '(build|src)' \
+		| LC_ALL=C sort >> $@
+
+_at_ip_getvar:
+	@echo '$(_AT_IP_VAR)'
+

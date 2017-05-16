@@ -25,6 +25,10 @@ $(srcdir)/package.m4: $(top_srcdir)/configure.ac $(srcdir)/Makefile.am
 	  echo '  [$(PACKAGE_URL)])'; \
 	} >'$(srcdir)/package.m4'
 
+# Support to get install paths at test time
+# (useful for the installcheck target)
+include m4/at_install-paths_am.am
+
 TESTSUITES_SRC = testsuite.at testsuite-basic.at testsuite-marto.at \
 	check-headers/check-headers.m4 \
 	m4/at_env.m4 \

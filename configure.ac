@@ -16,6 +16,7 @@ AM_PROG_AR
 LT_INIT
 
 AC_CONFIG_TESTDIR([tests], [.])
+AC_CONFIG_FILES([tests/atlocal:tests/atlocal.in:tests/m4/at_install-paths.in:tests/atinstallpath.in])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -81,8 +82,6 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	tests/check-headers/Makefile
 	tests/marto/Makefile
-
-	tests/atlocal
 ])
 AC_OUTPUT
 

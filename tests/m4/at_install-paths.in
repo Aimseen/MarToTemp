@@ -1,0 +1,6 @@
+
+at_load_makevar() { # $1: varname $2: Make value
+  local value
+  value="$(${at_MAKE_var} _at_ip_getvar _AT_IP_VAR="\$($1)")"
+  eval "at_ip_$1"='"$value"'
+}
