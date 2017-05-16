@@ -19,5 +19,7 @@ libmarto_la_SOURCES=\
 	state.cpp \
 	transition.cpp
 
+pkgconfig_DATA=marto.pc
+
 test_core_SOURCES=test_core.cpp
 test_core_LDADD=libmarto.la

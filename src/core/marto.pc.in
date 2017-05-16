@@ -1,0 +1,17 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: MarTo
+Description: Markov Toolkit for Markov models simulation library
+Version: @VERSION@
+URL: @PACKAGE_URL@
+Requires: @MARTOLIB_PKGCONFIG_REQUIRES@
+Requires.private: @MARTOLIB_PKGCONFIG_REQUIRES_PRIVATE@
+#Conflicts: foobar <= 4.5
+# Libs: bibliothèques nécessaire pour linker dynamiquement une appli externe
+# Libs.private: bibliothèques à rajouter en cas de link statique
+Libs: @MARTOLIB_PKGCONFIG_LIBS@
+Libs.private: @MARTOLIB_PKGCONFIG_LIBS_PRIVATE@
+Cflags: @MARTOLIB_PKGCONFIG_CFLAGS@

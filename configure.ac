@@ -44,6 +44,7 @@ AM_CONDITIONAL([AX_BUILD_CHECK], [false])
 
 # To test our own pkg-config file
 PKG_PROG_PKG_CONFIG
+PKG_INSTALLDIR
 
 # Default compilation flags
 CFLAGS="-O2 -g -Wall"
@@ -88,6 +89,8 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	tests/check-headers/Makefile
 	tests/marto-headers/Makefile
+
+	src/core/marto.pc
 	tests/marto-installed/GNUmakefile
 ])
 AC_OUTPUT
