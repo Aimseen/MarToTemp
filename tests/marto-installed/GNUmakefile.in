@@ -1,14 +1,21 @@
 
 PKG_CONFIG = @PKG_CONFIG@
-CXX = @CXX@
+CC = @CXX@
 srcdir = @srcdir@
 SHELL = @SHELL@
+top_builddir = @top_builddir@
+subdir = tests/marto-installed
+CPPFLAGS=-Wall
+
+all:
 
 using-libmarto: using-libmarto.o
-using-libmarto: LIBS=$(shell $(PKG_CONFIG) --libs libmarto)
+	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
+using-libmarto: LDLIBS=$(shell $(PKG_CONFIG) --libs marto)
 
 using-libmarto.o: $(srcdir)/using-libmarto.c++
-using-libmarto.c++: CPPFLAGS=$(shell $(PKG_CONFIG) --cflags libmarto)
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+using-libmarto.o: CPPFLAGS=$(shell $(PKG_CONFIG) --cflags marto)
 
 .PHONY: clean distclean
 clean:
@@ -21,5 +28,5 @@ EMPTY_AUTOMAKE_TARGETS = maintainer-clean distdir
 .PHONY: $(EMPTY_AUTOMAKE_TARGETS)
 $(EMPTY_AUTOMAKE_TARGETS):
 
-$(srcdir)/GNUmakefile: $(top_builddir)/config.status $(srcdir)/GNUmakefile.in
+GNUmakefile: $(top_builddir)/config.status $(srcdir)/GNUmakefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

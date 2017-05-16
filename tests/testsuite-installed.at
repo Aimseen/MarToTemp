@@ -1,7 +1,21 @@
 
-# Testsuite for marto when installed
+m4_include([m4/at_named-test-groups.m4])
 
-ATX_NTS_INSTALL_TESTSUITE
+# Testsuite for marto when installed
+AT_NTG_INSTALL_TESTSUITE
 
 m4_include([testsuite.at])
+
+m4_include([m4/at_install-paths.m4])
+
+AT_NTG_BANNER([marto - core MARTO library - INSTALLED],
+  [core],[marto libmarto], [tests/marto-installed])
+
+AT_NTG_HOOK_MACRO([SETUP],[AFTER],[AT_IP_EXPORT_RUNTIME])
+
+AT_NTG_SETUP([clean compilation into tests/marto-installed], [clean])
+AT_NTG_CHECK_BUILD([clean])
+AT_NTG_CLEANUP
+
+AT_NTG_TEST_PROG([using-libmarto], [Basic program])
 

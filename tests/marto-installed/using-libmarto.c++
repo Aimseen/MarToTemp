@@ -2,6 +2,6 @@
 #include "marto.h"
 
 int main() {
-	Marto::Point p = new Marto::Point();
+	marto::Point *p = new marto::Point();
 	return 0;
 }

@@ -33,8 +33,11 @@ TESTSUITES_SRC = testsuite.at testsuite-basic.at testsuite-marto.at \
 	check-headers/check-headers.m4 \
 	m4/at_env.m4 \
 	m4/at_named-test-groups.m4 \
+	m4/at_install-paths.m4 \
 	m4/marto-autotest.m4
-EXTRA_DIST = $(TESTSUITES_SRC) $(srcdir)/package.m4 $(TESTSUITE) $(INSTTESTSUITE) atlocal.in
+EXTRA_DIST = $(TESTSUITES_SRC) testsuite-installed.at \
+	$(srcdir)/package.m4 $(TESTSUITE) $(INSTTESTSUITE) atlocal.in \
+	marto-installed/using-libmarto.c++
 TESTSUITE = $(srcdir)/testsuite
 INSTTESTSUITE = $(srcdir)/testsuite-installed
 DISTCLEANFILES = atconfig
@@ -58,7 +61,7 @@ $(TESTSUITE): $(TESTSUITES_SRC) $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
-$(INSTTESTSUITE): $(TESTSUITES_SRC) $(srcdir)/package.m4
+$(INSTTESTSUITE): testsuite-installed.at $(TESTSUITES_SRC) $(srcdir)/package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 
