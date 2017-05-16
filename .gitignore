@@ -12,4 +12,5 @@ Makefile.in
 /tests/marto/check-headers/*/*.c++
 /tests/testsuite
 /tests/testsuite-installed
+/tests/package.m4
 
