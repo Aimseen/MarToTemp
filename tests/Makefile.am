@@ -3,7 +3,7 @@ SUBDIRS=check-headers
 
 # Subdirs not to be built by default (will be built by the testsuite)
 # but we want them to be cleaned up anyway
-NOBUILD_SUBDIRS=marto
+NOBUILD_SUBDIRS=marto-headers marto-installed
 DIST_SUBDIRS=$(NOBUILD_SUBDIRS) $(SUBDIRS)
 clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 

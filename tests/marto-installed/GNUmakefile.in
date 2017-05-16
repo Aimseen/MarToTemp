@@ -1,0 +1,25 @@
+
+PKG_CONFIG = @PKG_CONFIG@
+CXX = @CXX@
+srcdir = @srcdir@
+SHELL = @SHELL@
+
+using-libmarto: using-libmarto.o
+using-libmarto: LIBS=$(shell $(PKG_CONFIG) --libs libmarto)
+
+using-libmarto.o: $(srcdir)/using-libmarto.c++
+using-libmarto.c++: CPPFLAGS=$(shell $(PKG_CONFIG) --cflags libmarto)
+
+.PHONY: clean distclean
+clean:
+	$(RM) using-libmarto.o using-libmarto
+
+distclean: clean
+
+# required targets for automake
+EMPTY_AUTOMAKE_TARGETS = maintainer-clean distdir
+.PHONY: $(EMPTY_AUTOMAKE_TARGETS)
+$(EMPTY_AUTOMAKE_TARGETS):
+
+$(srcdir)/GNUmakefile: $(top_builddir)/config.status $(srcdir)/GNUmakefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

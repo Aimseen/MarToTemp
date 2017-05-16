@@ -39,6 +39,9 @@ AC_LANG_POP([C++])
 AC_MSG_RESULT([$have_cxx])
 AM_CONDITIONAL([HAVE_CXX],[test $have_cxx = yes])
 
+# To test our own pkg-config file
+PKG_PROG_PKG_CONFIG
+
 # Default compilation flags
 CFLAGS="-O2 -g -Wall"
 AC_SUBST([CFLAGS])
@@ -81,7 +84,8 @@ AC_CONFIG_FILES([
 	Makefile
 	tests/Makefile
 	tests/check-headers/Makefile
-	tests/marto/Makefile
+	tests/marto-headers/Makefile
+	tests/marto-installed/GNUmakefile
 ])
 AC_OUTPUT
 
