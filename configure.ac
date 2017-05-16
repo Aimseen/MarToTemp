@@ -75,6 +75,7 @@ ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
 
 # Checks for library functions.
 AC_CONFIG_FILES([
+	src/Makefile
 	src/core/Makefile
 	Makefile
 	tests/Makefile
