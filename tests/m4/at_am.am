@@ -1,0 +1,34 @@
+# common
+dist_noinst_SCRIPTS += $(AT_TESTSUITES)
+# The `:;' works around a Bash 3.2 bug when the output is not writable.
+$(srcdir)/package.m4: $(top_srcdir)/configure.ac $(srcdir)/Makefile.am $(package_m4_INCLUDES)
+	:;{ \
+	  echo '# Signature of the current package.' && \
+	  echo 'm4_define([AT_PACKAGE_NAME],' && \
+	  echo '  [$(PACKAGE_NAME)])' && \
+	  echo 'm4_define([AT_PACKAGE_TARNAME],' && \
+	  echo '  [$(PACKAGE_TARNAME)])' && \
+	  echo 'm4_define([AT_PACKAGE_VERSION],' && \
+	  echo '  [$(PACKAGE_VERSION)])' && \
+	  echo 'm4_define([AT_PACKAGE_STRING],' && \
+	  echo '  [$(PACKAGE_STRING)])' && \
+	  echo 'm4_define([AT_PACKAGE_BUGREPORT],' && \
+	  echo '  [$(PACKAGE_BUGREPORT)])'; \
+	  echo 'm4_define([AT_PACKAGE_URL],' && \
+	  echo '  [$(PACKAGE_URL)])'; \
+	  for p in $(package_m4_INCLUDES) ; do \
+	    echo "m4_include([$$p])"; \
+	  done; \
+	} >'$(srcdir)/package.m4'
+
+EXTRA_DIST += $(srcdir)/package.m4 atlocal.in $(package_m4_INCLUDES)
+DISTCLEANFILES += atconfig
+
+AUTOM4TE = $(SHELL) $(top_srcdir)/build-aux/missing --run autom4te
+AUTOTEST = $(AUTOM4TE) --language=autotest
+
+@_AT_AM_INCLUDE@ $(srcdir)/%reldir%/at_am_inc.mk
+EXTRA_DIST += $(srcdir)/%reldir%/at_am_inc.mk
+
+# force Automake to handle clean-local (used in GNU generated rules)
+clean-local:

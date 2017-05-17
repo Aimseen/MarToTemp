@@ -17,6 +17,7 @@ LT_INIT
 
 AC_CONFIG_TESTDIR([tests], [.])
 AC_CONFIG_FILES([tests/atlocal:tests/atlocal.in:tests/m4/at_install-paths.in:tests/atinstallpath.in])
+AC_SUBST([_AT_AM_INCLUDE],[include])
 
 # Checks for programs.
 AC_PROG_CXX

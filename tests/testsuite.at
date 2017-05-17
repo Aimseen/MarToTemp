@@ -1,7 +1,5 @@
 # Testsuite for marto
 
-m4_include([m4/marto-autotest.m4])
-
 AT_INIT()
 AT_COPYRIGHT ([Copyright (c) 2017 Vincent Danjean <Vincent.Danjean@ens-lyon.org>])
 AT_COLOR_TESTS

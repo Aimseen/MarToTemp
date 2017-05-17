@@ -1,4 +1,6 @@
 
+include m4/at_am_init.am
+
 SUBDIRS=check-headers
 
 # Subdirs not to be built by default (will be built by the testsuite)
@@ -7,62 +9,29 @@ NOBUILD_SUBDIRS=marto-headers marto-installed
 DIST_SUBDIRS=$(NOBUILD_SUBDIRS) $(SUBDIRS)
 clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 
-# The `:;' works around a Bash 3.2 bug when the output is not writable.
-$(srcdir)/package.m4: $(top_srcdir)/configure.ac $(srcdir)/Makefile.am
-	:;{ \
-	  echo '# Signature of the current package.' && \
-	  echo 'm4_define([AT_PACKAGE_NAME],' && \
-	  echo '  [$(PACKAGE_NAME)])' && \
-	  echo 'm4_define([AT_PACKAGE_TARNAME],' && \
-	  echo '  [$(PACKAGE_TARNAME)])' && \
-	  echo 'm4_define([AT_PACKAGE_VERSION],' && \
-	  echo '  [$(PACKAGE_VERSION)])' && \
-	  echo 'm4_define([AT_PACKAGE_STRING],' && \
-	  echo '  [$(PACKAGE_STRING)])' && \
-	  echo 'm4_define([AT_PACKAGE_BUGREPORT],' && \
-	  echo '  [$(PACKAGE_BUGREPORT)])'; \
-	  echo 'm4_define([AT_PACKAGE_URL],' && \
-	  echo '  [$(PACKAGE_URL)])'; \
-	} >'$(srcdir)/package.m4'
+AT_TESTSUITES=testsuite testsuite-installed
+
+package_m4_INCLUDES= \
+	check-headers/check-headers.m4 \
+	m4/at_env.m4 \
+	m4/at_named-test-groups.m4 \
+	m4/at_install-paths.m4
+
+testsuite_DEPENDS= \
+	testsuite-basic.at \
+	testsuite-marto.at
+check-local: check-testsuite
+
+testsuite_installed_DEPENDS= \
+	testsuite.at \
+	$(testsuite_DEPENDS)
+testsuite_installed_ATPATH=$(bindir):$(abs_top_builddir)
+installcheck-local: check-testsuite_installed
+
+EXTRA_DIST += marto-installed/using-libmarto.c++
 
 # Support to get install paths at test time
 # (useful for the installcheck target)
 include m4/at_install-paths_am.am
 
-TESTSUITES_SRC = testsuite.at testsuite-basic.at testsuite-marto.at \
-	check-headers/check-headers.m4 \
-	m4/at_env.m4 \
-	m4/at_named-test-groups.m4 \
-	m4/at_install-paths.m4 \
-	m4/marto-autotest.m4
-EXTRA_DIST = $(TESTSUITES_SRC) testsuite-installed.at \
-	$(srcdir)/package.m4 $(TESTSUITE) $(INSTTESTSUITE) atlocal.in \
-	marto-installed/using-libmarto.c++
-TESTSUITE = $(srcdir)/testsuite
-INSTTESTSUITE = $(srcdir)/testsuite-installed
-DISTCLEANFILES = atconfig
-
-check-local: atconfig atlocal $(TESTSUITE)
-	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
-
-installcheck-local: atconfig atlocal $(INSTTESTSUITE)
-	$(SHELL) '$(INSTTESTSUITE)' AUTOTEST_PATH='$(bindir):$(abs_top_builddir)' \
-	$(TESTSUITEFLAGS)
-
-clean-local:
-	test ! -f '$(TESTSUITE)' || \
-	$(SHELL) '$(TESTSUITE)' --clean
-	test ! -f '$(INSTTESTSUITE)' || \
-	$(SHELL) '$(INSTTESTSUITE)' --clean
-
-AUTOM4TE = $(SHELL) $(top_srcdir)/build-aux/missing --run autom4te
-AUTOTEST = $(AUTOM4TE) --language=autotest
-$(TESTSUITE): $(TESTSUITES_SRC) $(srcdir)/package.m4
-	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
-	mv $@.tmp $@
-
-$(INSTTESTSUITE): testsuite-installed.at $(TESTSUITES_SRC) $(srcdir)/package.m4
-	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
-	mv $@.tmp $@
-
-
+include m4/at_am.am
