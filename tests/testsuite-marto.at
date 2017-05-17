@@ -1,12 +1,10 @@
 
-AT_NTG_CH_TEST_HEADERS([core], [tests/marto])
+dnl ******************************************************
+dnl checking headers
+AT_NTG_CH_TEST_HEADERS([core], [tests/marto-headers])
 
 AT_NTG_BANNER([marto - core MARTO library],
   [core],[marto libmarto],[src/core],[all])
-
-dnl ******************************************************
-dnl checking headers
-MARTO_AT_TEST_HEADERS()
 
 dnl Marto main test using ATX_NTG
 AT_NTG_TEST_PROG([test_core], [Main test], [], [], [], [], [ignore], [ignore])

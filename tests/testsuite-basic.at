@@ -1,8 +1,8 @@
 AT_NTG_BANNER([Basic tests on marto library], [core])
 
 dnl Start a new tests group
-AT_SETUP([Failing documentation test])
-AT_KEYWORDS([onemorekeyword])
+AT_NTG_SETUP([Failing documentation test])
+AT_KEYWORDS([core onemorekeyword])
 dnl ignore this test if the command return 0
 AT_SKIP_IF(true)
 dnl define env variables
@@ -12,8 +12,8 @@ dnl additional parameters are:
 dnl - expected return code
 dnl - expected stdout (or keyword stdout to store, or ignore)
 dnl - expected stderr (or keyword stderr to store, or ignore)
-AT_CHECK([ocl_test], 0, [No platforms found!
+AT_CHECK([$at_prefix/bin/ocl_test], 0, [No platforms found!
 ], [stderr])
 dnl Ends the ongoing tests group
-AT_CLEANUP
+AT_NTG_CLEANUP
 
