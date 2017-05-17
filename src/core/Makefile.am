@@ -5,9 +5,7 @@ nobase_include_HEADERS=marto/state.h marto/transition.h
 
 lib_LTLIBRARIES= libmarto.la
 
-if AX_BUILD_CHECK
 check_PROGRAMS=test_core
-endif
 
 libmarto_la_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) -D_GNU_SOURCE $(MARTOLIB_BUILD_CPPFLAGS) \
   -I$(srcdir)

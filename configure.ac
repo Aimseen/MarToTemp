@@ -39,9 +39,6 @@ AC_LANG_POP([C++])
 AC_MSG_RESULT([$have_cxx])
 AM_CONDITIONAL([HAVE_CXX],[test $have_cxx = yes])
 
-# allows one to define targets that would be compiled only on explicit request
-AM_CONDITIONAL([AX_BUILD_CHECK], [false])
-
 # To test our own pkg-config file
 PKG_PROG_PKG_CONFIG
 PKG_INSTALLDIR
