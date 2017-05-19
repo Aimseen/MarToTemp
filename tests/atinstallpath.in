@@ -1,4 +1,4 @@
-at_MAKE_var="make -s --no-print-directory"
+at_MAKE_var="${AT_IP_MAKE:-${MAKE:-make}} -s --no-print-directory"
 at_load_makevar dummy undef
 at_load_makevar bindir "@bindir@"
 at_load_makevar datadir "@datadir@"
