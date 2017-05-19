@@ -9,7 +9,7 @@ AT_NTG_BANNER([marto - core MARTO library - INSTALLED],
 
 AT_NTG_HOOK_MACRO([SETUP],[AFTER],[AT_IP_EXPORT_RUNTIME])
 
-AT_NTG_SETUP([clean compilation into tests/marto-installed], [clean])
+AT_NTG_SETUP([clean directory tests/marto-installed], [clean])
 AT_NTG_CHECK_BUILD([clean])
 AT_NTG_CLEANUP
 
