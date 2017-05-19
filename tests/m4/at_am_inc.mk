@@ -5,7 +5,7 @@ define _at_m4_gen # $1: AM_name  $2: filename
 $1_TESTSUITEFLAGS ?= $$(AM_TESTSUITEFLAGS) $$(TESTSUITEFLAGS)
 $1_ATPATH ?= $$(call _at_m4_join,:,$$(AM_ATPATH),$$(AUTOTEST_PATH))
 $1_MAIN ?= $2.at
-$$(srcdir)/$1: $$($1_MAIN) $$($1_DEPENDS) $$(srcdir)/package.m4
+$$(srcdir)/$2: $$($1_MAIN) $$($1_DEPENDS) $$(srcdir)/package.m4
 	$$(AUTOTEST) -I '$$(srcdir)' -o $$@.tmp $$@.at
 	mv $$@.tmp $$@
 .PHONY: check-$1 clean-$1 clean-local
