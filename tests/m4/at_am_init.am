@@ -1,4 +1,6 @@
 
+# Workaround AutoMake feature that does not allow one to use +=
+# without having used = before
 EXTRA_DIST=
 DISTCLEANFILES=
 dist_noinst_SCRIPTS=
