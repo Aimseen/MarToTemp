@@ -19,6 +19,11 @@ AC_CONFIG_TESTDIR([tests], [.])
 AC_CONFIG_FILES([tests/atlocal:tests/atlocal.in:tests/m4/at_install-paths.in:tests/atinstallpath.in])
 AC_SUBST([_AT_AM_INCLUDE],[include])
 
+dnl runstatedir has been introduced in 2.70
+m4_version_prereq(2.70,[],[dnl
+  AC_SUBST([runstatedir],[${localstatedir}/run])dnl
+])
+
 # Checks for programs.
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11
