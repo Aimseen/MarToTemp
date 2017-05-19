@@ -32,4 +32,5 @@ SetImpl *marto::Transition::apply(HyperRectangle *h, Event *ev) {
 SetImpl *marto::Transition::apply(Union *u, Event *ev) {
   for (auto it = u->begin(); it != u->end(); it++)
     (*it) = apply(*it, ev);
+  return u;
 }
