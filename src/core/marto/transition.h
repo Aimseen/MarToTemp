@@ -12,13 +12,15 @@ namespace marto {
 		
 	public:
 		/** in: s, ev
-		 *  out: s
+		 *  out: ? (FIXME)
+		 * Apply transition to state in Set s
+		 * May change the type of the state contained in Set s, from HyperRectangle to Union for instance 
 		 */
 		int apply(Set *s, Event *ev);
 
-		/**
-		   Does nothing except calling apply for the proper SetImpl subtype
-		*/
+		/** Technical apply method
+		 * Does nothing except calling apply for the proper SetImpl subtype
+		 */
 		SetImpl *apply(SetImpl *s, Event *ev);
 		
 		/** Apply transition to a point 

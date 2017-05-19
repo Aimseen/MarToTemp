@@ -5,20 +5,19 @@
 using namespace marto;
 
 SetImpl *marto::Transition::apply(SetImpl *s, Event *ev) {
-  throw std::domain_error("A marto::Transition::apply specialized method should have been called" );
+  s->accept(this, ev);
 }
 
 int marto::Transition::apply(Set *s, Event *ev) {
   SetImpl *src=s->realset();
-  SetImpl *res=apply(src, ev);
+  SetImpl *res=src->accept(this, ev); // specialized apply may have side effects
   s->realset(res);
   return 0;
 }
 
-// Specialisation: a Point always gives a Point
-Point *marto::Transition::apply(Point *s, Event *ev) {
-  return s->accept(this, ev);
-}
+// The folowing method is virtual pure :
+// It has to be given explicitely for each concrete transition type
+// Point *marto::Transition::apply(Point *s, Event *ev) = 0;
 
 /** Apply transition to a set of states with
  * hyperrectangle structure;

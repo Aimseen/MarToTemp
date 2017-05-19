@@ -1,18 +1,20 @@
 
 
-State : vecteur d'entier
+Point : vecteur d'entier
 
-Hyperrectangle : paire de State
+HyperRectangle : paire de Point
 
-StateSet :
+Union : liste de SetImpl
+
+SetImpl :
  | hyperrectangle
  | point isolé
  | union de StateSet
 
-
+Set : conteneur d'un SetImpl
 
 Transition :
-- transitionState : (Event, State) -> State
+- transitionPoint : (Event, Point) -> Point
 - transitionHR : (Event, HR) -> StateSet
 - transitionUnion : (Event, Union) -> StateSet
 - listes paramètres (pour vérification du fichier de config)
