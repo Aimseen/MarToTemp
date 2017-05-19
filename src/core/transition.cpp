@@ -23,13 +23,11 @@ Point *marto::Transition::apply(Point *s, Event *ev) {
 /** Apply transition to a set of states with
  * hyperrectangle structure;
  */
-#if 1
 SetImpl *marto::Transition::apply(HyperRectangle *h, Event *ev) {
   h->inf(apply(h->inf(), ev));
   h->sup(apply(h->sup(), ev));
   return h;
 }
-#endif
 
 SetImpl *marto::Transition::apply(Union *u, Event *ev) {
   for (auto it = u->begin(); it != u->end(); it++)
