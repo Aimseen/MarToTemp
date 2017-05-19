@@ -152,16 +152,16 @@ m4_define([AT_NTG_BANNER],[
   _AT_NTG_HOOK_INIT([SETUP],[CHECK_BUILD],[CHECK_RUN])
 
   m4_if($5,[clean],[
-    AT_NTG_SETUP([clean compilation into _AT_NTG_SUBDIR], [clean])
+    AT_NTG_SETUP([clean directory _AT_NTG_SUBDIR], [clean])
     AT_NTG_CHECK_BUILD([clean])
     AT_NTG_CLEANUP
   ],[
     m4_if($5,[],[],[
-      AT_NTG_SETUP([clean compilation into _AT_NTG_SUBDIR], [clean])
+      AT_NTG_SETUP([clean directory  _AT_NTG_SUBDIR], [clean])
       AT_NTG_CHECK_BUILD([clean])
       AT_NTG_CLEANUP
 
-      AT_NTG_SETUP([precompile programs into _AT_NTG_SUBDIR], [build])
+      AT_NTG_SETUP([compile programs in _AT_NTG_SUBDIR], [build])
       AT_NTG_CHECK_BUILD([$5],[-k $6],[ignore])
       AT_NTG_CLEANUP
     ])
