@@ -6,6 +6,28 @@
 
 #include <marto/transition.h>
 
+/* Notes relatives au générateur de Lecuyer
+
+Etat courant de PSI3 :
+- pas de IncreasedPrec
+- pas de SetAntithetic
+- pas de AdvanceState
+
+Questions :
+- Get/WriteState ne travaille que sur Cg (WriteStateFull, verbeux travaille sur les 3)
+- AdvanceState : semble être un déplacement dans le stream, non utilisé par PSI3, utile ?
+- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Cg, MAIS Get/WriteState ne travaille que sur Cg
+- SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça, non ?
+- ResetNextSubStream : apparemment pour passer au substream suivant mais non utilisé dans psi
+- Le constructeur semble créer un générateur sur le stream suivant
+
+Objectif :
+[ chunk d'evènements contenant dans evènements à nombre variable de paramètres (streams ? substreams ?) ]
+
+
+
+*/
+
 namespace marto {
 
 	class EventType {
@@ -33,7 +55,7 @@ namespace marto {
 		int store(void *buffer, size_t buf_size);
 		/* Creates (generate) a new Event
 		*  returns 1 */
-		int generate(EventType type);
+		int generate(EventType *type);
 
 		/* return the type of the Event */
 		EventType *type();
@@ -59,18 +81,32 @@ namespace marto {
 	
 	class EventsHistory {
 	public:
+		/** Initialize a new history of events */
+		EventsHistory();
 		int nbEvents();
 		int curID(); /* numbered from 0 to nvEvents-1 */
 
-		/* Get the current Event (NULL if empty) */
-		Event* curEvent();
+		/* Fill ev with the current event, loading from the history
+		 * Return 0 if no events are available at the current place
+		 */
+		int curLoad(Event *ev);
 		
-		/* Move between Events */
-		void restart(); /* restart from start */
-		int next(Event *ev); /* return 0 if last */
+		/* Moving within the history */
+		
+		/** Set current event to the first event in the history */
+		void restart();
+		/** Fill ev with the next event, loading from the history
+		 * Return 0 if no more events are available
+		 */
+		int nextLoad(Event *ev);
+		/** Add some space in history for nbEvents *previous* events
+		 * The current position is reset, so pushEvent can be called
+		 * immediately.
+		 */
+		void backward(int nbEvents); 
 
 		/* Add new events */
-		void pushEvent(Event ev); /* error if not at the end of history */
+		void pushEvent(Event *ev); /* throw an error if the next event already exists */
 	}
 }
 #endif
