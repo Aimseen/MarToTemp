@@ -32,8 +32,7 @@ AUTOTEST = $(AUTOM4TE) --language=autotest
 # This Makefile is using GNU Make functions (eval, call, ...)
 # to generate rules. If automake had autotest support, theses
 # rules would be generated directly into the Makefile.in
-# Note: AC_SUBST([_AT_AM_INCLUDE],[include]) is required in configure.ac
-@_AT_AM_INCLUDE@ $(srcdir)/%reldir%/at_am_inc.mk
+@am__include@ @am__quote@$(srcdir)/%reldir%/at_am_inc.mk@am__quote@
 EXTRA_DIST += $(srcdir)/%reldir%/at_am_inc.mk
 
 # force Automake to handle clean-local (used in GNU generated rules)
