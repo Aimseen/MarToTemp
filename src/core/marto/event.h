@@ -32,6 +32,8 @@ namespace marto {
 
 	class EventType {
 	public:
+		EventType(String idEvT, double rate, String idTr);
+		addParam(String name, Type paramType, ...);
 		marto::transition* transition;
 		double rate;
 		FormalParameters fp;

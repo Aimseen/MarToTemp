@@ -21,11 +21,18 @@ Transition :
 - EventGeneratorCheck
 - EventCheck
 
-Générateur d'événement :
-- transition
-- taux
+EventType :
+- name : id
+- transition: id = JSQ
+- rate : double
+- outputChoiceList : queue[] : [q1,q2,q3,q4,q5] // l'utilisateur
+  écrira "all" par exemple mais en interne il faudra une liste
+- to: queue = RNG(name="unifSansRemise", choicelist=outputChoiceList,nbvalues=2)
+- from : queue[] // external
 - paramètres formels
 - structure pour récupérer les paramètres
+
+- indexto: INDEX("count")
 
 Event :
 - Générateur d'événement (pour récup transition)
@@ -152,4 +159,37 @@ Il existe la notion de collection mais ne marche pas pour des structures comme l
 Les fonctions de point sont déjà codées dans la STL
 
 
-— 
+Structure d'évenements
+transition de type JSQ
+nécessite:
+- from : queue
+- to : queue[] 
+Fichier user:
+Queue:
+- name:id : 
+- max: int32
+- min int32
+EventType:
+- name: id
+- rate : double
+- to: queue[] RNG(name=unifSansRemise, choicelist =
+  outputChoiceList,nbvalues=2)
+- outputChoiceList : queue[] : [q1,q2,q3,q4,q5] // l'utilisateur
+  écrira "all" par exemple mais en interne il faudra une liste
+- from : queue[] // external
+- allqueue: ?
+- Transition: JSQ 
+
+RNG:
+- name:id:  UniSansRemiseQueue
+choiceList: queue
+nbvalue: int32 : param(1)
+return: queue
+
+Pas besoin de mettre les crochets en fait car même dans le cas d'une
+seule file ce sera toujours une séquence (un vecteur)
+
+Veut-ton composer les evenements (par ex: sortir de la plus grande et
+entrer dans la + petite) afin de ne pas réécrire trop de transitions?
+
+Jean-Marc a répondu que non.
