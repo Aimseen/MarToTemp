@@ -30,12 +30,55 @@ Objectif :
 
 namespace marto {
 
+	enum Type {
+		MartoQueueList,
+		MartoIntList,
+		MartoDoubleList,
+		//MartoString,
+	};
+
+	class FormalParameterValue {
+	public: FormalParameterValue(Type type, size_t l);
+	private:
+		Type paramType;
+		size_t length;
+	}
+
+	class FormalConstantList : public FormalParameterValue {
+		List of double
+	}
+	
+	class FormalDistribution : public FormalParameterValue {
+	public:
+		FormalDistribution(String idRandom,
+				   FormalParameters fp);
+	}
+	
+	class FormalDistributionFixedList : public FormalDistribution {
+	public:
+		FormalDistributionFixedList(String idRandom,
+				   FormalParameters fp);
+	}
+	
+	class FormalDistributionVariadicList : public FormalDistribution {
+	public:
+		FormalDistributionVariadicList(String idRandom,
+				   FormalParameters fp);
+	}
+
+	// collection of FormalParameter
+	class FormalParameters {	       
+		addParam(String name, FormalParameterValue *value);
+	};
+	
 	class EventType {
 	public:
-		EventType(String idEvT, double rate, String idTr);
-		addParam(String name, Type paramType, ...);
-		marto::transition* transition;
+		EventType(String idEvT, double rate, String idTr,
+			FormalParameters fp);
+	private:
+		marto::Transition* transition;
 		double rate;
+	public:
 		FormalParameters fp;
 		GetParameter gp; /* ??? FIXME */
 		int nbIntStaticParameters();

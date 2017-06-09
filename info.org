@@ -23,11 +23,11 @@ Transition :
 
 EventType :
 - name : id
-- transition: id = JSQ
+- transition: id = "JSQ"
 - rate : double
 - outputChoiceList : queue[] : [q1,q2,q3,q4,q5] // l'utilisateur
   écrira "all" par exemple mais en interne il faudra une liste
-- to: queue = RNG(name="unifSansRemise", choicelist=outputChoiceList,nbvalues=2)
+- to: queue = Distribution(name="unifSansRemise", input=outputChoiceList, nbvalues=2)
 - from : queue[] // external
 - paramètres formels
 - structure pour récupérer les paramètres
