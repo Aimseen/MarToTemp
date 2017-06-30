@@ -24,7 +24,6 @@
  *
 \***********************************************************************/
 
-
 #include <cstdlib>
 #include <iostream>
 #include "RngStream.h"
@@ -326,10 +325,12 @@ RngStream::RngStream (const char *s) : name (s)
    bits if machine follows IEEE 754 standard) if incPrec = true. nextSeed
    will be the seed of the next declared RngStream. */
 
+   /* initialize the RngStream objet with seeds Ig and Bg  defined in nextSeed. Cg starts at the seed. */ 
    for (int i = 0; i < 6; ++i) {
       Bg[i] = Cg[i] = Ig[i] = nextSeed[i];
    }
-
+   
+   // advance nextSeed[] for future calls
    MatVecModM (A1p127, nextSeed, nextSeed, m1);
    MatVecModM (A2p127, &nextSeed[3], &nextSeed[3], m2);
 }

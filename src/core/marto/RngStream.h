@@ -34,18 +34,27 @@ class RngStream
 {
 public:
 
+  /** Information on a stream. The arrays {Cg, Bg, Ig} contain the current
+   state of the stream, the starting state of the current SubStream, and the
+   starting state of the stream. This stream generates antithetic variates
+   if anti = true. It also generates numbers with extended precision (53
+   bits if machine follows IEEE 754 standard) if incPrec = true. nextSeed
+   will be the seed of the next declared RngStream. */
+
 RngStream (const char *name = "");
 
-
+/** for the first generator. Useful to use a seed different from 12345.
+ */ 
 static bool SetPackageSeed (const unsigned long seed[6]);
 
-
+/** Back to the beginning of the current substream : Cg<- Bg */
 void ResetStartStream ();
 
 
 void ResetStartSubstream ();
 
-
+/** This advances the current state Cg and the substream seed Bg to the beginning of the next substream (based on current Bg). Useful to create new substream generators. 
+ */
 void ResetNextSubstream ();
 
 
