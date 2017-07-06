@@ -1,0 +1,7 @@
+
+AT_NTG_BANNER([marto - core MARTO library interface],
+  [core],[marto libmarto],[tests/core],[all])
+
+dnl Marto main test using ATX_NTG
+AT_NTG_TEST_PROG([jsq], [JSQ test], [], [], [], [], [ignore], [ignore])
+

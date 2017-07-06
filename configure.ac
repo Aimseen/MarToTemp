@@ -92,6 +92,7 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	tests/check-headers/Makefile
 	tests/marto-headers/Makefile
+	tests/core/Makefile
 
 	src/core/marto.pc
 	tests/marto-installed/GNUmakefile

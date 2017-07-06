@@ -3,8 +3,8 @@
 AM_CPPFLAGS=@AM_CPPFLAGS@ -Werror
 AM_CFLAGS=@AM_CFLAGS@ $(STD_C99_FLAGS)
 AM_CXXFLAGS=@AM_CXXFLAGS@ $(STD_CXX0X_FLAGS)
-AM_LDFLAGS=@AM_LDFLAGS@ $(KAAPIPROGS_BUILD_LDFLAGS)
-AM_LIBS=@AM_LIBS@ $(KAAPIPROGS_BUILD_LIBS)
+AM_LDFLAGS=@AM_LDFLAGS@ $(MARTOPROGS_BUILD_LDFLAGS)
+AM_LIBS=@AM_LIBS@ $(MARTOPROGS_BUILD_LIBS)
 
 #check_headers_c_headers_SRC=  check-headers/c/marto.h.c     check-headers/c/marto_error.h.c
 #check_headers_cxx_headers_SRC=check-headers/c++/marto.h.c++ check-headers/c++/marto_error.h.c++

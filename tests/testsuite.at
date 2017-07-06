@@ -10,5 +10,7 @@ AT_NTG_BUILDING([
 	m4_include([testsuite-marto.at])
 ])
 
+m4_include([testsuite-marto-core.at])
+
 # test both at compilation step and after install step
 
