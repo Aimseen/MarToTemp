@@ -54,6 +54,7 @@ RandomUniformInterval<T>::nextValue() {
 }
 
 class InternalGeneratorFabric {
+  // Should be a singleton because Lecuyer RngStream has to be initialized
 }
 
     
