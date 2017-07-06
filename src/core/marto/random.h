@@ -54,5 +54,6 @@ RandomUniformInterval<T>::nextValue() {
 }
 
 class InternalGeneratorFabric {
+}
 
     
