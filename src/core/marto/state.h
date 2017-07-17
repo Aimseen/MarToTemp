@@ -38,7 +38,7 @@ namespace marto {
 		marto::Point* inf() const {
 			return inf_;
 		}
-		marto::Point* inf(marto::Point *p) {
+		marto::Point* inf(marto::Point *p) { //sets inf_ to Point p
 			inf_ = p;
 			return inf_;
 		}
@@ -78,13 +78,13 @@ namespace marto {
 	};
 
 	
-	
+
 	/** Class that is a bridge to the actual set implementation
 	 */
 	class Set {
 	public:
-		SetImpl* realset(void) { return _realset; };
-		void realset(SetImpl*s) { _realset = s; };
+		SetImpl* realset(void) { return _realset; };//read
+		void realset(SetImpl*s) { _realset = s; };//write
 	private:
 		SetImpl *_realset;
 	};

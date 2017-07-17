@@ -3,5 +3,6 @@
 
 #include <marto/state.h>
 #include <marto/transition.h>
+#include <marto/event.h>
 
 #endif

@@ -5,7 +5,7 @@ nobase_include_HEADERS=marto/state.h marto/transition.h
 
 lib_LTLIBRARIES= libmarto.la
 
-check_PROGRAMS=test_core
+check_PROGRAMS=test_core test_transition
 
 libmarto_la_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) -D_GNU_SOURCE $(MARTOLIB_BUILD_CPPFLAGS) \
   -I$(srcdir)
@@ -21,3 +21,6 @@ pkgconfig_DATA=marto.pc
 
 test_core_SOURCES=test_core.cpp
 test_core_LDADD=libmarto.la
+
+test_transition_SOURCES=test_transition.cpp
+test_transition_LDADD=libmarto.la

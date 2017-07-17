@@ -5,7 +5,7 @@
 using namespace marto;
 
 SetImpl *marto::Transition::apply(SetImpl *s, Event *ev) {
-  s->accept(this, ev);
+  return s->accept(this, ev);
 }
 
 int marto::Transition::apply(Set *s, Event *ev) {
@@ -15,7 +15,7 @@ int marto::Transition::apply(Set *s, Event *ev) {
   return 0;
 }
 
-// The folowing method is virtual pure :
+// The following method is virtual pure :
 // It has to be given explicitely for each concrete transition type
 // Point *marto::Transition::apply(Point *s, Event *ev) = 0;
 

@@ -5,6 +5,8 @@
 #ifdef __cplusplus
 
 #include <marto/transition.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /* Notes relatives au générateur de Lecuyer
 
@@ -29,6 +31,8 @@ Objectif :
 */
 
 namespace marto {
+	
+	typedef uint32_t Queue;
 
 	enum Type {
 		MartoQueueList,
@@ -42,29 +46,29 @@ namespace marto {
 	private:
 		Type paramType;
 		size_t length;
-	}
+	};
 
 	class FormalConstantList : public FormalParameterValue {
 		List of double
-	}
+	};
 	
 	class FormalDistribution : public FormalParameterValue {
 	public:
 		FormalDistribution(String idRandom,
 				   FormalParameters fp);
-	}
+	};
 	
 	class FormalDistributionFixedList : public FormalDistribution {
 	public:
 		FormalDistributionFixedList(String idRandom,
 				   FormalParameters fp);
-	}
+	};
 	
 	class FormalDistributionVariadicList : public FormalDistribution {
 	public:
 		FormalDistributionVariadicList(String idRandom,
 				   FormalParameters fp);
-	}
+	};
 
 	// collection of FormalParameter
 	class FormalParameters {	       
@@ -80,11 +84,19 @@ namespace marto {
 		double rate;
 	public:
 		FormalParameters fp;
-		GetParameter gp; /* ??? FIXME */
+		//GetParameter gp; /* ??? FIXME */
 		int nbIntStaticParameters();
 		int nbDoubleStaticParameters();
 	};
 
+	template <typename T>
+	class Parameters {
+		private :
+			std::vector<T> values;
+		public :
+			T get(int index);
+	};
+	
 	/* each simulation sequence only uses 1 object of type Event */
 	class Event {
 	public:
@@ -105,6 +117,9 @@ namespace marto {
 		/* return the type of the Event */
 		EventType *type();
 		
+		template <class T>
+			Parameters<T> getParameters(String name);
+		
 		/* Parameters accessors */
 		int8_t int8Parameter(int index);
 		int16_t int16Parameter(int index);
@@ -122,7 +137,7 @@ namespace marto {
 		void set(int index, int32_t value);
 		void set(int index, int64_t value);
 		void set(int index, double value);
-	}
+	};
 	
 	class EventsHistory {
 	public:
@@ -152,7 +167,7 @@ namespace marto {
 
 		/* Add new events */
 		void pushEvent(Event *ev); /* throw an error if the next event already exists */
-	}
+	};
 }
 #endif
 	
