@@ -38,23 +38,24 @@ namespace marto {
 	
 	typedef uint32_t Queue;
 
-	enum Type {
-		MartoQueueList,
-		MartoIntList,
-		MartoDoubleList,
+	enum ParamType {
+		QueueList,
+		IntList,
+		DoubleList,
 		//Martostring,
+		InvalidType
 	};
 
 	class FormalParameterValue {
-	public: FormalParameterValue(Type type, size_t l);
+	public: FormalParameterValue(ParamType type, size_t l);
 	private:
-		Type paramType;
+		ParamType paramType;
 		size_t length;
 	};
 
 	// collection of FormalParameter
-	class FormalParameters {	       
-		void addParam(string name, FormalParameterValue *value);
+	class FormalParameters : public std::vector<std::pair<string, FormalParameterValue>> {	       
+		//void addParam(string name, FormalParameterValue *value);
 	};
 	
 	class FormalConstantList : public FormalParameterValue {
@@ -78,6 +79,9 @@ namespace marto {
 	
 	class EventType {
 	public:
+	/* idTr indicates which transition function will be used. 
+	idEvt indicates the detailed event.
+	fp include all parameters needed to generate the event */
 		EventType(string idEvT, double rate, string idTr,
 			FormalParameters fp);
 	private:
@@ -92,7 +96,7 @@ namespace marto {
 
 /* list of values for this parameter (for instance : input queues) */ 
 	template <typename T>
-	class Parameters {
+	class ParameterValues {
 		private :
 			std::vector<T> values;
 		public :
@@ -105,22 +109,23 @@ namespace marto {
 		/* Create an empty (unusable) event */
 		Event(); 
 		/* Load the event data from its serialization
-		*  returns 1 upon success, 0 if the compact representation 
+		*  returns the number of byte read upon success,
+		*  0 if the compact representation 
 		*  does not match a known event type */
-		int load(void* buffer);
+		size_t load(void* buffer);
 		/* Stores a compact representation of the event
 		*  returns the size of stored object or 0 upon failure
 		*/
-		int store(void *buffer, size_t buf_size);
+		size_t store(void *buffer, size_t buf_size);
 		/* Creates (generate) a new Event
 		*  returns 1 */
-		int generate(EventType *type);
+		static int generate(EventType *type);
 
 		/* return the type of the Event */
 		EventType *type();
 		
 		template<typename T>
-			Parameters<T> *getParameters(string name); 
+			ParameterValues<T> *getParameters(string name);
 		
 		/* Parameters accessors */
 		int8_t int8Parameter(int index);
@@ -141,7 +146,8 @@ namespace marto {
 		void set(int index, double value);
 		
 	private:
-		std::map<string,void *> parameters;
+		std::map<string,void *> parameters;/* actual parameters (not formal), used to apply transition */
+		EventType *type_;
 	};
 	
 	class EventsHistory {
@@ -154,7 +160,7 @@ namespace marto {
 		/* Fill ev with the current event, loading from the history
 		 * Return 0 if no events are available at the current place
 		 */
-		int curLoad(Event *ev);
+		int curLoad(Event *ev);//indicate to ev where to fetch the event in history
 		
 		/* Moving within the history */
 		

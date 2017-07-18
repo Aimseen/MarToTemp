@@ -1,7 +1,7 @@
 
 include_HEADERS=marto.h
 
-nobase_include_HEADERS=marto/state.h marto/transition.h
+nobase_include_HEADERS=marto/state.h marto/transition.h marto/event.h marto/global.h
 
 lib_LTLIBRARIES= libmarto.la
 
@@ -16,7 +16,8 @@ libmarto_la_LIBADD = $(MARTOLIB_BUILD_LIBS)
 libmarto_la_SOURCES=\
 	state.cpp \
 	transition.cpp \
-	event.cpp
+	event.cpp \
+	global.cpp
 
 pkgconfig_DATA=marto.pc
 
