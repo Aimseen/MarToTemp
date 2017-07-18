@@ -15,7 +15,8 @@ libmarto_la_LIBADD = $(MARTOLIB_BUILD_LIBS)
 
 libmarto_la_SOURCES=\
 	state.cpp \
-	transition.cpp
+	transition.cpp \
+	event.cpp
 
 pkgconfig_DATA=marto.pc
 

@@ -7,6 +7,8 @@
 #include <marto/transition.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <string>
+#include <map>
 
 /* Notes relatives au générateur de Lecuyer
 
@@ -31,6 +33,8 @@ Objectif :
 */
 
 namespace marto {
+
+	using std::string;
 	
 	typedef uint32_t Queue;
 
@@ -38,7 +42,7 @@ namespace marto {
 		MartoQueueList,
 		MartoIntList,
 		MartoDoubleList,
-		//MartoString,
+		//Martostring,
 	};
 
 	class FormalParameterValue {
@@ -48,36 +52,33 @@ namespace marto {
 		size_t length;
 	};
 
+	// collection of FormalParameter
+	class FormalParameters {	       
+		void addParam(string name, FormalParameterValue *value);
+	};
+	
 	class FormalConstantList : public FormalParameterValue {
-		List of double
+		std::list<double> l;
 	};
 	
 	class FormalDistribution : public FormalParameterValue {
 	public:
-		FormalDistribution(String idRandom,
-				   FormalParameters fp);
+		FormalDistribution(string idRandom, FormalParameters fp);
 	};
 	
 	class FormalDistributionFixedList : public FormalDistribution {
 	public:
-		FormalDistributionFixedList(String idRandom,
-				   FormalParameters fp);
+		FormalDistributionFixedList(string idRandom, FormalParameters fp);
 	};
 	
 	class FormalDistributionVariadicList : public FormalDistribution {
 	public:
-		FormalDistributionVariadicList(String idRandom,
-				   FormalParameters fp);
-	};
-
-	// collection of FormalParameter
-	class FormalParameters {	       
-		addParam(String name, FormalParameterValue *value);
+		FormalDistributionVariadicList(string idRandom, FormalParameters fp);
 	};
 	
 	class EventType {
 	public:
-		EventType(String idEvT, double rate, String idTr,
+		EventType(string idEvT, double rate, string idTr,
 			FormalParameters fp);
 	private:
 		marto::Transition* transition;
@@ -89,6 +90,7 @@ namespace marto {
 		int nbDoubleStaticParameters();
 	};
 
+/* list of values for this parameter (for instance : input queues) */ 
 	template <typename T>
 	class Parameters {
 		private :
@@ -117,8 +119,8 @@ namespace marto {
 		/* return the type of the Event */
 		EventType *type();
 		
-		template <class T>
-			Parameters<T> getParameters(String name);
+		template<typename T>
+			Parameters<T> *getParameters(string name); 
 		
 		/* Parameters accessors */
 		int8_t int8Parameter(int index);
@@ -126,17 +128,20 @@ namespace marto {
 		int32_t int32Parameter(int index);
 		int64_t int64Parameter(int index);
 		double doubleParameter(int index);
-		int8_t int8Parameter(const String &pname);
-		int16_t int16Parameter(const String &pname);
-		int32_t int32Parameter(const String &pname);
-		int64_t int64Parameter(const String &pname);
-		double doubleParameter(const String &pname);
+		int8_t int8Parameter(const string &pname);
+		int16_t int16Parameter(const string &pname);
+		int32_t int32Parameter(const string &pname);
+		int64_t int64Parameter(const string &pname);
+		double doubleParameter(const string &pname);
 
 		void set(int index, int8_t value);
 		void set(int index, int16_t value);
 		void set(int index, int32_t value);
 		void set(int index, int64_t value);
 		void set(int index, double value);
+		
+	private:
+		std::map<string,void *> parameters;
 	};
 	
 	class EventsHistory {
