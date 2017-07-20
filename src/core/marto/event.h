@@ -80,11 +80,16 @@ namespace marto {
 /* list of values for this parameter (for instance : input queues) */ 
 	template <typename T>
 	class ParameterValues {
-		private :
-			std::vector<T> values;
-		public :
-			T get(int index);
+		public:
+			T get(int index) = 0;// abstract class: generator seed or fixed values array
 	};
+	/* when a parameter is a fixed array of values (e.g., queue list)*/
+	template <typename T>
+	class ArrayOfParameterValues : public ParameterValues {
+		private:
+			T *values;
+			size_t nbValues;
+	}
 	
 	/* each simulation sequence only uses 1 object of type Event */
 	class Event {
@@ -129,7 +134,7 @@ namespace marto {
 		void set(int index, double value);
 		
 	private:
-		std::map<string,void *> parameters;/* actual parameters (not formal), used to apply transition */
+		std::vector<ParameterValues> parameters;/* actual parameters (not formal), used to apply transition */
 		EventType *type_;
 	};
 	
@@ -156,10 +161,12 @@ namespace marto {
 		//void *allocatedMemory;
 		void *bufferStart; // beginning of history chunk; same as allocatedMemory ptr in the plain backward scheme
 		void *bufferEnd; // end of history chunk;
+		void *bufferCur; // current position for write
 		uint32_t eventsCapacity; // maximum number of events in this chunk and possible additional chunks
 		uint32_t nbEvents; // current number of events in the chunk
 		EventsChunk *nextChunk;
 		EventsChunk *prevChunk;
+		enum { UNDEF, FORWARD, BACKWARD } direction;
 		
 		//size_t end; // end of buffer
 	}
@@ -184,7 +191,6 @@ namespace marto {
 		void *getCurrentBuffer();
 
 		private:
-			enum { UNDEF, FORWARD, BACKWARD } direction;
 			EventsChunk *curChunk;
 			size_t position; // current position in bytes
 			uint32_t nbEvents; // numbers of events from the beginning of history
