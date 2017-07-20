@@ -9,11 +9,11 @@ class JSQ2 : public Transition {
 	// fromList is a random sequence of Queues (specified in ev) to prevent access to random generation and protect monotonicity
 		//marto::ParameterValues<marto::Queue>
 		auto *fromList = ev->getParameters<Queue>("from");
-		marto::ParameterValues<marto::Queue> *toList = ev->getParameters<Queue>("to");
+		ParameterValues<Queue> *toList = ev->getParameters<Queue>("to");
 		
-		marto::Queue from = fromList->get(0);// the only source queue
-		marto::Queue to0 = toList->get(0);// the first random destination queue
-		marto::Queue to1 = toList->get(1);// second random destination queue 
+		Queue from = fromList->get(0);// the only source queue
+		Queue to0 = toList->get(0);// the first random destination queue
+		Queue to1 = toList->get(1);// second random destination queue 
 		
 		if (p->at(from) > 0) {
 			if (p->at(to0) < p->at(to1))

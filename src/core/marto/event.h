@@ -10,30 +10,13 @@
 #include <string>
 #include <map>
 
-/* Notes relatives au générateur de Lecuyer
-
-Etat courant de PSI3 :
-- pas de IncreasedPrec
-- pas de SetAntithetic
-- pas de AdvanceState
-
-Questions :
-- Get/WriteState ne travaille que sur Cg (WriteStateFull, verbeux travaille sur les 3)
-- AdvanceState : semble être un déplacement dans le stream, non utilisé par PSI3, utile ?
-- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Cg, MAIS Get/WriteState ne travaille que sur Cg
-- SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça, non ?
-- ResetNextSubStream : apparemment pour passer au substream suivant mais non utilisé dans psi
-- Le constructeur semble créer un générateur sur le stream suivant
-
-Objectif :
-[ chunk d'evènements contenant dans evènements à nombre variable de paramètres (streams ? substreams ?) ]
-
-
-
-*/
 
 namespace marto {
 
+	class EventsChunk;
+	class EventsIterator;
+	class EventsHistory;
+	
 	using std::string;
 	
 	typedef uint32_t Queue;
@@ -112,7 +95,7 @@ namespace marto {
 		*  returns the number of byte read upon success,
 		*  0 if the compact representation 
 		*  does not match a known event type */
-		size_t load(void* buffer);
+		size_t load(marto::EventsHistory *h);
 		/* Stores a compact representation of the event
 		*  returns the size of stored object or 0 upon failure
 		*/
@@ -154,31 +137,58 @@ namespace marto {
 	public:
 		/** Initialize a new history of events */
 		EventsHistory();
-		int nbEvents();
-		int curID(); /* numbered from 0 to nvEvents-1 */
+		uint32_t nbEvents();
+		EventsIterator *iterator(); // returns an iterator positioned at the begining
 
-		/* Fill ev with the current event, loading from the history
-		 * Return 0 if no events are available at the current place
+		/** Add some space in history for nbEvents *previous* events
+		 * iterator() can be called to start at the (new) begining of the history
 		 */
-		int curLoad(Event *ev);//indicate to ev where to fetch the event in history
+		void backward(uint32_t nbEvents); 
+	
+	private:
+		Configuration *configuration;
+		EventsChunk * firstChunk;// beginning of history
+		uint32_t _nbEvents;
+	};
+	
+	class EventsChunk {
+		EventsChunk(uint32_t capacity, EventsChunk *prev, EventsChunk *next);
+		//void *allocatedMemory;
+		void *bufferStart; // beginning of history chunk; same as allocatedMemory ptr in the plain backward scheme
+		void *bufferEnd; // end of history chunk;
+		uint32_t eventsCapacity; // maximum number of events in this chunk and possible additional chunks
+		uint32_t nbEvents; // current number of events in the chunk
+		EventsChunk *nextChunk;
+		EventsChunk *prevChunk;
 		
+		//size_t end; // end of buffer
+	}
+	
+	class EventsIterator {
 		/* Moving within the history */
 		
-		/** Set current event to the first event in the history */
-		void restart();
 		/** Fill ev with the next event, loading from the history
 		 * Return 0 if no more events are available
 		 */
-		int nextLoad(Event *ev);
-		/** Add some space in history for nbEvents *previous* events
-		 * The current position is reset, so pushEvent can be called
-		 * immediately.
+		int loadNextEvent(Event *ev);
+		
+		/** TODO
+		 * use only one of these methods to avoid overwrite
 		 */
-		void backward(int nbEvents); 
+		 int storeNextEvent(Event *ev);
+		 int storePrevEvent(Event *ev);// for reverse trajectory algorithm
 
-		/* Add new events */
-		void pushEvent(Event *ev); /* throw an error if the next event already exists */
-	};
+		/** return the current position in the current buffer
+		 * To be used by Event::load only
+		 */
+		void *getCurrentBuffer();
+
+		private:
+			enum { UNDEF, FORWARD, BACKWARD } direction;
+			EventsChunk *curChunk;
+			size_t position; // current position in bytes
+			uint32_t nbEvents; // numbers of events from the beginning of history
+	}
 }
 #endif
 	

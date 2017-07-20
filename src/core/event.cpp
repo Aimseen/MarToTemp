@@ -14,17 +14,31 @@ ParameterValues<T> *Event::getParameters(string name) {
 	(example of event type : arrival in queue 1)
 	it is read from a table built from user config file
 */ 
-size_t Event::load(void *buffer) {
+size_t Event::load(EventsHistory *h) {
+	void *buffer = h->getCurrentBuffer();
 	parameters.clear();/* clears previously stored event information */
 	uint32_t *intBuffer = (uint32_t *) buffer;
 	auto code = intBuffer[0]; //eventype is encoded in the first integer of the event buffer.
-	type_ = Global::getConfig()->getEventType(code);
+	type_ = h->getConfig()->getEventType(code);
 	for (auto pair : type_->fp) {/* pair iterates on all elements in fp (list of pairs)*/ 
 		//parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
 	}
 }
 
-int EventsHistory::curLoad(Event *ev) {
-	//ev->load()
-	return 0;
+void *EventsHistory::getCurrentBuffer() {
+	curChunk 
+	return buffer+position;
 }
+
+Configuration *EventsHistory::getConfig() {
+	return configuration;
+}
+
+int EventsHistory::loadNextEvent(Event *ev) {
+	// TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
+	auto nbRead = ev->load(this);
+	position += nbRead;
+	return nbRead;
+}
+
+
