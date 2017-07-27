@@ -1,12 +1,41 @@
 #include <marto/event.h>
 #include <marto/global.h>
+#include <cstdint>
 
 using namespace marto;
 
+int EventType::findIndex(string name) {
+	auto couple = fp.find(name);
+	return couple[0];//couple is a pair, whose first element is the index in the parameters table
+}
+
+ParameterValues *Event::getParameters(string name) {
+	if (int index = type.findIndex(name)) {
+		return parameters[index];
+	}
+}
+
 template <typename T>
-ParameterValues<T> *Event::getParameters(string name) {
-	if (auto it = parameters.find(name)) {
-		return dynamic_cast<ParameterValues<T>>(*it);
+	T ParameterValues::get(int index) {
+		switch (kind) {
+			case ARRAY:
+				T *array = (T *) values;
+				return array[index];
+			case GENERATOR:
+				if (cache.size() <= index) {
+					for (int i=cache.size(); i<index+1; i++)
+						cache[i] = g.nextU01();
+				}
+				return (T) cache[index];
+		}
+	}
+	
+size_t ParameterValues::size() {
+	switch (kind) {
+		case ARRAY:
+			return nbValues;
+		case GENERATOR:
+			return SIZE_MAX;
 	}
 }
 
@@ -25,20 +54,5 @@ size_t Event::load(EventsHistory *h) {
 	}
 }
 
-void *EventsHistory::getCurrentBuffer() {
-	curChunk 
-	return buffer+position;
-}
-
-Configuration *EventsHistory::getConfig() {
-	return configuration;
-}
-
-int EventsHistory::loadNextEvent(Event *ev) {
-	// TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-	auto nbRead = ev->load(this);
-	position += nbRead;
-	return nbRead;
-}
 
 

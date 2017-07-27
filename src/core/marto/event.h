@@ -1,6 +1,6 @@
 /* Event Generator */
-#ifndef MARTO_EVENT_GENERATOR_H
-#define MARTO_EVENT_GENERATOR_H
+#ifndef MARTO_EVENT_H
+#define MARTO_EVENT_H
 
 #ifdef __cplusplus
 
@@ -37,7 +37,7 @@ namespace marto {
 	};
 
 	// collection of FormalParameter
-	class FormalParameters : public std::vector<std::pair<string, FormalParameterValue>> {	       
+	class FormalParameters : public std::map<std::pair<string, std::pair<int, FormalParameterValue>>> {	       
 		//void addParam(string name, FormalParameterValue *value);
 	};
 	
@@ -78,18 +78,33 @@ namespace marto {
 	};
 
 /* list of values for this parameter (for instance : input queues) */ 
-	template <typename T>
 	class ParameterValues {
 		public:
-			T get(int index) = 0;// abstract class: generator seed or fixed values array
-	};
-	/* when a parameter is a fixed array of values (e.g., queue list)*/
-	template <typename T>
-	class ArrayOfParameterValues : public ParameterValues {
+			// This is not an abstract class because we do not want to allocate
+			// a new object for each parameter list of each event generated.
+			// Instead, the parameter class is a placeholder wich can store either
+			// an array of values or a sequence generated from a given generator seed.
+			//
+			// In the case of an array, this assumes that the user always ask for the
+			// same value type and does not exceed the size she has declared in
+			// the configuration.
+			template <typename T>
+				T get(int index);
+			size_t size();
 		private:
-			T *values;
-			size_t nbValues;
-	}
+			enum { ARRAY, GENERATOR, REFERENCE } kind;
+			union {
+				struct {
+					void *values;
+					size_t nbValues;
+				};
+				struct {
+					std::vector<double> cache;
+					Generator g;
+				}
+				ParameterValues *reference;
+			};//need to choose between one of those 3 fields, depending on "kind"
+	};
 	
 	/* each simulation sequence only uses 1 object of type Event */
 	class Event {
@@ -109,11 +124,7 @@ namespace marto {
 		*  returns 1 */
 		static int generate(EventType *type);
 
-		/* return the type of the Event */
-		EventType *type();
-		
-		template<typename T>
-			ParameterValues<T> *getParameters(string name);
+		ParameterValues *getParameters(string name);
 		
 		/* Parameters accessors */
 		int8_t int8Parameter(int index);
@@ -134,67 +145,10 @@ namespace marto {
 		void set(int index, double value);
 		
 	private:
-		std::vector<ParameterValues> parameters;/* actual parameters (not formal), used to apply transition */
-		EventType *type_;
+		std::vector<ParameterValues *> parameters;/* actual parameters (not formal), used to apply transition */
+		EventType *type;
 	};
-	
-	class EventsHistory {
-	public:
-		/** Initialize a new history of events */
-		EventsHistory();
-		uint32_t nbEvents();
-		EventsIterator *iterator(); // returns an iterator positioned at the begining
 
-		/** Add some space in history for nbEvents *previous* events
-		 * iterator() can be called to start at the (new) begining of the history
-		 */
-		void backward(uint32_t nbEvents); 
-	
-	private:
-		Configuration *configuration;
-		EventsChunk * firstChunk;// beginning of history
-		uint32_t _nbEvents;
-	};
-	
-	class EventsChunk {
-		EventsChunk(uint32_t capacity, EventsChunk *prev, EventsChunk *next);
-		//void *allocatedMemory;
-		void *bufferStart; // beginning of history chunk; same as allocatedMemory ptr in the plain backward scheme
-		void *bufferEnd; // end of history chunk;
-		void *bufferCur; // current position for write
-		uint32_t eventsCapacity; // maximum number of events in this chunk and possible additional chunks
-		uint32_t nbEvents; // current number of events in the chunk
-		EventsChunk *nextChunk;
-		EventsChunk *prevChunk;
-		enum { UNDEF, FORWARD, BACKWARD } direction;
-		
-		//size_t end; // end of buffer
-	}
-	
-	class EventsIterator {
-		/* Moving within the history */
-		
-		/** Fill ev with the next event, loading from the history
-		 * Return 0 if no more events are available
-		 */
-		int loadNextEvent(Event *ev);
-		
-		/** TODO
-		 * use only one of these methods to avoid overwrite
-		 */
-		 int storeNextEvent(Event *ev);
-		 int storePrevEvent(Event *ev);// for reverse trajectory algorithm
-
-		/** return the current position in the current buffer
-		 * To be used by Event::load only
-		 */
-		void *getCurrentBuffer();
-
-		private:
-			EventsChunk *curChunk;
-			size_t position; // current position in bytes
-			uint32_t nbEvents; // numbers of events from the beginning of history
-	}
 }
 #endif
 	
