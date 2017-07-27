@@ -27,32 +27,27 @@ Objectif :
 
 */
 
-/** For creating independent RNGs */ 
-class InternalGenerator {
-    friend std::ostream &operator <<(std::ostream &o, InternalGenerator &g);
-    friend std::istream &operator >>(std::istream &i, InternalGenerator &g);
-    template<typename T> Random<T> newUserGenerator(); 
-    double nextU01();
-  private: generateurLEcuyer;
-  public:
-    static InternalGenerator newStream();
-}
-
-/**  random number generation for the user 
-* 
+/**  internal random number generation 
+*  Random is the core brick providing a uniform random number in (0,1).
 */   
-template<typename T>
 class Random {
   public:
-    T nextValue() = 0;
+    static Random nextStream(); // creates a new independent RNG 
+    /* Generic random is on (0,1)
+       - one should specialize when forking is required
+    */
+    double next();
+    size_t load(void *buffer);
+    size_t store(void *buffer);
+    template <typename T : 
         
   protected:
   /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
       il faut penser à le rendre accessible jusqu'ici */
-    InternalGenerator *intGen;
+    RngStream *intGen;
 }
 
-/* Code To be moved to another internal header file : */
+/** Internal Random generator with uniform distribution; type double */
 template<typename T>
 class RandomUniformInterval : public Random<T> {
   private:
@@ -62,7 +57,7 @@ class RandomUniformInterval : public Random<T> {
 }
 
 
-/*  Code To move to C++ file */
+/*  internal generic-type uniform generator */
 template<typename T>
 RandomUniformInterval<T>::RandomUniformInterval(double inf, double sup) {
     this.inf=inf;

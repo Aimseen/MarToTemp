@@ -3,6 +3,18 @@
 #include <cstdint>
 
 using namespace marto;
+using std::ostream;
+
+ostream &operator << (ostream &out, FormalParameters &fp) {
+	for (auto it=fp)
+}
+
+ostream &operator << (ostream &out, EventType &ev) {
+	out << "EventType : " << ev.id << endl;
+	out << "-> " << ev->transition << endl;
+	out << "-> parameters : " << endl;
+	out << ev.fp << endl;
+}
 
 int EventType::findIndex(string name) {
 	auto couple = fp.find(name);
@@ -24,7 +36,7 @@ template <typename T>
 			case GENERATOR:
 				if (cache.size() <= index) {
 					for (int i=cache.size(); i<index+1; i++)
-						cache[i] = g.nextU01();
+						cache[i] = g.next();
 				}
 				return (T) cache[index];
 		}

@@ -14,7 +14,7 @@ namespace marto {
         public :
         EventType *getEventType(int num);
     };
-    
+
     class Global {
         constexpr static Configuration *config = nullptr;
         public :

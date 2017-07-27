@@ -5,6 +5,8 @@
 #ifdef __cplusplus
 
 #include <marto/transition.h>
+//#include <marto/random.h>
+class Generator{};
 #include <stdint.h>
 #include <stddef.h>
 #include <string>
@@ -18,6 +20,7 @@ namespace marto {
 	class EventsHistory;
 	
 	using std::string;
+	using std::ostream;
 	
 	typedef uint32_t Queue;
 
@@ -37,7 +40,7 @@ namespace marto {
 	};
 
 	// collection of FormalParameter
-	class FormalParameters : public std::map<std::pair<string, std::pair<int, FormalParameterValue>>> {	       
+	class FormalParameters : public std::map<string, std::pair<int, FormalParameterValue>> {	       
 		//void addParam(string name, FormalParameterValue *value);
 	};
 	
@@ -62,12 +65,14 @@ namespace marto {
 	
 	class EventType {
 	public:
+	friend ostream &operator << (ostream &out, EventType &ev);
 	/* idTr indicates which transition function will be used. 
 	idEvt indicates the detailed event.
 	fp include all parameters needed to generate the event */
 		EventType(string idEvT, double rate, string idTr,
 			FormalParameters fp);
 	private:
+		string id;
 		marto::Transition* transition;
 		double rate;
 	public:
@@ -97,11 +102,11 @@ namespace marto {
 				struct {
 					void *values;
 					size_t nbValues;
-				};
+				} array ;
 				struct {
 					std::vector<double> cache;
 					Generator g;
-				}
+				} generator ;
 				ParameterValues *reference;
 			};//need to choose between one of those 3 fields, depending on "kind"
 	};
