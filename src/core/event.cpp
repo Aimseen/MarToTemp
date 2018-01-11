@@ -2,11 +2,14 @@
 #include <marto/global.h>
 #include <cstdint>
 
+#include <assert.h>
+
 using namespace marto;
 
 int EventType::findIndex(string name) {
 	auto couple = fp.find(name);
-	return couple[0];//couple is a pair, whose first element is the index in the parameters table
+	assert (couple != fp.end());
+	return couple->second.first;//couple is a pair, whose first element is the index in the parameters table
 }
 
 ParameterValues *Event::getParameters(string name) {

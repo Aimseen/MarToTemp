@@ -37,7 +37,10 @@ namespace marto {
 	};
 
 	// collection of FormalParameter
-	class FormalParameters : public std::map<std::pair<string, std::pair<int, FormalParameterValue>>> {	       
+	// Après 6 mois, on penserait qu'il s'agit de:
+	// string (nom du parametre) -> taille liste, contenu liste
+	// avec la convention taille==-1 => taille variable (potentiellement infinie)
+	class FormalParameters : public std::map<string, std::pair<int, FormalParameterValue>> {
 		//void addParam(string name, FormalParameterValue *value);
 	};
 	
@@ -70,6 +73,7 @@ namespace marto {
 	private:
 		marto::Transition* transition;
 		double rate;
+		int findIndex(string name);
 	public:
 		FormalParameters fp;
 		//GetParameter gp; /* ??? FIXME */
@@ -99,11 +103,13 @@ namespace marto {
 					size_t nbValues;
 				};
 				struct {
+					// Note: std::vector no allowed in anonymous union
 					std::vector<double> cache;
-					Generator g;
-				}
+					// TODO: declare/define Generator type
+					//Generator g;
+				}_s;
 				ParameterValues *reference;
-			};//need to choose between one of those 3 fields, depending on "kind"
+			} u;//need to choose between one of those 3 fields, depending on "kind"
 	};
 	
 	/* each simulation sequence only uses 1 object of type Event */
