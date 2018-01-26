@@ -3,6 +3,6 @@
 
 // Do test stuff
 int main() {
-	std::cout << "Success" << std::endl;
-	return 0;
+    std::cout << "Success" << std::endl;
+    return 0;
 }

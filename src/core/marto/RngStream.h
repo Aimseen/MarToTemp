@@ -24,15 +24,14 @@
  *
 \***********************************************************************/
 
- 
+
 #ifndef RNGSTREAM_H
 #define RNGSTREAM_H
- 
+
 #include <string>
 
-class RngStream
-{
-public:
+class RngStream {
+  public:
 
   /** Information on a stream. The arrays {Cg, Bg, Ig} contain the current
    state of the stream, the starting state of the current SubStream, and the
@@ -41,73 +40,71 @@ public:
    bits if machine follows IEEE 754 standard) if incPrec = true. nextSeed
    will be the seed of the next declared RngStream. */
 
-RngStream (const char *name = "");
+    RngStream(const char *name = "");
 
 /** for the first generator. Useful to use a seed different from 12345.
- */ 
-static bool SetPackageSeed (const unsigned long seed[6]);
+ */
+    static bool SetPackageSeed(const unsigned long seed[6]);
 
 /** Back to the beginning of the current substream : Cg<- Bg */
-void ResetStartStream ();
+    void ResetStartStream();
 
 
-void ResetStartSubstream ();
+    void ResetStartSubstream();
 
 /** This advances the current state Cg and the substream seed Bg to the beginning of the next substream (based on current Bg). Useful to create new substream generators. 
  */
-void ResetNextSubstream ();
+    void ResetNextSubstream();
 
 
-void SetAntithetic (bool a);
+    void SetAntithetic(bool a);
 
 
-void IncreasedPrecis (bool incp);
+    void IncreasedPrecis(bool incp);
 
 
-bool SetSeed (const unsigned long seed[6]);
+    bool SetSeed(const unsigned long seed[6]);
 
 
-void AdvanceState (long e, long c);
+    void AdvanceState(long e, long c);
 
 
-void GetState (unsigned long seed[6]) const;
+    void GetState(unsigned long seed[6]) const;
 
 
-void WriteState () const;
+    void WriteState() const;
 
 
-void WriteStateFull () const;
+    void WriteStateFull() const;
 
 
-double RandU01 ();
+    double RandU01();
 
 
-int RandInt (int i, int j);
+    int RandInt(int i, int j);
 
 
 
-private:
+  private:
 
-double Cg[6], Bg[6], Ig[6];
-
-
-bool anti, incPrec;
+    double Cg[6], Bg[6], Ig[6];
 
 
-std::string name;
+    bool anti, incPrec;
 
 
-static double nextSeed[6];
+     std::string name;
 
 
-double U01 ();
+    static double nextSeed[6];
 
 
-double U01d ();
+    double U01();
+
+
+    double U01d();
 
 
 };
- 
-#endif
- 
 
+#endif
