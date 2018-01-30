@@ -11,13 +11,13 @@ configuration(conf), firstChunk(nullptr) {
 
 }
 
-EventsIterator *iterator() {
+EventsIterator *EventsHistory::iterator() {
     if (firstChunk == nullptr) {
         // Empty history, creating a chunk
         // no need to restrict the number of events
-        backward(UNIT32_MAX);
+        backward(UINT32_MAX);
     }
-    return new EventsIterator::EventsIterator(this);
+    return new EventsIterator(this);
 }
 
 void EventsHistory::backward(uint32_t nbEvents) {
@@ -33,31 +33,28 @@ void EventsHistory::backward(uint32_t nbEvents) {
 EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next):
 allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
     const size_t chunkSize = 4096;
-    bufferMemory = malloc(chunkSize);
+    bufferMemory = (char*)malloc(chunkSize);
     bufferStart = bufferMemory;
-    bufferEnd = bufferMemory + chuckSize;
+    bufferEnd = bufferMemory + chunkSize;
     freeSpace = chunkSize;
 }
 
 // EventsIterator
 
 EventsIterator::EventsIterator(EventsHistory * hist):
-direction(UNDEF), curChunk(hist->firstChunk)
+direction(UNDEF), curChunk(hist->firstChunk), _history(hist)
     // position not set, as this depends on the direction
 {
 
 }
 
 
-void *EventsHistory::getCurrentBuffer() {
-    curChunk return buffer + position;
+char *EventsIterator::getCurrentBuffer() {
+    // TODO: check for invalid pointer and allocate if required
+    return curChunk->bufferStart + position;
 }
 
-Configuration *EventsHistory::getConfig() {
-    return configuration;
-}
-
-int EventsHistory::loadNextEvent(Event * ev) {
+int EventsIterator::loadNextEvent(Event * ev) {
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
     auto nbRead = ev->load(this);
     position += nbRead;

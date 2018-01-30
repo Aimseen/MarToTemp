@@ -5,17 +5,22 @@
 #ifdef __cplusplus
 
 #include <stdint.h>
+#include <stdlib.h>
 
 namespace marto {
 
     class EventsChunk;
     class EventsIterator;
     class EventsHistory;
+    class Configuration;
+    class Event;
 
     class EventsHistory {
+        // EventsIterator need to access to firstChunk
+        friend EventsIterator;
       public:
-                /** Initialize a new history of events */
-        EventsHistory(Configuration * conf);
+            /** Initialize a new history of events */
+         EventsHistory(Configuration * conf);
         EventsIterator *iterator();     // returns an iterator positioned at the begining
 
                 /** Add some space in history for nbEvents *previous* events
@@ -27,16 +32,21 @@ namespace marto {
          Configuration * configuration;
         EventsChunk *firstChunk;        // beginning of history
         //uint32_t _nbEvents; // useful ?
+      public:
+         Configuration * getConfig() {
+            return configuration;
+        };
     };
 
     class EventsChunk {
+        friend EventsIterator;
       public:
         EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
       private:
-        bool allocOwner;        // true if bufferMemory is malloc'ed
-        void *bufferMemory;
-        void *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
-        void *bufferEnd;        // end of history chunk;
+        bool allocOwner;       // true if bufferMemory is malloc'ed
+        char *bufferMemory;
+        char *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
+        char *bufferEnd;        // end of history chunk;
         size_t freeSpace;
         uint32_t eventsCapacity;        // maximum number of events in this chunk and possible additional chunks
         uint32_t nbEvents;      // current number of events in the chunk
@@ -44,7 +54,9 @@ namespace marto {
         EventsChunk *prevChunk;
 
         //size_t end; // end of buffer
-    } class EventsIterator {
+    };
+
+    class EventsIterator {
       private:
         EventsIterator(EventsHistory * hist);
         friend EventsIterator *EventsHistory::iterator();
@@ -69,12 +81,17 @@ namespace marto {
                 /** return the current position in the current buffer
 		 * To be used by Event::load only
 		 */
-        void *getCurrentBuffer();
+        char *getCurrentBuffer();
 
+        EventsHistory *history() {
+                return _history;
+        }
       private:
         enum { UNDEF, FORWARD, BACKWARD } direction;
         EventsChunk *curChunk;
         size_t position;        // current position in chunk in bytes
-}}
+        EventsHistory *_history;
+    };
+}
 #endif
 #endif

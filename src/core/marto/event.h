@@ -72,9 +72,9 @@ namespace marto {
       private:
          marto::Transition * transition;
         double rate;
-        int findIndex(string name);
       public:
-         FormalParameters fp;
+        int findIndex(string name);
+        FormalParameters fp;
         //GetParameter gp; /* ??? FIXME */
         int nbIntStaticParameters();
         int nbDoubleStaticParameters();
@@ -103,9 +103,10 @@ namespace marto {
             struct {
                 // Note: std::vector no allowed in anonymous union
                 std::vector < double >cache;
-                // TODO: declare/define Generator type
+                // TODO: declare/define Generator type => also update event.cpp
+                // ParameterValues::get()
                 //Generator g;
-            } _s;
+            } s;
             ParameterValues *reference;
         } u;                    //need to choose between one of those 3 fields, depending on "kind"
     };
@@ -119,7 +120,7 @@ namespace marto {
          *  returns the number of byte read upon success,
          *  0 if the compact representation 
          *  does not match a known event type */
-        size_t load(marto::EventsHistory * h);
+        size_t load(marto::EventsIterator * h);
         /* Stores a compact representation of the event
          *  returns the size of stored object or 0 upon failure
          */
@@ -128,7 +129,7 @@ namespace marto {
          *  returns 1 */
         static int generate(EventType * type);
 
-        ParameterValues *getParameters(string name);
+        ParameterValues *getParameter(string name);
 
         /* Parameters accessors */
         int8_t int8Parameter(int index);
@@ -149,7 +150,7 @@ namespace marto {
         void set(int index, double value);
 
       private:
-         std::vector < ParameterValues * >parameters;   /* actual parameters (not formal), used to apply transition */
+        std::vector < ParameterValues * >parameters;   /* actual parameters (not formal), used to apply transition */
         EventType *type;
     };
 
