@@ -1,6 +1,6 @@
 #include <marto/global.h>
 
-using namespace marto;
+namespace marto {
 
 Configuration *Global::getConfig() {
     if (config == nullptr) {
@@ -11,4 +11,6 @@ Configuration *Global::getConfig() {
 
 EventType *Configuration::getEventType(int num) {
     return eventTypesVector[num];
+}
+
 }

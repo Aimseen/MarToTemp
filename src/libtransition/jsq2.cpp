@@ -4,6 +4,8 @@
 
 using namespace marto;
 
+namespace marto {
+
 class JSQ2:public Transition {
     Point *apply(Point * p, Event * ev) {       //Event ev contains transition specification (parameters)
         // fromList is a random sequence of Queues (specified in ev) to prevent access to random generation and protect monotonicity
@@ -25,6 +27,8 @@ class JSQ2:public Transition {
         return p;
     }
 };
+
+}
 
 // Do test stuff
 int main() {

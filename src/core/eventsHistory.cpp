@@ -2,8 +2,7 @@
 #include <marto/global.h>
 #include <cstdint>
 
-using namespace marto;
-
+namespace marto {
 // EventsHistory
 
 EventsHistory::EventsHistory(Configuration * conf):configuration(conf), firstChunk(nullptr) {
@@ -58,4 +57,6 @@ int EventsIterator::loadNextEvent(Event * ev) {
     auto nbRead = ev->load(this);
     position += nbRead;
     return nbRead;
+}
+
 }

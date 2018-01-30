@@ -5,7 +5,7 @@
 
 #include <assert.h>
 
-using namespace marto;
+namespace marto {
 
 int EventType::findIndex(string name) {
     auto couple = fp.find(name);
@@ -58,4 +58,6 @@ size_t Event::load(EventsIterator * hit) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
+}
+
 }

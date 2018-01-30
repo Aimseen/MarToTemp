@@ -2,7 +2,7 @@
 #include <marto/transition.h>
 #include <vector>
 
-using namespace marto;
+namespace marto {
 
 // Specialisation: a Point always gives a Point
 Point *marto::Point::accept(Transition * t, Event * ev) {
@@ -17,4 +17,4 @@ SetImpl *marto::Union::accept(Transition * t, Event * ev) {
     return t->apply(this, ev);
 }
 
-//}
+}

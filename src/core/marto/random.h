@@ -27,6 +27,8 @@ Objectif :
 
 */
 
+namespace marto {
+
 /** For creating independent RNGs */
 class InternalGenerator {
     friend std::ostream & operator <<(std::ostream & o, InternalGenerator & g);
@@ -72,4 +74,6 @@ template < typename T > RandomUniformInterval < T >::nextValue() {
 
 class InternalGeneratorFabric {
     // Should be a singleton because Lecuyer RngStream has to be initialized
+}
+
 }
