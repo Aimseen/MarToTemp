@@ -1,9 +1,9 @@
 /***********************************************************************\
  *
  * File:           Random.h
- * 
+ *
  * Random number generation library for MarTo
- * 
+ *
 \***********************************************************************/
 /* Notes relatives au générateur de Lecuyer
 
@@ -31,20 +31,21 @@ Objectif :
 class InternalGenerator {
     friend std::ostream & operator <<(std::ostream & o, InternalGenerator & g);
     friend std::istream & operator >>(std::istream & i, InternalGenerator & g);
-     template < typename T > Random < T > newUserGenerator();
+    template < typename T > Random < T > newUserGenerator();
     double nextU01();
-  private: generateurLEcuyer;
-  public:
+private:
+    generateurLEcuyer;
+public:
     static InternalGenerator newStream();
 }
-/**  random number generation for the user 
-* 
+/**  random number generation for the user
+*
 */ template < typename T >
- class Random {
-  public:
+class Random {
+public:
     T nextValue() = 0;
 
-  protected:
+protected:
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
     InternalGenerator * intGen;
@@ -52,9 +53,9 @@ class InternalGenerator {
 
 /* Code To be moved to another internal header file : */
 template < typename T > class RandomUniformInterval:public Random < T > {
-  private:
+private:
     double a, b;
-  public:
+public:
     RandomUniformInterval(double a, double b);
 }
 

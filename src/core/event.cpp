@@ -10,7 +10,7 @@ using namespace marto;
 int EventType::findIndex(string name) {
     auto couple = fp.find(name);
     assert(couple != fp.end());
-    return couple->second.first;        //couple is a pair, whose first element is the index in the parameters table
+    return couple->second.first;   //couple is a pair, whose first element is the index in the parameters table
 }
 
 ParameterValues *Event::getParameter(string name) {
@@ -43,18 +43,19 @@ size_t ParameterValues::size() {
     }
 }
 
-/*	an eventType is stored compactly as an integer 
-	(example of event type : arrival in queue 1)
-	it is read from a table built from user config file
-*/
+/*  an eventType is stored compactly as an integer
+   (example of event type : arrival in queue 1)
+   it is read from a table built from user config file
+ */
 size_t Event::load(EventsIterator * hit) {
     // TODO : store iterator ? (Vince)
     void *buffer = hit->getCurrentBuffer();
-    parameters.clear();         /* clears previously stored event information */
+    parameters.clear();     /* clears previously stored event information */
     uint32_t *intBuffer = (uint32_t *) buffer;
-    auto code = intBuffer[0];   //eventype is encoded in the first integer of the event buffer.
+    auto code = intBuffer[0];       //eventype is encoded in the first integer of the event buffer.
     type = hit->history()->getConfig()->getEventType(code);
-  for (auto pair:type->fp) {   /* pair iterates on all elements in fp (list of pairs) */
+    for (auto pair:type->fp) {
+        /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
 }

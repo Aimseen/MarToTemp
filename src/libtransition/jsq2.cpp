@@ -13,7 +13,7 @@ class JSQ2:public Transition {
 
         auto from = fromList->get < Queue > (0);        // the only source queue
         auto to0 = toList->get < Queue > (0);   // the first random destination queue
-        auto to1 = toList->get < Queue > (1);   // second random destination queue 
+        auto to1 = toList->get < Queue > (1);   // second random destination queue
 
         if (p->at(from) > 0) {
             if (p->at(to0) < p->at(to1))

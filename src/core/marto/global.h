@@ -9,15 +9,17 @@
 #include <marto/event.h>
 
 namespace marto {
-    class Configuration {
-        std::vector < EventType * >eventTypesVector;
-        public:EventType * getEventType(int num);
-    };
+class Configuration {
+    std::vector < EventType * >eventTypesVector;
+public:
+    EventType * getEventType(int num);
+};
 
-    class Global {
-        constexpr static Configuration *config = nullptr;
-         public: static Configuration *getConfig();
-    };
+class Global {
+    constexpr static Configuration *config = nullptr;
+public:
+    static Configuration *getConfig();
+};
 }
 #endif
 #endif

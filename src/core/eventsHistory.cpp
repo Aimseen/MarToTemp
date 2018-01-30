@@ -6,8 +6,7 @@ using namespace marto;
 
 // EventsHistory
 
-EventsHistory::EventsHistory(Configuration * conf):
-configuration(conf), firstChunk(nullptr) {
+EventsHistory::EventsHistory(Configuration * conf):configuration(conf), firstChunk(nullptr) {
 
 }
 
@@ -31,9 +30,9 @@ void EventsHistory::backward(uint32_t nbEvents) {
 // EventsChunk
 
 EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next):
-allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
+    allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
     const size_t chunkSize = 4096;
-    bufferMemory = (char*)malloc(chunkSize);
+    bufferMemory = (char *) malloc(chunkSize);
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + chunkSize;
     freeSpace = chunkSize;
@@ -42,7 +41,7 @@ allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevCh
 // EventsIterator
 
 EventsIterator::EventsIterator(EventsHistory * hist):
-direction(UNDEF), curChunk(hist->firstChunk), _history(hist)
+    direction(UNDEF), curChunk(hist->firstChunk), _history(hist)
     // position not set, as this depends on the direction
 {
 
