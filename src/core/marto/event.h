@@ -5,13 +5,21 @@
 #ifdef __cplusplus
 
 #include <marto/transition.h>
-//#include <marto/random.h>
-class Generator {};
+#include <marto/random.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string>
 #include <map>
 
+// convolution to keep operator<< in global namespace
+// See https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
+namespace marto {
+class EventType;
+class FormalParameters;
+}
+using std::ostream;
+ostream &operator << (ostream &out, const marto::EventType &ev);
+ostream &operator << (ostream &out, const marto::FormalParameters &ev);
 
 namespace marto {
 
@@ -20,7 +28,6 @@ class EventsIterator;
 class EventsHistory;
 
 using std::string;
-using std::ostream;
 
 typedef uint32_t Queue;
 
@@ -45,6 +52,7 @@ private:
 // string (nom du parametre) -> taille liste, contenu liste
 // avec la convention taille==-1 => taille variable (potentiellement infinie)
 class FormalParameters:public std::map < string, std::pair < int, FormalParameterValue >> {
+    friend ostream & ::operator << (ostream &out, const FormalParameters &ev);
     //void addParam(string name, FormalParameterValue *value);
 };
 
@@ -69,14 +77,14 @@ public:
 
 class EventType {
 public:
-    friend ostream &operator << (ostream &out, EventType &ev);
     /* idTr indicates which transition function will be used.
        idEvt indicates the detailed event.
        fp include all parameters needed to generate the event */
     EventType(string idEvT, double rate, string idTr, FormalParameters fp);
 private:
+    friend ostream & ::operator << (ostream &out, const EventType &ev);
     string id;
-    marto::Transition * transition;
+    Transition * transition;
     double rate;
 public:
     int findIndex(string name);
@@ -111,7 +119,7 @@ private:
             std::vector < double >cache;
             // TODO: declare/define Generator type => also update event.cpp
             // ParameterValues::get()
-            //Generator g;
+            Random g;
         } generator;
         ParameterValues *reference;
     } u;                    //need to choose between one of those 3 fields, depending on "kind"
@@ -120,18 +128,21 @@ private:
 /* each simulation sequence only uses 1 object of type Event */
 class Event {
 public:
-    /* Create an empty (unusable) event */
+    /** Create an empty (unusable) event */
     Event();
-    /* Load the event data from its serialization
+    /** Load the event data from its serialization
      *  returns the number of byte read upon success,
      *  0 if the compact representation
      *  does not match a known event type */
     size_t load(marto::EventsIterator * h);
-    /* Stores a compact representation of the event
+    /** Stores a compact representation of the event
      *  returns the size of stored object or 0 upon failure
      */
     size_t store(void *buffer, size_t buf_size);
-    /* Creates (generate) a new Event
+    /** return the size required to store the object
+     */
+    size_t size();
+    /** Creates (generate) a new Event
      *  returns 1 */
     static int generate(EventType * type);
 

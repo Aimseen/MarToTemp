@@ -26,6 +26,10 @@ Objectif :
 
 
 */
+#ifndef MARTO_RANDOM_H
+#define MARTO_RANDOM_H
+
+#include <marto/RngStream.h>
 
 namespace marto {
 
@@ -38,7 +42,7 @@ public:
     /* Generic random is on (0,1)
        - one should specialize when forking is required
     */
-    double next();
+    virtual double next();
     size_t load(void *buffer);
     size_t store(void *buffer);
 
@@ -46,31 +50,22 @@ protected:
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
     RngStream *intGen;
-}
+};
 
 /** Internal Random generator with uniform distribution; type double */
-template<typename T>
-class RandomUniformInterval : public Random<T> {
+class RandomUniformInterval : public Random {
 private:
-    double a,b;
+    double inf, sup;
 public:
-    RandomUniformInterval(double a, double b);
-}
-
-
-/*  internal generic-type uniform generator */
-template<typename T>
-RandomUniformInterval<T>::RandomUniformInterval(double inf, double sup) {
-    this.inf=inf;
-    this.sup=sup;
-}
-
-template < typename T > RandomUniformInterval < T >::nextValue() {
-    return (inf + (sup - inf) * intGen->nextU01());
-}
+    virtual double next();
+    RandomUniformInterval(double inf, double sub);
+};
 
 class InternalGeneratorFabric {
     // Should be a singleton because Lecuyer RngStream has to be initialized
-}
+};
 
 }
+
+#endif
+

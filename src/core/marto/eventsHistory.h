@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <marto/random.h>
 
 namespace marto {
 
@@ -14,35 +15,6 @@ class EventsIterator;
 class EventsHistory;
 class Configuration;
 class Event;
-
-class EventsHistory {
-public:
-    /** Initialize a new history of events */
-    EventsHistory(Configuration * conf);
-    EventsIterator *iterator();     // returns an iterator positioned at the begining
-
-    /** Add some space in history for nbEvents *previous* events
-    * iterator() can be called to start at the (new) begining of the history
-    	 */
-    void backward(uint32_t nbEvents);
-
-    /* Returns a new generator starting at the new available stream
-     * associated to the current simulation context One stream per
-     * chunk (to be able to regenerate the same events)
-     */
-    Random nextStream;// provides a clone and advances to next stream
-
-private:
-    // EventsIterator need to access to firstChunk
-    friend EventsIterator::EventsIterator(EventsHistory *hist);
-    Configuration * configuration;
-    EventsChunk *firstChunk;        // beginning of history
-    //uint32_t _nbEvents; // useful ?
-public:
-    Configuration * getConfig() {
-        return configuration;
-    };
-};
 
 class EventsChunk {
     friend EventsIterator;
@@ -65,8 +37,8 @@ private:
 class EventsIterator {
 private:
     EventsIterator(EventsHistory * hist);
-    friend EventsIterator *EventsHistory::iterator();
-
+    //friend EventsIterator *EventsHistory::iterator();
+    friend class EventsHistory;
 public:
     /* Moving within the history */
 
@@ -98,6 +70,36 @@ private:
     size_t position;        // current position in chunk in bytes
     EventsHistory *_history;
 };
+
+class EventsHistory {
+public:
+    /** Initialize a new history of events */
+    EventsHistory(Configuration * conf);
+    EventsIterator *iterator();     // returns an iterator positioned at the begining
+
+    /** Add some space in history for nbEvents *previous* events
+    * iterator() can be called to start at the (new) begining of the history
+    	 */
+    void backward(uint32_t nbEvents);
+
+    /* Returns a new generator starting at the new available stream
+     * associated to the current simulation context One stream per
+     * chunk (to be able to regenerate the same events)
+     */
+    Random nextStream;// provides a clone and advances to next stream
+
+private:
+    // EventsIterator need to access to firstChunk
+    friend EventsIterator::EventsIterator(EventsHistory *hist);
+    Configuration * configuration;
+    EventsChunk *firstChunk;        // beginning of history
+    //uint32_t _nbEvents; // useful ?
+public:
+    Configuration * getConfig() {
+        return configuration;
+    };
+};
+
 }
 #endif
 #endif

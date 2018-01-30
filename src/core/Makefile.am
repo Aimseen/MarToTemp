@@ -6,11 +6,13 @@ nobase_include_HEADERS=\
       marto/transition.h \
       marto/event.h \
       marto/eventsHistory.h \
-      marto/global.h
+      marto/global.h \
+      marto/random.h \
+      marto/RngStream.h
 
 lib_LTLIBRARIES= libmarto.la
 
-check_PROGRAMS=test_core test_transition
+check_PROGRAMS=test_core #test_transition
 
 libmarto_la_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) -D_GNU_SOURCE $(MARTOLIB_BUILD_CPPFLAGS) \
   -I$(srcdir)
@@ -23,12 +25,13 @@ libmarto_la_SOURCES=\
 	transition.cpp \
 	event.cpp \
 	eventsHistory.cpp \
-	global.cpp
+	global.cpp \
+	random.cpp
 
 pkgconfig_DATA=marto.pc
 
 test_core_SOURCES=test_core.cpp
 test_core_LDADD=libmarto.la
 
-test_transition_SOURCES=test_transition.cpp
-test_transition_LDADD=libmarto.la
+#test_transition_SOURCES=test_transition.cpp
+#test_transition_LDADD=libmarto.la

@@ -1,6 +1,8 @@
 #include <marto.h>
 #include <iostream>
 
+using namespace marto;
+
 // Do test stuff
 int main() {
     Point *p = new Point();

@@ -2,21 +2,24 @@
 #include <marto/global.h>
 #include <marto/eventsHistory.h>
 #include <cstdint>
+#include <iostream>
 
 #include <assert.h>
 
-using namespace marto;
 using std::ostream;
 
-ostream &operator << (ostream &out, FormalParameters &fp) {
-    for (auto it=fp)
+ostream &operator << (ostream &out, const marto::FormalParameters &fp) {
+    // FIXME:
+    for (auto it=fp;;) {
+        out << it << std::endl;
     }
+}
 
-ostream &operator << (ostream &out, EventType &ev) {
-    out << "EventType : " << ev.id << endl;
-    out << "-> " << ev->transition << endl;
-    out << "-> parameters : " << endl;
-    out << ev.fp << endl;
+ostream &operator << (ostream &out, const marto::EventType &ev) {
+    out << "EventType : " << ev.id << std::endl;
+    out << "-> " << ev.transition << std::endl;
+    out << "-> parameters : " << std::endl;
+    out << ev.fp << std::endl;
 }
 
 namespace marto {
@@ -37,30 +40,21 @@ template <typename T>
 T ParameterValues::get(int index) {
     switch (kind) {
     case ARRAY:
-        T *array = (T *) values;
+        T *array = (T *) u.array.values;
         return array[index];
     case GENERATOR:
-        if (cache.size() <= index) {
-            for (int i=cache.size(); i<index+1; i++)
-                cache[i] = g.next();
+        if (u.generator.cache.size() <= index) {
+            for (int i=u.generator.cache.size(); i<index+1; i++)
+                u.generator.cache[i] = u.generator.g.next();
         }
-        return (T) cache[index];
+        return (T) u.generator.cache[index];
     }
 }
 
 size_t ParameterValues::size() {
     switch (kind) {
     case ARRAY:
-        return nbValues;
-    case GENERATOR:
-        return SIZE_MAX;
-    }
-}
-
-size_t ParameterValues::size() {
-    switch (kind) {
-    case ARRAY:
-        return u.nbValues;
+        return u.array.nbValues;
     case GENERATOR:
         return SIZE_MAX;
     }
@@ -81,6 +75,11 @@ size_t Event::load(EventsIterator * hit) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
+}
+    
+size_t Event::size() {
+    // FIXME
+    return 0;
 }
 
 }

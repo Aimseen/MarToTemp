@@ -1,5 +1,8 @@
 #include <marto/eventsHistory.h>
+#include <marto/event.h>
 #include <cstdint>
+
+#include <assert.h>
 
 namespace marto {
 // EventsHistory
@@ -67,13 +70,12 @@ int EventsIterator::storeNextEvent(Event *ev) {
     }
     assert(direction == FORWARD);
     auto evSize = ev->size();
-    if (! curChunk->reserveSpace(evSize)) {
+    //if (! curChunk->reserveSpace(evSize)) {
 
-    }
+    //}
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    auto nbRead = ev->load(this);
-    position += nbRead;
-    return nbRead;
+    
+    return 0;
 }
 
 int EventsIterator::storePrevEvent(Event *ev) {
@@ -82,9 +84,8 @@ int EventsIterator::storePrevEvent(Event *ev) {
     }
     assert(direction == BACKWARD);
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    auto nbRead = ev->load(this);
-    position += nbRead;
-    return nbRead;
+    
+    return 0;
 }
 
 }
