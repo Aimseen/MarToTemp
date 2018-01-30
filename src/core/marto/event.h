@@ -5,6 +5,8 @@
 #ifdef __cplusplus
 
 #include <marto/transition.h>
+//#include <marto/random.h>
+class Generator {};
 #include <stdint.h>
 #include <stddef.h>
 #include <string>
@@ -18,6 +20,7 @@ class EventsIterator;
 class EventsHistory;
 
 using std::string;
+using std::ostream;
 
 typedef uint32_t Queue;
 
@@ -66,11 +69,13 @@ public:
 
 class EventType {
 public:
+    friend ostream &operator << (ostream &out, EventType &ev);
     /* idTr indicates which transition function will be used.
        idEvt indicates the detailed event.
        fp include all parameters needed to generate the event */
     EventType(string idEvT, double rate, string idTr, FormalParameters fp);
 private:
+    string id;
     marto::Transition * transition;
     double rate;
 public:
@@ -100,14 +105,14 @@ private:
         struct {
             void *values;
             size_t nbValues;
-        };
+        } array;
         struct {
             // Note: std::vector no allowed in anonymous union
             std::vector < double >cache;
             // TODO: declare/define Generator type => also update event.cpp
             // ParameterValues::get()
             //Generator g;
-        } s;
+        } generator;
         ParameterValues *reference;
     } u;                    //need to choose between one of those 3 fields, depending on "kind"
 };

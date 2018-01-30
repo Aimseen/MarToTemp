@@ -16,8 +16,6 @@ class Configuration;
 class Event;
 
 class EventsHistory {
-    // EventsIterator need to access to firstChunk
-    friend EventsIterator;
 public:
     /** Initialize a new history of events */
     EventsHistory(Configuration * conf);
@@ -28,7 +26,15 @@ public:
     	 */
     void backward(uint32_t nbEvents);
 
+    /* Returns a new generator starting at the new available stream
+     * associated to the current simulation context One stream per
+     * chunk (to be able to regenerate the same events)
+     */
+    Random nextStream;// provides a clone and advances to next stream
+
 private:
+    // EventsIterator need to access to firstChunk
+    friend EventsIterator::EventsIterator(EventsHistory *hist);
     Configuration * configuration;
     EventsChunk *firstChunk;        // beginning of history
     //uint32_t _nbEvents; // useful ?

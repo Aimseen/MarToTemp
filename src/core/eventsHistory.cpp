@@ -1,5 +1,4 @@
 #include <marto/eventsHistory.h>
-#include <marto/global.h>
 #include <cstdint>
 
 namespace marto {
@@ -53,6 +52,35 @@ char *EventsIterator::getCurrentBuffer() {
 }
 
 int EventsIterator::loadNextEvent(Event * ev) {
+    if (direction == UNDEF) {
+        /* we should be at the start of the history */
+    }
+    // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
+    auto nbRead = ev->load(this);
+    position += nbRead;
+    return nbRead;
+}
+
+int EventsIterator::storeNextEvent(Event *ev) {
+    if (direction == UNDEF) {
+        direction = FORWARD;
+    }
+    assert(direction == FORWARD);
+    auto evSize = ev->size();
+    if (! curChunk->reserveSpace(evSize)) {
+
+    }
+    // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
+    auto nbRead = ev->load(this);
+    position += nbRead;
+    return nbRead;
+}
+
+int EventsIterator::storePrevEvent(Event *ev) {
+    if (direction == UNDEF) {
+        direction = BACKWARD;
+    }
+    assert(direction == BACKWARD);
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
     auto nbRead = ev->load(this);
     position += nbRead;

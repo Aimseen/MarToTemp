@@ -10,14 +10,14 @@
 
 namespace marto {
 class Configuration {
-    std::vector < EventType * >eventTypesVector;
-public:
-    EventType * getEventType(int num);
+    std::vector<EventType *> eventTypesVector;
+public :
+    EventType *getEventType(int num);
 };
 
 class Global {
     constexpr static Configuration *config = nullptr;
-public:
+public :
     static Configuration *getConfig();
 };
 }

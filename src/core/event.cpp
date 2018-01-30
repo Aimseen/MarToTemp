@@ -5,6 +5,20 @@
 
 #include <assert.h>
 
+using namespace marto;
+using std::ostream;
+
+ostream &operator << (ostream &out, FormalParameters &fp) {
+    for (auto it=fp)
+    }
+
+ostream &operator << (ostream &out, EventType &ev) {
+    out << "EventType : " << ev.id << endl;
+    out << "-> " << ev->transition << endl;
+    out << "-> parameters : " << endl;
+    out << ev.fp << endl;
+}
+
 namespace marto {
 
 int EventType::findIndex(string name) {
@@ -19,18 +33,27 @@ ParameterValues *Event::getParameter(string name) {
     }
 }
 
-template < typename T > T ParameterValues::get(int index) {
+template <typename T>
+T ParameterValues::get(int index) {
     switch (kind) {
     case ARRAY:
-        T * array = (T *) u.values;
+        T *array = (T *) values;
         return array[index];
     case GENERATOR:
-        if (u.s.cache.size() <= index) {
-            for (int i = u.s.cache.size(); i < index + 1; i++) {
-                //u.s.cache[i] = g.nextU01();
-            }
+        if (cache.size() <= index) {
+            for (int i=cache.size(); i<index+1; i++)
+                cache[i] = g.next();
         }
-        return (T) u.s.cache[index];
+        return (T) cache[index];
+    }
+}
+
+size_t ParameterValues::size() {
+    switch (kind) {
+    case ARRAY:
+        return nbValues;
+    case GENERATOR:
+        return SIZE_MAX;
     }
 }
 
