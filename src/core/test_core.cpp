@@ -13,7 +13,7 @@ int main() {
     Event *e = new Event(et);
     
     std::cout << p << std::endl;
-    e.apply(p);
+    e->apply(p);
     std::cout << p << std::endl;
     std::cout << "Success" << std::endl;
     return 0;
