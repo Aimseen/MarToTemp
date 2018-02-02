@@ -55,13 +55,24 @@ char *EventsIterator::getCurrentBuffer() {
 }
 
 int EventsIterator::loadNextEvent(Event * ev) {
+    // TODO: handle null chunk and other error/initialisation cases
+    // TODO: handle backward run
     if (direction == UNDEF) {
         /* we should be at the start of the history */
     }
+    char*buffer=getCurrentBuffer();
+    EventsIStream istream(
+        buffer,
+        curChunk->bufferEnd-buffer
+    );
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    auto nbRead = ev->load(this);
-    position += nbRead;
-    return nbRead;
+    auto evRead = ev->load(history(), istream);
+    position += istream.eventSize();
+
+    // For now, failed read should never occurs
+    assert(evRead);
+
+    return evRead;
 }
 
 int EventsIterator::storeNextEvent(Event *ev) {
@@ -69,23 +80,21 @@ int EventsIterator::storeNextEvent(Event *ev) {
         direction = FORWARD;
     }
     assert(direction == FORWARD);
-    auto evSize = ev->size();
-    //if (! curChunk->reserveSpace(evSize)) {
-
-    //}
+    // TODO :: handle null chunk and other error/initialisation cases
+    char*buffer=getCurrentBuffer();
+    EventsOStream ostream(
+        buffer,
+        curChunk->bufferEnd-buffer
+    );
     // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    
-    return 0;
-}
+    auto evWritten=ev->store(history(), ostream);
+    ostream.finalize();
+    position += ostream.eventSize();
 
-int EventsIterator::storePrevEvent(Event *ev) {
-    if (direction == UNDEF) {
-        direction = BACKWARD;
-    }
-    assert(direction == BACKWARD);
-    // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    
-    return 0;
+    // For now, failed read should never occurs
+    assert(evWritten);
+
+    return evWritten;
 }
 
 }

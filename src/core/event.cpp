@@ -64,22 +64,27 @@ size_t ParameterValues::size() {
    (example of event type : arrival in queue 1)
    it is read from a table built from user config file
  */
-size_t Event::load(EventsIterator * hit) {
-    // TODO : store iterator ? (Vince)
-    void *buffer = hit->getCurrentBuffer();
+int Event::load(EventsHistory * hist, EventsIStream &istream) {
     parameters.clear();     /* clears previously stored event information */
-    uint32_t *intBuffer = (uint32_t *) buffer;
-    auto code = intBuffer[0];       //eventype is encoded in the first integer of the event buffer.
-    type = hit->history()->getConfig()->getEventType(code);
+    int code;
+    // FIXME: next line is just to show
+    istream >> code >> code;   //eventype is encoded in the first integer of the event buffer.
+    type = hist->getConfig()->getEventType(code);
     for (auto pair:type->fp) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
 }
-    
-size_t Event::size() {
-    // FIXME
-    return 0;
+
+int Event::store(EventsHistory * hist, EventsOStream &ostream) {
+    int code=12;
+    // FIXME: next line is just to show
+    ostream << code << code;  //eventype is encoded in the first integer of the event buffer.
+    type = hist->getConfig()->getEventType(code);
+    for (auto pair:type->fp) {
+        /* pair iterates on all elements in fp (list of pairs) */
+        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+    }
 }
 
 }

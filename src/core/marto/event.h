@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 /* Event Generator */
 #ifndef MARTO_EVENT_H
 #define MARTO_EVENT_H
@@ -26,6 +27,8 @@ namespace marto {
 class EventsChunk;
 class EventsIterator;
 class EventsHistory;
+class EventsIStream;
+class EventsOStream;
 
 using std::string;
 
@@ -131,17 +134,19 @@ public:
     /** Create an empty (unusable) event */
     Event();
     /** Load the event data from its serialization
-     *  returns the number of byte read upon success,
+     *  returns true upon success,
      *  0 if the compact representation
-     *  does not match a known event type */
-    size_t load(marto::EventsIterator * h);
+     *  does not match a known event type
+     */
+    int load(EventsHistory *h, EventsIStream &istream);
     /** Stores a compact representation of the event
-     *  returns the size of stored object or 0 upon failure
+     *  returns true upon success (else false)
+     *  Note: the store can be aborted (with an exception)
+     *  if the current chunk buffer is not bif enough
+     *  In this case, storeNextEvent will restart the
+     *  call to this function in a new chunk.
      */
-    size_t store(void *buffer, size_t buf_size);
-    /** return the size required to store the object
-     */
-    size_t size();
+    int store(EventsHistory *h, EventsOStream &ostream);
     /** Creates (generate) a new Event
      *  returns 1 */
     static int generate(EventType * type);
