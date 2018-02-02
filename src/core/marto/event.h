@@ -79,19 +79,20 @@ public:
 };
 
 class EventType {
+    friend class Event;
 public:
     /* idTr indicates which transition function will be used.
-       idEvt indicates the detailed event.
+       eventName is a long, detailed name for the event.
        fp include all parameters needed to generate the event */
-    EventType(string idEvT, double rate, string idTr, FormalParameters fp);
+    EventType(string eventName, double evtRate, string idTr, FormalParameters params);
 private:
     friend ostream & ::operator << (ostream &out, const EventType &ev);
-    string id;
+    string name;
     Transition * transition;
     double rate;
+    FormalParameters parameters;
 public:
     int findIndex(string name);
-    FormalParameters fp;
     //GetParameter gp; /* ??? FIXME */
     int nbIntStaticParameters();
     int nbDoubleStaticParameters();
@@ -133,6 +134,8 @@ class Event {
 public:
     /** Create an empty (unusable) event */
     Event();
+    /** Creates an event from a given type */
+    Event(EventType *type);
     /** Load the event data from its serialization
      *  returns true upon success,
      *  0 if the compact representation
@@ -148,10 +151,14 @@ public:
      */
     int store(EventsHistory *h, EventsOStream &ostream);
     /** Creates (generate) a new Event
+     * SEEMS WRONG : because of the rate, the generation should
+     * randomly decide of which eventType to generate
+     * useful if for one eventype there is a random choice to be made e.g. JSQ)
      *  returns 1 */
     static int generate(EventType * type);
 
     ParameterValues *getParameter(string name);
+    void apply(Point *p);
 
     /* Parameters accessors */
     int8_t int8Parameter(int index);
