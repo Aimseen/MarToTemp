@@ -11,12 +11,15 @@
 namespace marto {
 class Configuration {
     std::vector<EventType *> eventTypesVector;
+    std::map<string, Transition *> transitionsVector;
 public :
     EventType *getEventType(int num);
+    Transition *getTransition(string name);
+    void setTransition(string name, Transition *trans);
 };
 
 class Global {
-    constexpr static Configuration *config = nullptr;
+    static Configuration *config;
 public :
     static Configuration *getConfig();
 };
