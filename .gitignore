@@ -9,6 +9,9 @@
 
 Makefile.in
 
+*.cpp.orig
+*.h.orig
+
 /tests/marto/check-headers/*/*.c++
 /tests/testsuite
 /tests/testsuite-installed
