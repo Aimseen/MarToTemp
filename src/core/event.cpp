@@ -24,7 +24,7 @@ ostream &operator << (ostream &out, const marto::EventType &ev) {
 
 namespace marto {
 
-EventType::EventType(string idEvT, double evtRate, string idTr, FormalParameters params) {
+EventType::EventType(string idEvT, double evtRate, string idTr, FormalParameters *params) {
     name = idEvT;
     rate = evtRate;
     transition = Global::getConfig()->getTransition(idTr);
@@ -32,8 +32,8 @@ EventType::EventType(string idEvT, double evtRate, string idTr, FormalParameters
 }
 
 int EventType::findIndex(string name) {
-    auto couple = parameters.find(name);
-    assert(couple != parameters.end());
+    auto couple = parameters->find(name);
+    assert(couple != parameters->end());
     return couple->second.first;   //couple is a pair, whose first element is the index in the parameters table
 }
 
@@ -85,7 +85,7 @@ int Event::load(EventsHistory * hist, EventsIStream &istream) {
     // FIXME: next line is just to show
     istream >> code >> code;   //eventype is encoded in the first integer of the event buffer.
     type = hist->getConfig()->getEventType(code);
-    for (auto pair:type->parameters) {
+    for (auto pair:*(type->parameters)) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
@@ -96,7 +96,7 @@ int Event::store(EventsHistory * hist, EventsOStream &ostream) {
     // FIXME: next line is just to show
     ostream << code << code;  //eventype is encoded in the first integer of the event buffer.
     type = hist->getConfig()->getEventType(code);
-    for (auto pair:type->parameters) {
+    for (auto pair:*(type->parameters)) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }

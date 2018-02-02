@@ -84,13 +84,14 @@ public:
     /* idTr indicates which transition function will be used.
        eventName is a long, detailed name for the event.
        fp include all parameters needed to generate the event */
-    EventType(string eventName, double evtRate, string idTr, FormalParameters params);
+    EventType(string eventName, double evtRate, string idTr, FormalParameters *params);
 private:
     friend ostream & ::operator << (ostream &out, const EventType &ev);
     string name;
     Transition * transition;
     double rate;
-    FormalParameters parameters;
+    // TODO: choose if we use a pointer or an object, same for constructor.
+    FormalParameters *parameters;
 public:
     int findIndex(string name);
     //GetParameter gp; /* ??? FIXME */
