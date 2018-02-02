@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 /* Event Generator */
 #ifndef MARTO_EVENTS_HISTORY_H
 #define MARTO_EVENTS_HISTORY_H
