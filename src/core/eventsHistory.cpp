@@ -2,9 +2,119 @@
 #include <marto/event.h>
 #include <cstdint>
 
-#include <assert.h>
+#include <cassert>
 
 namespace marto {
+// EventsChunk
+
+EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next):
+    allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
+    const size_t chunkSize = 4096;
+    bufferMemory = (char *) malloc(chunkSize);
+    bufferStart = bufferMemory;
+    bufferEnd = bufferMemory + chunkSize;
+}
+
+EventsChunk* EventsChunk::getNextChunk() {
+    return nextChunk;
+}
+
+EventsChunk* EventsChunk::allocateNextChunk() {
+    uint32_t capacity;
+    if (marto_unlikely(eventsCapacity == UINT32_MAX)) {
+        capacity=UINT32_MAX;
+    } else {
+        capacity=eventsCapacity-nbEvents;
+    }
+    EventsChunk* newChunk=new EventsChunk(capacity, this, nextChunk);
+    if (nextChunk) {
+        nextChunk->prevChunk=newChunk;
+    }
+    nextChunk=newChunk;
+    eventsCapacity=nbEvents;
+    return nextChunk;
+}
+
+// EventsIterator
+
+EventsIterator::EventsIterator(EventsHistory * hist):
+    curChunk(hist->firstChunk), eventNumber(0), _history(hist)
+{
+
+}
+
+EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {
+    curChunk=chunk;
+    if (marto_unlikely(chunk == nullptr)) {
+        return nullptr;
+    }
+    position=curChunk->bufferStart;
+    eventNumber=0;
+    return chunk;
+};
+
+EventsIterator::event_access_t EventsIterator::loadNextEvent(Event * ev) {
+    assert(curChunk != nullptr);
+    while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
+        if (marto_unlikely(setNewChunk(curChunk->getNextChunk())==nullptr)) {
+            return END_OF_HISTORY;
+        }
+    }
+    if (marto_unlikely(eventNumber >= curChunk->nbEvents)) {
+        return UNDEFINED_EVENT;
+    }
+    char*buffer=position;
+    EventsIStream istream(
+        buffer,
+        curChunk->bufferEnd-buffer
+    );
+    auto evRead = ev->load(history(), istream);
+    position += istream.eventSize();
+    eventNumber ++;
+
+    // For now, failed read should never occurs
+    assert(evRead);
+
+    return EVENT_LOADED;
+}
+
+EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev) {
+    assert(curChunk != nullptr);
+    while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
+        if (marto_unlikely(setNewChunk(curChunk->getNextChunk())==nullptr)) {
+            return END_OF_HISTORY;
+        }
+    }
+    do {
+        /* We must be at the end of a chunk */
+        assert(eventNumber == curChunk->nbEvents);
+
+        char*buffer=position;
+        EventsOStream ostream(
+            buffer,
+            curChunk->bufferEnd-buffer
+        );
+
+        try {
+            auto evWritten=ev->store(history(), ostream);
+            ostream.finalize();
+            position += ostream.eventSize();
+            eventNumber ++;
+
+            // For now, failed write should never occurs
+            assert(evWritten);
+
+            break;
+        } catch (HistoryOutOfBound const& h) {
+            if (marto_unlikely(setNewChunk(curChunk->allocateNextChunk())==nullptr)) {
+                return END_OF_HISTORY;
+            }
+        }
+    } while(true);
+
+    return EVENT_WRITTEN;
+}
+
 // EventsHistory
 
 EventsHistory::EventsHistory(Configuration * conf):configuration(conf), firstChunk(nullptr) {
@@ -15,86 +125,17 @@ EventsIterator *EventsHistory::iterator() {
     if (firstChunk == nullptr) {
         // Empty history, creating a chunk
         // no need to restrict the number of events
-        backward(UINT32_MAX);
+        firstChunk = new EventsChunk(UINT32_MAX, nullptr, nullptr);
     }
     return new EventsIterator(this);
 }
 
 void EventsHistory::backward(uint32_t nbEvents) {
-    if (nbEvents <= 0) {
+    if (nbEvents == 0) {
         return;
     }
     EventsChunk *chunk = new EventsChunk(nbEvents, nullptr, firstChunk);
     firstChunk = chunk;
-}
-
-// EventsChunk
-
-EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next):
-    allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
-    const size_t chunkSize = 4096;
-    bufferMemory = (char *) malloc(chunkSize);
-    bufferStart = bufferMemory;
-    bufferEnd = bufferMemory + chunkSize;
-    freeSpace = chunkSize;
-}
-
-// EventsIterator
-
-EventsIterator::EventsIterator(EventsHistory * hist):
-    direction(UNDEF), curChunk(hist->firstChunk), _history(hist)
-    // position not set, as this depends on the direction
-{
-
-}
-
-
-char *EventsIterator::getCurrentBuffer() {
-    // TODO: check for invalid pointer and allocate if required
-    return curChunk->bufferStart + position;
-}
-
-int EventsIterator::loadNextEvent(Event * ev) {
-    // TODO: handle null chunk and other error/initialisation cases
-    // TODO: handle backward run
-    if (direction == UNDEF) {
-        /* we should be at the start of the history */
-    }
-    char*buffer=getCurrentBuffer();
-    EventsIStream istream(
-        buffer,
-        curChunk->bufferEnd-buffer
-    );
-    // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    auto evRead = ev->load(history(), istream);
-    position += istream.eventSize();
-
-    // For now, failed read should never occurs
-    assert(evRead);
-
-    return evRead;
-}
-
-int EventsIterator::storeNextEvent(Event *ev) {
-    if (direction == UNDEF) {
-        direction = FORWARD;
-    }
-    assert(direction == FORWARD);
-    // TODO :: handle null chunk and other error/initialisation cases
-    char*buffer=getCurrentBuffer();
-    EventsOStream ostream(
-        buffer,
-        curChunk->bufferEnd-buffer
-    );
-    // TODO: vérifier qu'on est pas à la fin d'un chunk d'events et passer au suivant si besoin
-    auto evWritten=ev->store(history(), ostream);
-    ostream.finalize();
-    position += ostream.eventSize();
-
-    // For now, failed read should never occurs
-    assert(evWritten);
-
-    return evWritten;
 }
 
 }

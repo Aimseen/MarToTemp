@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include <assert.h>
+#include <cassert>
 
 using std::ostream;
 

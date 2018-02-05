@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <memory>
 #include <marto/random.h>
-#include <assert.h>
+#include <marto/except.h>
+#include <cassert>
 
 namespace marto {
 
@@ -19,44 +20,69 @@ class EventsHistory;
 class Configuration;
 class Event;
 
+//////////////////////////////////////////////////////////////////////////////
+/** This class manages chunk of events in memory
+ *
+ * These chunks will be linked in memory to create an history.
+ * The chunk notion should be transparent to the user of EventsHistory.
+ * Chunk are also used when some events must be inserted into an existing history.
+ */
 class EventsChunk {
     friend EventsIterator;
-public:
-    EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
+    friend EventsHistory;
 private:
+    EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
     bool allocOwner;       // true if bufferMemory is malloc'ed
     char *bufferMemory;
     char *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
     char *bufferEnd;        // end of history chunk;
-    size_t freeSpace;
-    uint32_t eventsCapacity;        // maximum number of events in this chunk and possible additional chunks
+    uint32_t eventsCapacity;// maximum number of events in this chunk and possible additional chunks
     uint32_t nbEvents;      // current number of events in the chunk
     EventsChunk *nextChunk;
     EventsChunk *prevChunk;
 
-    //size_t end; // end of buffer
+    /** return the next chunk in the history
+     *
+     * return NULL at the end of the history.
+     */
+    EventsChunk *getNextChunk();
+    /** allocate a new chunk in the history
+     *
+     * The new chunk is placed just after the current one
+     * Its capacity is set to the remainding of the current one
+     * The capacity of the current chunk is adjusted its current number of events
+     */
+    EventsChunk *allocateNextChunk();
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/** This class allows one to read the history and to write new events
+ *
+ * Note: some parallel version will be to be implemented
+ */
 class EventsIterator {
 private:
     EventsIterator(EventsHistory * hist);
     //friend EventsIterator *EventsHistory::iterator();
     friend class EventsHistory;
 public:
-    /* Moving within the history */
+    typedef enum {
+        EVENT_LOADED=0,
+        EVENT_WRITTEN=0,
+        END_OF_HISTORY, /* the end of history is reached */
+        UNDEFINED_EVENT, /* trying to load an event not yet generated */
+
+    } event_access_t;
 
     /** Fill ev with the next event, loading from the history
-    * Return 0 if no more events are available
-    	 */
-    int loadNextEvent(Event * ev);
+     */
+    event_access_t loadNextEvent(Event * ev);
 
-    /** TODO
-    * use only one of these methods to avoid overwrite
-    	 * Reminder :
-    	 * - when storing backward, if the current chunk has a previous chunk,
-    	 *   on should check that the capacity of this previous chunk is sufficient
-    	 */
-    int storeNextEvent(Event * ev);
+    /** Write the event in the history.
+     *
+     * Some place (for events) must be available at the current position
+     */
+    event_access_t storeNextEvent(Event * ev);
     /* we do not store events reversly. Never. If really required, we
      * should go back for several events and generate and store them
      * forward.
@@ -64,29 +90,20 @@ public:
     int storePrevEvent(Event * ev); // for reverse trajectory algorithm
     */
 
+    /** Get the history linked to this iterator */
     EventsHistory *history() {
         return _history;
     }
 
 private:
-    /** return the current position in the current buffer
-    * To be used by Event::load only
-    	 */
-    char *getCurrentBuffer();
+    EventsChunk *setNewChunk(EventsChunk *chunk);
 
-private:
-    enum { UNDEF, FORWARD, BACKWARD } direction;
     EventsChunk *curChunk;
-    size_t position;        // current position in chunk in bytes
+    char *position;         // current position in the chunk buffer
+    uint32_t eventNumber;   // # event in the current chunk to be read or written
+
     EventsHistory *_history;
 };
-
-// FIXME: move exception class at better place
-class ChunkHistoryOutOfMemory {};
-class ChunkHistoryIncompleteEvent {};
-// FIXME: define this kind of macros in a better place
-#define marto_likely(x)       __builtin_expect((x),1)
-#define marto_unlikely(x)     __builtin_expect((x),0)
 
 class EventsStreamBase {
     /** forbid copy of this kind of objects */
@@ -118,22 +135,22 @@ private:
 
         *this >> eventsize;
         if (marto_unlikely(eventsize == -1)) {
-            throw new ChunkHistoryIncompleteEvent();
+            throw new HistoryIncompleteEvent("Event not yet all written");
         }
         if (marto_unlikely(eventsize > lim)) {
             /* the event to read is longer than the buffer in the current chunk! */
-            throw new ChunkHistoryOutOfMemory();
+            throw new HistoryOutOfBound("Event too long for the current buffer!");
         }
         /* limiting the following reads to the event data */
         bufsize = eventsize - (buf-buffer);
     };
-    friend int EventsIterator::loadNextEvent(Event *ev);
+    friend EventsIterator::event_access_t EventsIterator::loadNextEvent(Event *ev);
 
     template<typename T> T read() {
         void* ptr=(void*)buf;
         if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
             /* no enough place in the buffer! */
-            throw new ChunkHistoryOutOfMemory();
+            throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
         }
         T *newbuf=((T*)ptr)+1;
         size_t size = ((char*)newbuf - buf);
@@ -164,12 +181,12 @@ private:
     ~EventsOStream() {
         finalize();
     };
-    friend int EventsIterator::storeNextEvent(Event *ev);
+    friend EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev);
 
     template<typename T> T* write(const T &value) {
         void* ptr=(void*)buf;
         if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-            throw new ChunkHistoryOutOfMemory();
+            throw new HistoryOutOfBound("Not enough place for the current event");
         }
         T *newbuf=((T*)ptr)+1;
         size_t size = ((char*)newbuf - buf);
