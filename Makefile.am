@@ -7,3 +7,5 @@ SUBDIRS= \
 
 EXTRA_FILES=NEWS
 
+reindent:
+	astyle $(srcdir)/src/*/*.cpp $(srcdir)/src/*/*.h $(srcdir)/src/*/*/*.h
