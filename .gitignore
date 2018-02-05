@@ -9,8 +9,11 @@
 
 Makefile.in
 
+# copies by astyle
 *.cpp.orig
 *.h.orig
+# copies by emacs
+*~
 
 /tests/marto/check-headers/*/*.c++
 /tests/testsuite
