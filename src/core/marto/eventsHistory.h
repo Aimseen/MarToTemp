@@ -134,7 +134,7 @@ private:
         EventsStreamBase(buffer, lim) {
 
         *this >> eventsize;
-        if (marto_unlikely(eventsize == -1)) {
+        if (marto_unlikely(eventsize == 0)) {
             throw new HistoryIncompleteEvent("Event not yet all written");
         }
         if (marto_unlikely(eventsize > lim)) {
@@ -176,7 +176,7 @@ private:
      */
     EventsOStream(char* buffer, size_t lim):
         EventsStreamBase(buffer, lim) {
-        eventSizePtr = write((size_t)-1);
+        eventSizePtr = write((size_t)0);
     };
     ~EventsOStream() {
         finalize();
@@ -204,7 +204,7 @@ public:
     };
     void finalize() {
         size_t size=eventSize();
-        assert(*eventSizePtr == -1 || *eventSizePtr==size);
+        assert(*eventSizePtr == 0 || *eventSizePtr==size);
         *eventSizePtr=size;
     };
 };

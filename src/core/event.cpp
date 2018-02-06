@@ -13,6 +13,7 @@ ostream &operator << (ostream &out, const marto::FormalParameters &fp) {
     for (auto it=fp;;) {
         out << it << std::endl;
     }
+    return out;
 }
 
 ostream &operator << (ostream &out, const marto::EventType &ev) {
@@ -20,6 +21,7 @@ ostream &operator << (ostream &out, const marto::EventType &ev) {
     out << "-> " << ev.transition << std::endl;
     out << "-> parameters : " << std::endl;
     out << ev.parameters << std::endl;
+    return out;
 }
 
 namespace marto {
@@ -41,6 +43,7 @@ ParameterValues *Event::getParameter(string name) {
     if (int index = type->findIndex(name)) {
         return parameters[index];
     }
+    return nullptr;
 }
 
 template <typename T>
@@ -64,7 +67,11 @@ size_t ParameterValues::size() {
         return u.array.nbValues;
     case GENERATOR:
         return SIZE_MAX;
+    case REFERENCE:
+        marto_BUG(); // TODO: handle this case
     }
+    marto_BUG(); // Never reached
+    return 0; // for compiler
 }
 
 Event::Event(EventType *t) {
@@ -89,6 +96,7 @@ int Event::load(EventsHistory * hist, EventsIStream &istream) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
+    return true;
 }
 
 int Event::store(EventsHistory * hist, EventsOStream &ostream) {
@@ -100,6 +108,7 @@ int Event::store(EventsHistory * hist, EventsOStream &ostream) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
     }
+    return true;
 }
 
 }
