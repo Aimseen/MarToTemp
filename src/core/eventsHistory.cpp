@@ -11,6 +11,7 @@ EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * ne
     allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
     const size_t chunkSize = 4096;
     bufferMemory = (char *) malloc(chunkSize);
+    allocOwner = true;
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + chunkSize;
 }

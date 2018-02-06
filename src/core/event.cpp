@@ -47,17 +47,19 @@ ParameterValues *Event::getParameter(string name) {
 }
 
 template <typename T>
-T ParameterValues::get(int index) {
+T ParameterValues::get(unsigned int index) {
     switch (kind) {
-    case ARRAY:
-        T *array = (T *) u.array.values;
-        return array[index];
     case GENERATOR:
         if (u.generator.cache.size() <= index) {
-            for (int i=u.generator.cache.size(); i<index+1; i++)
+            for (auto i=u.generator.cache.size(); i<index+1; i++)
                 u.generator.cache[i] = u.generator.g.next();
         }
         return (T) u.generator.cache[index];
+    case REFERENCE:
+        marto_BUG(); // TODO: handle this case
+    case ARRAY:
+        T *array = (T *) u.array.values;
+        return array[index];
     }
 }
 

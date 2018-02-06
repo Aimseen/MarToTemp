@@ -110,7 +110,7 @@ public:
     // In the case of an array, this assumes that the user always ask for the
     // same value type and does not exceed the size she has declared in
     // the configuration.
-    template < typename T > T get(int index);
+    template < typename T > T get(unsigned int index);
     size_t size();
 private:
     enum { ARRAY, GENERATOR, REFERENCE } kind;
