@@ -93,25 +93,25 @@ EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev) {
         char*buffer=position;
         EventsOStream ostream(
             buffer,
-            curChunk->bufferEnd-buffer
+            curChunk->bufferEnd-buffer   // available size
         );
 
         try {
             auto evWritten=ev->store(history(), ostream);
-            ostream.finalize();
+            ostream.finalize();  // used to store the event size in chunk
             position += ostream.eventSize();
             eventNumber ++;
 
             // For now, failed write should never occurs
             assert(evWritten);
 
-            break;
+            break; // escape the infinite loop
         } catch (HistoryOutOfBound const& h) {
             if (marto_unlikely(setNewChunk(curChunk->allocateNextChunk())==nullptr)) {
                 return END_OF_HISTORY;
             }
         }
-    } while(true);
+    } while(true); // start over after creating new chunk
 
     return EVENT_WRITTEN;
 }

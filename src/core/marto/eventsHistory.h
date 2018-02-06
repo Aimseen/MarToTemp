@@ -36,20 +36,21 @@ private:
     char *bufferMemory;
     char *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
     char *bufferEnd;        // end of history chunk;
-    uint32_t eventsCapacity;// maximum number of events in this chunk and possible additional chunks
+    uint32_t eventsCapacity;// maximum number of allowed events in this chunk and possible additional chunks
     uint32_t nbEvents;      // current number of events in the chunk
-    EventsChunk *nextChunk;
-    EventsChunk *prevChunk;
+    EventsChunk *nextChunk; // always later in simulated time
+    EventsChunk *prevChunk; // always earlier in simulated time
 
     /** return the next chunk in the history
      *
      * return NULL at the end of the history.
      */
-    EventsChunk *getNextChunk();
+    EventsChunk *getNextChunk();  // for synchronizing when simulating concurrent trajectories - not yet implemented
     /** allocate a new chunk in the history
-     *
-     * The new chunk is placed just after the current one
-     * Its capacity is set to the remainding of the current one
+     * 
+     * needed when current chunk is full
+     * The new chunk is placed just after the current one (in simulated time)
+     * Its event capacity is set to the remaining of the current one
      * The capacity of the current chunk is adjusted its current number of events
      */
     EventsChunk *allocateNextChunk();
@@ -83,7 +84,7 @@ public:
      * Some place (for events) must be available at the current position
      */
     event_access_t storeNextEvent(Event * ev);
-    /* we do not store events reversly. Never. If really required, we
+    /* we do not store events reversely. Never. If really required, we
      * should go back for several events and generate and store them
      * forward.
 
@@ -133,7 +134,7 @@ private:
     EventsIStream(char* buffer, size_t lim):
         EventsStreamBase(buffer, lim) {
 
-        *this >> eventsize;
+        *this >> eventsize; //read
         if (marto_unlikely(eventsize == 0)) {
             throw new HistoryIncompleteEvent("Event not yet all written");
         }
