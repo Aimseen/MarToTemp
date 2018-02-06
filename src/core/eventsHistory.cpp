@@ -144,6 +144,9 @@ void EventsHistory::backward(uint32_t nbEvents) {
         return;
     }
     EventsChunk *chunk = new EventsChunk(nbEvents, nullptr, firstChunk);
+    if (firstChunk) {
+        firstChunk->prevChunk=chunk;
+    }
     firstChunk = chunk;
 }
 
