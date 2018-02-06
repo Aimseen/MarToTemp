@@ -11,8 +11,8 @@
 namespace marto {
 
 // FIXME: define this kind of macros in a better place
-#define marto_likely(x)       __builtin_expect((x),1)
-#define marto_unlikely(x)     __builtin_expect((x),0)
+#define marto_likely(x)       __builtin_expect(!!(x),1)
+#define marto_unlikely(x)     __builtin_expect(!!(x),0)
 
 #define marto_BUG() do {                        \
     assert(0);                                  \

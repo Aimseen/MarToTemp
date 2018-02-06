@@ -32,6 +32,7 @@ class EventsChunk {
     friend EventsHistory;
 private:
     EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
+    ~EventsChunk();
     bool allocOwner;       // true if bufferMemory is malloc'ed
     char *bufferMemory;
     char *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
