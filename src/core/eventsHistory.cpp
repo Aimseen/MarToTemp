@@ -11,9 +11,17 @@ EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * ne
     allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
     const size_t chunkSize = 4096;
     bufferMemory = (char *) malloc(chunkSize);
-    allocOwner = true;
+    assert(bufferMemory != nullptr);
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + chunkSize;
+}
+
+EventsChunk::~EventsChunk() {
+    if (allocOwner) {
+        // TODO: a reference counter should probably be used when/if we use
+        // the same buffer fore different chunks
+        free(bufferMemory);
+    }
 }
 
 EventsChunk* EventsChunk::getNextChunk() {
