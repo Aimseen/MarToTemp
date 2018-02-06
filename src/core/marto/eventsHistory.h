@@ -156,6 +156,9 @@ private:
         }
         T *newbuf=((T*)ptr)+1;
         size_t size = ((char*)newbuf - buf);
+        if (marto_unlikely(size > bufsize)) {
+            throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
+        }
         bufsize -= size;
         buf = (char*)newbuf;
         return *(T*)ptr;
@@ -192,6 +195,9 @@ private:
         }
         T *newbuf=((T*)ptr)+1;
         size_t size = ((char*)newbuf - buf);
+        if (marto_unlikely(size > bufsize)) {
+            throw new HistoryOutOfBound("Not enough place for the current event");
+        }
         bufsize -= size;
         eventsize += size;
         buf = (char*)newbuf;
