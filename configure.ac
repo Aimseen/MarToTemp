@@ -69,6 +69,10 @@ AC_CHECK_HEADERS([])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+DX_INIT_DOXYGEN([MarTo], [doxygen.conf], [doxygen-doc])
+DX_PS_FEATURE([OFF])
+DX_PDF_FEATURE([OFF])
+
 dnl ----------------------------------------------------------------
 dnl Define libs and progs created by this software
 dnl ----------------------------------------------------------------
@@ -87,6 +91,7 @@ ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
 
 # Checks for library functions.
 AC_CONFIG_FILES([
+	doc/Makefile
 	src/Makefile
 	src/core/Makefile
 	Makefile
@@ -95,6 +100,7 @@ AC_CONFIG_FILES([
 	tests/marto-headers/Makefile
 	tests/core/Makefile
 
+        doc/doxygen.conf
 	src/core/marto.pc
 	tests/marto-installed/GNUmakefile
 ])

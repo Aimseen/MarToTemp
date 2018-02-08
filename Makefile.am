@@ -3,7 +3,8 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS= \
 	src \
-	tests
+	tests \
+	doc
 
 EXTRA_FILES=NEWS
 
