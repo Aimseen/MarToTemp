@@ -116,20 +116,29 @@ protected:
     char *buf;
     size_t bufsize;
     size_t eventsize;
+    int eofbit:1;
 
     /** \brief Create a object that consumes a bounded buffer
      *
      * It will be inherited by Events[IO]Stream
      */
     EventsStreamBase(char* buffer, size_t lim):
-        buf(buffer), bufsize(lim), eventsize(0) {};
+        buf(buffer), bufsize(lim), eventsize(0), eofbit(0) {};
     size_t eventSize() {
         return eventsize;
+    };
+public:
+    /** \brief conversion in bool for while loops */
+    explicit operator bool() {
+        return !eof();
+    };
+    bool eof() {
+        return eofbit;
     };
 };
 
 /** \brief Class to read one event from history */
-class EventsIStream : EventsStreamBase {
+class EventsIStream : public EventsStreamBase {
 private:
     /** \brief Create a object that will allow read anything in a buffer
      *
@@ -138,8 +147,11 @@ private:
     EventsIStream(char* buffer, size_t lim):
         EventsStreamBase(buffer, lim) {
 
-        *this >> eventsize; //read
+        *this >> eventsize;
         if (marto_unlikely(eventsize == 0)) {
+            /* Event not yet fully written (finalized not called)
+             * or read fails
+             */
             throw new HistoryIncompleteEvent("Event not yet all written");
         }
         if (marto_unlikely(eventsize > lim)) {
@@ -151,34 +163,47 @@ private:
     };
     friend EventsIterator::event_access_t EventsIterator::loadNextEvent(Event *ev);
 
-    template<typename T> T read() {
+    template<typename T>
+    void external_func_for_compiler(T&var);
+
+    template<typename T>
+    void read(T&var) {
+        if (marto_unlikely(bufsize == 0)) {
+            eofbit=1;
+            external_func_for_compiler(var);
+            return;
+        }
         void* ptr=(void*)buf;
         if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-            /* no enough place in the buffer! */
+            /* no enough place in the buffer to read the requested data */
             throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
         }
         T *newbuf=((T*)ptr)+1;
-        size_t size = ((char*)newbuf - buf);
+        size_t size = sizeof(T);
         if (marto_unlikely(size > bufsize)) {
+            /* no enough place in the buffer to read the requested data */
+            bufsize += ((char*)ptr-buf);
             throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
         }
         bufsize -= size;
         buf = (char*)newbuf;
-        return *(T*)ptr;
+        var=*(T*)ptr;
     };
 
 public:
     /** \brief classical >> input stream operator
      */
-    template<typename T> EventsIStream& operator>>(T& var) {
-        var=read<T>();
+    template<typename T>
+    EventsIStream& operator>>(T& var) {
+        read(var);
         return *this;
     };
+    /** \brief conversion in bool for while loops */
 };
 
 /** \brief Class to write the content of one event in a buffer
  */
-class EventsOStream : EventsStreamBase {
+class EventsOStream : public EventsStreamBase {
 private:
     size_t *eventSizePtr;
     /** \brief Create a object that will allow write anything in a buffer
@@ -194,14 +219,16 @@ private:
     };
     friend EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev);
 
-    template<typename T> T* write(const T &value) {
+    template<typename T>
+    T* write(const T &value) {
         void* ptr=(void*)buf;
         if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
             throw new HistoryOutOfBound("Not enough place for the current event");
         }
         T *newbuf=((T*)ptr)+1;
-        size_t size = ((char*)newbuf - buf);
+        size_t size = sizeof(T);
         if (marto_unlikely(size > bufsize)) {
+            bufsize += ((char*)ptr-buf);
             throw new HistoryOutOfBound("Not enough place for the current event");
         }
         bufsize -= size;
@@ -214,7 +241,8 @@ private:
 public:
     /** \brief classical << output stream operator
      */
-    template<typename T> EventsOStream& operator<<(const T& var) {
+    template<typename T>
+    EventsOStream& operator<<(const T& var) {
         write(var);
         return *this;
     };
