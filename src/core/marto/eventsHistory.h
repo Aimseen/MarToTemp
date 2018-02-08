@@ -21,11 +21,13 @@ class Configuration;
 class Event;
 
 //////////////////////////////////////////////////////////////////////////////
-/** This class manages chunk of events in memory
+/** \brief class to manages chunk of events in memory
  *
  * These chunks will be linked in memory to create an history.
+ *
  * The chunk notion should be transparent to the user of EventsHistory.
- * Chunk are also used when some events must be inserted into an existing history.
+ *
+ * Chunk are also used when some events must be inserted into an existing history (not yet implemented)
  */
 class EventsChunk {
     friend EventsIterator;
@@ -33,22 +35,25 @@ class EventsChunk {
 private:
     EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
     ~EventsChunk();
-    bool allocOwner;       // true if bufferMemory is malloc'ed
+    bool allocOwner;       ///< true if bufferMemory is malloc'ed
     char *bufferMemory;
-    char *bufferStart;      // beginning of history chunk; same as chunkStart ptr in the plain backward scheme
-    char *bufferEnd;        // end of history chunk;
-    uint32_t eventsCapacity;// maximum number of allowed events in this chunk and possible additional chunks
-    uint32_t nbEvents;      // current number of events in the chunk
-    EventsChunk *nextChunk; // always later in simulated time
-    EventsChunk *prevChunk; // always earlier in simulated time
+    char *bufferStart;      ///< beginning of history chunk; same as chunkStart ptr in the plain backward scheme
+    char *bufferEnd;        ///< end of history chunk;
+    uint32_t eventsCapacity;///< maximum number of allowed events in this chunk and possible additional chunks
+    uint32_t nbEvents;      ///< current number of events in the chunk
+    EventsChunk *nextChunk; ///< always later in simulated time
+    EventsChunk *prevChunk; ///< always earlier in simulated time
 
-    /** return the next chunk in the history
+    /** \brief return the next chunk in the history
      *
-     * return NULL at the end of the history.
+     * \return NULL at the end of the history.
+     *
+     * \note this accessor is provided as synchronization will be required
+     * when simulating concurrent trajectories (not yet implemented)
      */
-    EventsChunk *getNextChunk();  // for synchronizing when simulating concurrent trajectories - not yet implemented
-    /** allocate a new chunk in the history
-     * 
+    EventsChunk *getNextChunk();
+    /** \brief allocate a new chunk in the history
+     *
      * needed when current chunk is full
      * The new chunk is placed just after the current one (in simulated time)
      * Its event capacity is set to the remaining of the current one
@@ -58,9 +63,9 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-/** This class allows one to read the history and to write new events
+/** \brief class to allow one to read the history and to write new events
  *
- * Note: some parallel version will be to be implemented
+ * \note some parallel version will be to be implemented
  */
 class EventsIterator {
 private:
@@ -71,16 +76,16 @@ public:
     typedef enum {
         EVENT_LOADED=0,
         EVENT_WRITTEN=0,
-        END_OF_HISTORY, /* the end of history is reached */
-        UNDEFINED_EVENT, /* trying to load an event not yet generated */
+        END_OF_HISTORY, ///< the end of history is reached
+        UNDEFINED_EVENT, ///< trying to load an event not yet generated
 
     } event_access_t;
 
-    /** Fill ev with the next event, loading from the history
+    /** \brief Fill ev with the next event, loading from the history
      */
     event_access_t loadNextEvent(Event * ev);
 
-    /** Write the event in the history.
+    /** \brief Write the event in the history.
      *
      * Some place (for events) must be available at the current position
      */
@@ -92,7 +97,7 @@ public:
     int storePrevEvent(Event * ev); // for reverse trajectory algorithm
     */
 
-    /** Get the history linked to this iterator */
+    /** \brief Get the history linked to this iterator */
     EventsHistory *history() {
         return _history;
     }
@@ -101,23 +106,25 @@ private:
     EventsChunk *setNewChunk(EventsChunk *chunk);
 
     EventsChunk *curChunk;
-    char *position;         // current position in the chunk buffer
-    uint32_t eventNumber;   // # event in the current chunk to be read or written
+    char *position;         ///< current position in the chunk buffer
+    uint32_t eventNumber;   ///< # event in the current chunk to be read or written
 
     EventsHistory *_history;
 };
 
+/** \brief Base class to read of write events in history */
 class EventsStreamBase {
-    /** forbid copy of this kind of objects */
+    /** \brief forbid copy of this kind of objects */
     EventsStreamBase(const EventsStreamBase &) = delete;
-    /** forbid assignment of this kind of objects */
+    /** \brief forbid assignment of this kind of objects */
     EventsStreamBase &operator=(const EventsStreamBase &) = delete;
 protected:
     char *buf;
     size_t bufsize;
     size_t eventsize;
 
-    /** Create a object that consumes a bounded buffer
+    /** \brief Create a object that consumes a bounded buffer
+     *
      * It will be inherited by Events[IO]Stream
      */
     EventsStreamBase(char* buffer, size_t lim):
@@ -127,9 +134,11 @@ protected:
     };
 };
 
+/** \brief Class to read one event from history */
 class EventsIStream : EventsStreamBase {
 private:
-    /** Create a object that will allow read anything in a buffer
+    /** \brief Create a object that will allow read anything in a buffer
+     *
      * This will be created by EventsIterator::read*()
      */
     EventsIStream(char* buffer, size_t lim):
@@ -165,18 +174,21 @@ private:
     };
 
 public:
+    /** \brief classical >> input stream operator
+     */
     template<typename T> EventsIStream& operator>>(T& var) {
         var=read<T>();
         return *this;
     };
 };
 
-/** Class to write the content of an event in a buffer
+/** \brief Class to write the content of one event in a buffer
  */
 class EventsOStream : EventsStreamBase {
 private:
     size_t *eventSizePtr;
-    /** Create a object that will allow write anything in a buffer
+    /** \brief Create a object that will allow write anything in a buffer
+     *
      * This will be created by EventsIterator::store*()
      */
     EventsOStream(char* buffer, size_t lim):
@@ -206,10 +218,16 @@ private:
     };
 
 public:
+    /** \brief classical << output stream operator
+     */
     template<typename T> EventsOStream& operator<<(const T& var) {
         write(var);
         return *this;
     };
+    /** \brief finalize the write of the event in the history
+     *
+     * If not explicitely called, it will be called from destructor
+     */
     void finalize() {
         size_t size=eventSize();
         assert(*eventSizePtr == 0 || *eventSizePtr==size);
@@ -217,29 +235,38 @@ public:
     };
 };
 
+/** \brief Class to manage an events history
+ */
 class EventsHistory {
 public:
-    /** Initialize a new history of events */
+    /** \brief Initialize a new history of events */
     EventsHistory(Configuration * conf);
-    /** Get an iterator positioned at the begining of the history */
+    /** \brief Get an iterator positioned at the begining of the history */
     EventsIterator *iterator();
 
-    /** Add some space in history for nbEvents *before* the previous begining
-     * iterator() can be called to start at the (new) begining of the history
+    /** \brief Add some space in history
+     *
+     * the space has a capacity of nbEvents and is inserted *before*
+     * the previous start of the history
+     *
+     * iterator() can be called to start at the (new) begining of the
+     * history
      */
     void backward(uint32_t nbEvents);
 
-    /* Returns a new generator starting at the new available stream
+    /* \brief Returns a new generator
+     *
+     * The new generator is starting at the new available stream
      * associated to the current simulation context One stream per
      * chunk (to be able to regenerate the same events)
      */
-    Random nextStream;// provides a clone and advances to next stream
+    Random nextStream;// FIXME: attribute or method? provides a clone and advances to next stream
 
 private:
-    // EventsIterator need to access to firstChunk
+    /// EventsIterator need to access to firstChunk
     friend EventsIterator::EventsIterator(EventsHistory *hist);
     Configuration * configuration;
-    EventsChunk *firstChunk;        // beginning of history
+    EventsChunk *firstChunk;        ///< beginning of history
     //uint32_t _nbEvents; // useful ?
 public:
     Configuration * getConfig() {
