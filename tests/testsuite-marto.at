@@ -13,3 +13,6 @@ dnl Marto main test
 AT_NTG_SETUP([Manual test])
 AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
 AT_NTG_CLEANUP
+
+AT_NTG_TEST_PROG([test_history], [History test], [], [], [], [], [ignore], [ignore])
+

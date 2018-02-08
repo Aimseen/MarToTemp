@@ -16,7 +16,7 @@ Transition *Configuration::getTransition(string name) {
 Configuration *Global::getConfig() {
     if (config == nullptr) {
         config = new Configuration();
-        
+
         // TODO but rather on the libtransition side
         // Fill the hardcoded transition names
         // setTransition("JSQ2", new JSQ2());
@@ -24,7 +24,8 @@ Configuration *Global::getConfig() {
     return config;
 }
 
-EventType *Configuration::getEventType(int num) {
+EventType *Configuration::getEventType(unsigned num) {
+    assert(num < eventTypesVector.size());
     return eventTypesVector[num];
 }
 

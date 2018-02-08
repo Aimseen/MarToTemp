@@ -13,7 +13,7 @@ class Configuration {
     std::vector<EventType *> eventTypesVector;
     std::map<string, Transition *> transitionsVector;
 public :
-    EventType *getEventType(int num);
+    EventType *getEventType(unsigned num);
     Transition *getTransition(string name);
     void setTransition(string name, Transition *trans);
 };

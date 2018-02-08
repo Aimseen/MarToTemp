@@ -49,10 +49,8 @@ EventsChunk* EventsChunk::allocateNextChunk() {
 
 // EventsIterator
 
-EventsIterator::EventsIterator(EventsHistory * hist):
-    curChunk(hist->firstChunk), eventNumber(0)
-{
-
+EventsIterator::EventsIterator(EventsHistory * hist) {
+    setNewChunk(hist->firstChunk);
 }
 
 EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {

@@ -117,7 +117,7 @@ protected:
     char *buf;
     size_t bufsize;
     size_t eventsize;
-    int eofbit:1;
+    unsigned int eofbit:1;
 
     /** \brief Create a object that consumes a bounded buffer
      *
