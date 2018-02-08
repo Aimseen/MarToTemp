@@ -46,23 +46,6 @@ ParameterValues *Event::getParameter(string name) {
     return nullptr;
 }
 
-template <typename T>
-T ParameterValues::get(unsigned int index) {
-    switch (kind) {
-    case GENERATOR:
-        if (u.generator.cache.size() <= index) {
-            for (auto i=u.generator.cache.size(); i<index+1; i++)
-                u.generator.cache[i] = u.generator.g.next();
-        }
-        return (T) u.generator.cache[index];
-    case REFERENCE:
-        marto_BUG(); // TODO: handle this case
-    case ARRAY:
-        T *array = (T *) u.array.values;
-        return array[index];
-    }
-}
-
 size_t ParameterValues::size() {
     switch (kind) {
     case ARRAY:
@@ -74,6 +57,9 @@ size_t ParameterValues::size() {
     }
     marto_BUG(); // Never reached
     return 0; // for compiler
+}
+
+Event::Event() {
 }
 
 Event::Event(EventType *t) {

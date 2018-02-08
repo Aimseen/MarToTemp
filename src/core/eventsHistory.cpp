@@ -153,8 +153,4 @@ void EventsHistory::backward(uint32_t nbEvents) {
     firstChunk = chunk;
 }
 
-template<typename T>
-void EventsIStream::external_func_for_compiler(__attribute__((unused)) T& var) {
-}
-
 }

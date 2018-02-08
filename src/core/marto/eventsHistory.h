@@ -1,5 +1,5 @@
 /* -*-c++-*- C++ mode for emacs */
-/* Event Generator */
+/* Events History */
 #ifndef MARTO_EVENTS_HISTORY_H
 #define MARTO_EVENTS_HISTORY_H
 
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <memory>
 #include <marto/random.h>
+#include <marto/macros.h>
 #include <marto/except.h>
 #include <cassert>
 
@@ -167,28 +168,7 @@ private:
     void external_func_for_compiler(T&var);
 
     template<typename T>
-    void read(T&var) {
-        if (marto_unlikely(bufsize == 0)) {
-            eofbit=1;
-            external_func_for_compiler(var);
-            return;
-        }
-        void* ptr=(void*)buf;
-        if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-            /* no enough place in the buffer to read the requested data */
-            throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
-        }
-        T *newbuf=((T*)ptr)+1;
-        size_t size = sizeof(T);
-        if (marto_unlikely(size > bufsize)) {
-            /* no enough place in the buffer to read the requested data */
-            bufsize += ((char*)ptr-buf);
-            throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
-        }
-        bufsize -= size;
-        buf = (char*)newbuf;
-        var=*(T*)ptr;
-    };
+    void read(T&var);
 
 public:
     /** \brief classical >> input stream operator
@@ -197,7 +177,7 @@ public:
     EventsIStream& operator>>(T& var) {
         read(var);
         return *this;
-    };
+    }
     /** \brief conversion in bool for while loops */
 };
 
@@ -220,23 +200,7 @@ private:
     friend EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev);
 
     template<typename T>
-    T* write(const T &value) {
-        void* ptr=(void*)buf;
-        if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-            throw new HistoryOutOfBound("Not enough place for the current event");
-        }
-        T *newbuf=((T*)ptr)+1;
-        size_t size = sizeof(T);
-        if (marto_unlikely(size > bufsize)) {
-            bufsize += ((char*)ptr-buf);
-            throw new HistoryOutOfBound("Not enough place for the current event");
-        }
-        bufsize -= size;
-        eventsize += size;
-        buf = (char*)newbuf;
-        *(T*)ptr=value;
-        return (T*)ptr;
-    };
+    T* write(const T &value);
 
 public:
     /** \brief classical << output stream operator
@@ -245,7 +209,7 @@ public:
     EventsOStream& operator<<(const T& var) {
         write(var);
         return *this;
-    };
+    }
     /** \brief finalize the write of the event in the history
      *
      * If not explicitely called, it will be called from destructor
@@ -314,5 +278,12 @@ protected:
 };
 
 }
+
+#ifndef MARTO_H
+// In case of direct inclusion (instead of using <marto.h>),
+// we try to include the implementation, hoping to avoid include loops
+#  include <marto/eventsHistory-impl.h>
+#endif
+
 #endif
 #endif

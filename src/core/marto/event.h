@@ -185,5 +185,12 @@ private:
 };
 
 }
+
+#ifndef MARTO_H
+// In case of direct inclusion (instead of using <marto.h>),
+// we try to include the implementation, hoping to avoid include loops
+#  include <marto/event-impl.h>
+#endif
+
 #endif
 #endif
