@@ -7,13 +7,16 @@
 namespace marto {
 // EventsChunk
 
-EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next):
-    allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next), prevChunk(prev) {
-    const size_t chunkSize = 4096;
-    bufferMemory = (char *) malloc(chunkSize);
+EventsChunk::EventsChunk(uint32_t capacity, EventsChunk * prev,
+                         EventsChunk * next, EventsHistory * hist):
+    allocOwner(true), eventsCapacity(capacity), nbEvents(0),
+    nextChunk(next), prevChunk(prev), history(hist)
+{
+    size_t bufferSize;
+    bufferMemory = history->allocChunkBuffer(&bufferSize);
     assert(bufferMemory != nullptr);
     bufferStart = bufferMemory;
-    bufferEnd = bufferMemory + chunkSize;
+    bufferEnd = bufferMemory + bufferSize;
 }
 
 EventsChunk::~EventsChunk() {
@@ -35,7 +38,7 @@ EventsChunk* EventsChunk::allocateNextChunk() {
     } else {
         capacity=eventsCapacity-nbEvents;
     }
-    EventsChunk* newChunk=new EventsChunk(capacity, this, nextChunk);
+    EventsChunk* newChunk=new EventsChunk(capacity, this, nextChunk, history);
     if (nextChunk) {
         nextChunk->prevChunk=newChunk;
     }
@@ -47,7 +50,7 @@ EventsChunk* EventsChunk::allocateNextChunk() {
 // EventsIterator
 
 EventsIterator::EventsIterator(EventsHistory * hist):
-    curChunk(hist->firstChunk), eventNumber(0), _history(hist)
+    curChunk(hist->firstChunk), eventNumber(0)
 {
 
 }
@@ -77,7 +80,7 @@ EventsIterator::event_access_t EventsIterator::loadNextEvent(Event * ev) {
         buffer,
         curChunk->bufferEnd-buffer
     );
-    auto evRead = ev->load(history(), istream);
+    auto evRead = ev->load(curChunk->history, istream);
     position += istream.eventSize();
     eventNumber ++;
 
@@ -105,7 +108,7 @@ EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev) {
         );
 
         try {
-            auto evWritten=ev->store(history(), ostream);
+            auto evWritten=ev->store(curChunk->history, ostream);
             ostream.finalize();  // used to store the event size in chunk
             position += ostream.eventSize();
             eventNumber ++;
@@ -134,7 +137,7 @@ EventsIterator *EventsHistory::iterator() {
     if (firstChunk == nullptr) {
         // Empty history, creating a chunk
         // no need to restrict the number of events
-        firstChunk = new EventsChunk(UINT32_MAX, nullptr, nullptr);
+        firstChunk = new EventsChunk(UINT32_MAX, nullptr, nullptr, this);
     }
     return new EventsIterator(this);
 }
@@ -143,7 +146,7 @@ void EventsHistory::backward(uint32_t nbEvents) {
     if (nbEvents == 0) {
         return;
     }
-    EventsChunk *chunk = new EventsChunk(nbEvents, nullptr, firstChunk);
+    EventsChunk *chunk = new EventsChunk(nbEvents, nullptr, firstChunk, this);
     if (firstChunk) {
         firstChunk->prevChunk=chunk;
     }

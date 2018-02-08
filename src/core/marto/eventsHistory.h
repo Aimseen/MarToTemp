@@ -33,7 +33,7 @@ class EventsChunk {
     friend EventsIterator;
     friend EventsHistory;
 private:
-    EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next);
+    EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next, EventsHistory * hist);
     ~EventsChunk();
     bool allocOwner;       ///< true if bufferMemory is malloc'ed
     char *bufferMemory;
@@ -43,6 +43,7 @@ private:
     uint32_t nbEvents;      ///< current number of events in the chunk
     EventsChunk *nextChunk; ///< always later in simulated time
     EventsChunk *prevChunk; ///< always earlier in simulated time
+    EventsHistory *history; ///< history this chunk belong to
 
     /** \brief return the next chunk in the history
      *
@@ -97,19 +98,12 @@ public:
     int storePrevEvent(Event * ev); // for reverse trajectory algorithm
     */
 
-    /** \brief Get the history linked to this iterator */
-    EventsHistory *history() {
-        return _history;
-    }
-
 private:
     EventsChunk *setNewChunk(EventsChunk *chunk);
 
     EventsChunk *curChunk;
     char *position;         ///< current position in the chunk buffer
     uint32_t eventNumber;   ///< # event in the current chunk to be read or written
-
-    EventsHistory *_history;
 };
 
 /** \brief Base class to read of write events in history */
@@ -272,6 +266,23 @@ public:
     Configuration * getConfig() {
         return configuration;
     };
+protected:
+    /** \brief Allocate Memory for a chunk
+     * \param size must be filled with the size of the allocated buffer if not NULL
+     * \return address of a buffer that can be used by an EventsChunk
+     *
+     * The default implementation allocates 4096 bytes but any derived
+     * class can choose different sizes
+     */
+    virtual char* allocChunkBuffer(size_t *size) {
+        const size_t s=4096;
+        char *buffer=(char*)malloc(s);
+        if (size) {
+            *size=buffer?s:0;
+        }
+        return buffer;
+    }
+    friend class EventsChunk;
 };
 
 }
