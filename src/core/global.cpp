@@ -19,7 +19,7 @@ Configuration *Global::getConfig() {
 
         // TODO but rather on the libtransition side
         // Fill the hardcoded transition names
-        // setTransition("JSQ2", new JSQ2());
+        setTransition("JSQ2", new JSQ2());
     }
     return config;
 }
