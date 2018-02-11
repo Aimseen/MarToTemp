@@ -15,7 +15,8 @@ nobase_include_HEADERS=\
       marto/random.h \
       marto/RngStream.h \
       marto/state.h \
-      marto/transition.h
+      marto/transition.h \
+      marto/types.h
 
 lib_LTLIBRARIES= libmarto.la
 

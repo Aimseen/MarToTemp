@@ -63,7 +63,7 @@ EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {
     return chunk;
 };
 
-EventsIterator::event_access_t EventsIterator::loadNextEvent(Event * ev) {
+event_access_t EventsIterator::loadNextEvent(Event * ev) {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk())==nullptr)) {
@@ -78,17 +78,17 @@ EventsIterator::event_access_t EventsIterator::loadNextEvent(Event * ev) {
         buffer,
         curChunk->bufferEnd-buffer
     );
-    auto evRead = ev->load(curChunk->history, istream);
+    auto evRead = ev->load(istream, curChunk->history);
     position += istream.eventSize();
     eventNumber ++;
 
     // For now, failed read should never occurs
-    assert(evRead);
+    assert(evRead==EVENT_LOADED);
 
     return EVENT_LOADED;
 }
 
-EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev) {
+event_access_t EventsIterator::storeNextEvent(Event *ev) {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk())==nullptr)) {
@@ -106,23 +106,22 @@ EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev) {
         );
 
         try {
-            auto evWritten=ev->store(curChunk->history, ostream);
-            ostream.finalize();  // used to store the event size in chunk
-            position += ostream.eventSize();
-            eventNumber ++;
-
-            // For now, failed write should never occurs
-            assert(evWritten);
-
-            break; // escape the infinite loop
+            event_access_t access=ev->store(ostream, curChunk->history);
+            if (access != EVENT_STORED) {
+                ostream.abort();
+            } else {
+                ostream.finalize();  // used to store the event size in chunk
+                position += ostream.eventSize();
+                eventNumber ++;
+                curChunk->nbEvents++;
+            }
+            return access;
         } catch (HistoryOutOfBound const& h) {
             if (marto_unlikely(setNewChunk(curChunk->allocateNextChunk())==nullptr)) {
                 return END_OF_HISTORY;
             }
         }
     } while(true); // start over after creating new chunk
-
-    return EVENT_WRITTEN;
 }
 
 // EventsHistory

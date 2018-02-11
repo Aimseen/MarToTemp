@@ -25,17 +25,40 @@ ostream &operator << (ostream &out, const marto::EventType &ev) {
 
 namespace marto {
 
-EventType::EventType(string idEvT, double evtRate, string idTr, FormalParameters *params) {
-    name = idEvT;
-    rate = evtRate;
-    transition = Global::getConfig()->getTransition(idTr);
-    parameters = params;
+EventType::EventType(Configuration *config, string idEvT, double evtRate, string idTr, FormalParameters *fp):
+    name(idEvT), transition(config->getTransition(idTr)), rate(evtRate), parameters(fp)
+{
+    config->registerEventType(this);
 }
 
-int EventType::findIndex(string name) {
-    auto couple = parameters->find(name);
+int EventType::findIndex(string parameterName) {
+    auto couple = parameters->find(parameterName);
     assert(couple != parameters->end());
     return couple->second.first;   //couple is a pair, whose first element is the index in the parameters table
+}
+
+event_access_t EventType::load(EventsIStream &istream, Event *ev, EventsHistory * hist) {
+    // FIXME: avoir unused parameter;
+    if (!istream) {
+        istream >> ev >> hist;
+    }
+    for (auto pair:*parameters) {
+        /* pair iterates on all elements in fp (list of pairs) */
+        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+    }
+    return EVENT_LOADED;
+}
+
+event_access_t EventType::store(EventsOStream &ostream, Event *ev, EventsHistory * hist) {
+    // FIXME: avoir unused parameter;
+    if (!ostream) {
+        ostream << ev << hist;
+    }
+    for (auto pair:*parameters) {
+        /* pair iterates on all elements in fp (list of pairs) */
+        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+    }
+    return EVENT_STORED;
 }
 
 ParameterValues *Event::getParameter(string name) {
@@ -58,11 +81,15 @@ size_t ParameterValues::size() {
     return 0; // for compiler
 }
 
-Event::Event() {
+Event::Event():
+    parameters(), status(EVENT_STATUS_INVALID)
+{
 }
 
-Event::Event(EventType *t) {
-    type = t;
+Event::Event(EventType *t):
+    Event()
+{
+    setTypeAndCode(t);
 }
 
 void Event::apply(Point *p) {
@@ -73,29 +100,27 @@ void Event::apply(Point *p) {
    (example of event type : arrival in queue 1)
    it is read from a table built from user config file
  */
-int Event::load(EventsHistory * hist, EventsIStream &istream) {
+event_access_t Event::load(EventsIStream &istream, EventsHistory * hist) {
     parameters.clear();     /* clears previously stored event information */
-    int code;
-    // FIXME: next line is just to show
-    istream >> code >> code;   //eventype is encoded in the first integer of the event buffer.
-    type = hist->getConfig()->getEventType(code);
-    for (auto pair:*(type->parameters)) {
-        /* pair iterates on all elements in fp (list of pairs) */
-        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+    if (istream >> code) {   //eventype is encoded in the first integer of the event buffer.
+        if (setTypeFromCode(hist->getConfig())) {
+            if (type->load(istream, this, hist)) {
+                status = EVENT_STATUS_FILLED;
+                return EVENT_LOADED;
+            }
+        }
     }
-    return true;
+    return EVENT_LOAD_CODE_ERROR;
 }
 
-int Event::store(EventsHistory * hist, EventsOStream &ostream) {
-    int code=12;
-    // FIXME: next line is just to show
-    ostream << code << code;  //eventype is encoded in the first integer of the event buffer.
-    type = hist->getConfig()->getEventType(code);
-    for (auto pair:*(type->parameters)) {
-        /* pair iterates on all elements in fp (list of pairs) */
-        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+event_access_t Event::store(EventsOStream &ostream, EventsHistory * hist) {
+    if (status != EVENT_STATUS_FILLED) {
+        return EVENT_STORE_UNDEFINED_ERROR;
     }
-    return true;
+    if (ostream << code) {
+        return type->store(ostream, this, hist);
+    }
+    return EVENT_STORE_ERROR;
 }
 
 }

@@ -8,6 +8,7 @@
 #include <marto/forwardDecl.h>
 #include <marto/random.h>
 #include <marto/global.h>
+#include <marto/types.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string>
@@ -70,27 +71,6 @@ public:
     FormalDistributionVariadicList(string idRandom, FormalParameters fp);
 };
 
-class EventType {
-    friend class Event;
-public:
-    /* idTr indicates which transition function will be used.
-       eventName is a long, detailed name for the event.
-       fp include all parameters needed to generate the event */
-    EventType(string eventName, double evtRate, string idTr, FormalParameters *params);
-private:
-    friend ostream & ::operator << (ostream &out, const EventType &ev);
-    string name;
-    Transition * transition;
-    double rate;
-    // TODO: choose if we use a pointer or an object, same for constructor.
-    FormalParameters *parameters;
-public:
-    int findIndex(string name);
-    //GetParameter gp; /* ??? FIXME */
-    int nbIntStaticParameters();
-    int nbDoubleStaticParameters();
-};
-
 /* list of values for this parameter (for instance : input queues) */
 class ParameterValues {
 public:
@@ -125,30 +105,35 @@ private:
 /* each simulation sequence only uses 1 object of type Event */
 class Event {
 public:
-    /** Create an empty (unusable) event */
+    /** type used to store the event code */
+    typedef unsigned code_t;
+    /** Create an empty (unusable) event
+     */
     Event();
     /** Creates an event from a given type */
     Event(EventType *type);
     /** Load the event data from its serialization
-     *  returns true upon success,
-     *  0 if the compact representation
-     *  does not match a known event type
+     *
      */
-    int load(EventsHistory *h, EventsIStream &istream);
+    event_access_t load(EventsIStream &istream, EventsHistory *h);
     /** Stores a compact representation of the event
-     *  returns true upon success (else false)
+     *
      *  Note: the store can be aborted (with an exception)
      *  if the current chunk buffer is not bif enough
      *  In this case, storeNextEvent will restart the
      *  call to this function in a new chunk.
      */
-    int store(EventsHistory *h, EventsOStream &ostream);
+    event_access_t store(EventsOStream &ostream, EventsHistory *h);
     /** Creates (generate) a new Event
      * SEEMS WRONG : because of the rate, the generation should
      * randomly decide of which eventType to generate
      * useful if for one eventype there is a random choice to be made e.g. JSQ)
      *  returns 1 */
     static int generate(EventType * type);
+    /* FIXME: just here for basic tests */
+    void generate() {
+        status=EVENT_STATUS_FILLED;
+    };
 
     ParameterValues *getParameter(string name);
     void apply(Point *p);
@@ -172,8 +157,85 @@ public:
     void set(int index, double value);
 
 private:
-    std::vector < ParameterValues * >parameters;   /* actual parameters (not formal), used to apply transition */
+    enum eventStatus { EVENT_STATUS_INVALID, EVENT_STATUS_TYPED, EVENT_STATUS_FILLED };
+
+    std::vector < ParameterValues * >parameters;   /**< actual parameters (not formal), used to apply transition */
     EventType *type;
+    enum eventStatus status;
+    code_t code;
+
+    /** \brief setup the EventType of the event
+     *
+     * \return the EventType (or nullptr if not found in config)
+     *
+     * reinitialize the parameters and other attribute if required
+     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
+     */
+    inline EventType * setTypeFromCode(Configuration *c);
+    /** \brief setup the EventType of the event
+     *
+     * \return the parameter type
+     *
+     * reinitialize the parameters and other attribute if required
+     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
+     * the code of the Event is set from the EventType
+     */
+    inline EventType * setTypeAndCode(EventType *type);
+    /** \brief setup the EventType of the event
+     *
+     * \return the parameter type
+     *
+     * reinitialize the parameters and other attribute if required
+     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
+     */
+    inline EventType * setType(EventType *type);
+};
+
+class EventType {
+    friend class Event;
+public:
+    /** \brief create a new EventType in the configuration
+     *
+     * \param idTr indicates which transition function will be used.
+     * \param eventName is a long, detailed name for the event.
+     * \param fp include all parameters needed to generate the event
+     *
+     * \note the EventType will be registered into the provided configuration
+     */
+    EventType(Configuration * config, string eventName, double evtRate, string idTr, FormalParameters *fp);
+private:
+    friend ostream & ::operator << (ostream &out, const EventType &ev);
+    string name;
+    Transition * transition;
+    double rate;
+    // TODO: choose if we use a pointer or an object, same for constructor.
+    FormalParameters *parameters;
+    Event::code_t _code; ///< code of this EventType as assigned by the configuration
+    /** used by the Configuration to assign a code */
+    void setCode(Event::code_t c) {
+        _code=c;
+    };
+    friend EventType* Configuration::registerEventType(EventType*);
+protected:
+    /** \brief load actual parameters from history to an event
+     *
+     * \return true if the load is successful
+     */
+    virtual event_access_t load(EventsIStream &istream, Event *event, EventsHistory * hist);
+    /** \brief store actual parameters of an event into history
+     *
+     * \return true if the store is successful
+     */
+    virtual event_access_t store(EventsOStream &ostream, Event *event, EventsHistory * hist);
+public:
+    /** Code of this kind of event */
+    Event::code_t code() {
+        return _code;
+    };
+    int findIndex(string parameterName);
+    //GetParameter gp; /* ??? FIXME */
+    int nbIntStaticParameters();
+    int nbDoubleStaticParameters();
 };
 
 }

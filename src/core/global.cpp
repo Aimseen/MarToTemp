@@ -19,7 +19,7 @@ Configuration *Global::getConfig() {
 
         // TODO but rather on the libtransition side
         // Fill the hardcoded transition names
-        setTransition("JSQ2", new JSQ2());
+        // setTransition("JSQ2", new JSQ2());
     }
     return config;
 }
@@ -27,6 +27,13 @@ Configuration *Global::getConfig() {
 EventType *Configuration::getEventType(unsigned num) {
     assert(num < eventTypesVector.size());
     return eventTypesVector[num];
+}
+
+EventType* Configuration::registerEventType(EventType* eventType) {
+    Event::code_t code=eventTypesVector.size();
+    eventTypesVector.push_back(eventType);
+    eventType->setCode(code);
+    return eventType;
 }
 
 }

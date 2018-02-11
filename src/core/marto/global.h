@@ -20,6 +20,7 @@ public :
     EventType *getEventType(unsigned num);
     Transition *getTransition(std::string name);
     void setTransition(std::string name, Transition *trans);
+    EventType* registerEventType(EventType* eventType);
 };
 
 class Global {

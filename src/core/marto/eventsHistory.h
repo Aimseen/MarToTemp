@@ -11,6 +11,7 @@
 #include <marto/random.h>
 #include <marto/macros.h>
 #include <marto/except.h>
+#include <marto/types.h>
 #include <marto/forwardDecl.h>
 #include <cassert>
 
@@ -70,14 +71,6 @@ private:
     //friend EventsIterator *EventsHistory::iterator();
     friend class EventsHistory;
 public:
-    typedef enum {
-        EVENT_LOADED=0,
-        EVENT_WRITTEN=0,
-        END_OF_HISTORY, ///< the end of history is reached
-        UNDEFINED_EVENT, ///< trying to load an event not yet generated
-
-    } event_access_t;
-
     /** \brief Fill ev with the next event, loading from the history
      */
     event_access_t loadNextEvent(Event * ev);
@@ -157,7 +150,7 @@ private:
         /* limiting the following reads to the event data */
         bufsize = eventsize - (buf-buffer);
     };
-    friend EventsIterator::event_access_t EventsIterator::loadNextEvent(Event *ev);
+    friend event_access_t EventsIterator::loadNextEvent(Event *ev);
 
     template<typename T>
     void external_func_for_compiler(T&var);
@@ -192,7 +185,7 @@ private:
     ~EventsOStream() {
         finalize();
     };
-    friend EventsIterator::event_access_t EventsIterator::storeNextEvent(Event *ev);
+    friend event_access_t EventsIterator::storeNextEvent(Event *ev);
 
     template<typename T>
     T* write(const T &value);
@@ -205,11 +198,18 @@ public:
         write(var);
         return *this;
     }
+    /** \brief called when a store is interrupted */
+    void abort() {
+        eofbit=1;
+    }
     /** \brief finalize the write of the event in the history
      *
      * If not explicitely called, it will be called from destructor
      */
     void finalize() {
+        if (eof()) {
+            return;
+        }
         size_t size=eventSize();
         assert(*eventSizePtr == 0 || *eventSizePtr==size);
         *eventSizePtr=size;

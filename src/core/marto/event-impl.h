@@ -31,6 +31,28 @@ T ParameterValues::get(unsigned int index) {
     }
 }
 
+inline EventType *Event::setType(EventType *type) {
+    this->type=type;
+    if (type == nullptr) {
+        status = EVENT_STATUS_INVALID;
+        return nullptr;
+    }
+    status = EVENT_STATUS_TYPED;
+    return type;
+}
+
+inline EventType *Event::setTypeFromCode(Configuration *config) {
+    assert(config != nullptr);
+    return setType(config->getEventType(code));
+}
+
+inline EventType *Event::setTypeAndCode(EventType *type) {
+    if (setType(type)) {
+        code=type->code();
+    }
+    return type;
+}
+
 }
 
 #endif

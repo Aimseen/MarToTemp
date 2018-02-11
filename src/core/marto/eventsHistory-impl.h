@@ -38,14 +38,19 @@ void EventsIStream::read(T&var) {
 
 template<typename T>
 T* EventsOStream::write(const T &value) {
+    if (marto_unlikely(eof())) {
+        return nullptr;
+    }
     void* ptr=(void*)buf;
     if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
+        abort();
         throw new HistoryOutOfBound("Not enough place for the current event");
     }
     T *newbuf=((T*)ptr)+1;
     size_t size = sizeof(T);
     if (marto_unlikely(size > bufsize)) {
-        bufsize += ((char*)ptr-buf);
+        // bufsize += ((char*)ptr-buf); // no need: ostream wont be used anymore
+        abort();
         throw new HistoryOutOfBound("Not enough place for the current event");
     }
     bufsize -= size;
