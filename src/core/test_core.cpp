@@ -4,24 +4,32 @@
 using namespace marto;
 
 class TransitionBidon:public Transition {
-    Point *apply(Point * p, Event * ev) {
+    Point *apply(Point * p, __attribute__((unused)) Event * ev) {
         for (int i = 0; i < 3; i++)
             p->at(i)++;
+        return p;
+    }
+    HyperRectangle *apply(HyperRectangle * h, __attribute__((unused)) Event * ev) {
+        return h;
+    }
+    Union *apply(Union * u, __attribute__((unused)) Event * ev) {
+        return u;
     }
 };
 
 // Do test stuff
 int main() {
+    Configuration *config=Global::getConfig();
     // Fill the hardcoded transition names
-    Global::getConfig()->setTransition("TransitionBidon", new TransitionBidon());
+    config->setTransition("TransitionBidon", new TransitionBidon());
 
     Point *p = new Point();
     p->resize(3);
     for (int i = 0; i < 3; i++)
         p->at(i) = i + 1;
-    EventType *et = new EventType("My super event", 42.0, "TransitionBidon", new FormalParameters());
+    EventType *et = new EventType(config, "My super event", 42.0, "TransitionBidon", new FormalParameters());
     Event *e = new Event(et);
-    
+
     std::cout << p << std::endl;
     e->apply(p);
     std::cout << p << std::endl;
