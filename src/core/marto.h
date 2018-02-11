@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 #ifndef MARTO_H
 #define MARTO_H
 

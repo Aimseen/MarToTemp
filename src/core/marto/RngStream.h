@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 /***********************************************************************\
  *
  * File:           RngStream.cpp for multiple streams of Random Numbers

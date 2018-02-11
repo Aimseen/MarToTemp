@@ -1,4 +1,4 @@
-#include <marto/global.h>
+#include <marto.h>
 
 namespace marto {
 

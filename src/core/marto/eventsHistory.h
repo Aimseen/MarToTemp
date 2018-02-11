@@ -11,15 +11,10 @@
 #include <marto/random.h>
 #include <marto/macros.h>
 #include <marto/except.h>
+#include <marto/forwardDecl.h>
 #include <cassert>
 
 namespace marto {
-
-class EventsChunk;
-class EventsIterator;
-class EventsHistory;
-class Configuration;
-class Event;
 
 //////////////////////////////////////////////////////////////////////////////
 /** \brief class to manages chunk of events in memory

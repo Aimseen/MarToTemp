@@ -5,30 +5,22 @@
 
 #ifdef __cplusplus
 
-#include <marto/transition.h>
+#include <marto/forwardDecl.h>
 #include <marto/random.h>
+#include <marto/global.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string>
 #include <map>
+#include <list>
 
 // convolution to keep operator<< in global namespace
 // See https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
-namespace marto {
-class EventType;
-class FormalParameters;
-}
 using std::ostream;
 ostream &operator << (ostream &out, const marto::EventType &ev);
 ostream &operator << (ostream &out, const marto::FormalParameters &ev);
 
 namespace marto {
-
-class EventsChunk;
-class EventsIterator;
-class EventsHistory;
-class EventsIStream;
-class EventsOStream;
 
 using std::string;
 

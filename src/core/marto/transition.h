@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 /* Transition representation */
 #ifndef MARTO_TRANSITION_H
 #define MARTO_TRANSITION_H
@@ -42,6 +43,7 @@ public:
     virtual SetImpl *apply(Union * u, Event * ev) = 0;
 
 };
+
 }
 /* Pseudo code d'explication :
    - ma poltique :

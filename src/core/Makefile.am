@@ -2,10 +2,16 @@
 include_HEADERS=marto.h
 
 nobase_include_HEADERS=\
+      marto/allocator.h \
+      marto/allocator-impl.h \
       marto/event.h \
+      marto/event-impl.h \
       marto/eventsHistory.h \
+      marto/eventsHistory-impl.h \
       marto/except.h \
+      marto/forwardDecl.h \
       marto/global.h \
+      marto/macros.h \
       marto/random.h \
       marto/RngStream.h \
       marto/state.h \

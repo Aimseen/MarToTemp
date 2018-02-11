@@ -1,6 +1,5 @@
 #include <marto/event.h>
-#include <marto/global.h>
-#include <marto/eventsHistory.h>
+#include <marto.h>
 #include <cstdint>
 #include <iostream>
 

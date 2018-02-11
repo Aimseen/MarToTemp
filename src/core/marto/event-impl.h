@@ -10,6 +10,7 @@
 #endif
 
 #include <marto/macros.h>
+#include <marto/global.h>
 
 namespace marto {
 

@@ -1,3 +1,4 @@
+/* -*-c++-*- C++ mode for emacs */
 /* State representation */
 #ifndef MARTO_STATE_H
 #define MARTO_STATE_H
@@ -6,11 +7,9 @@
 
 #include <vector>
 #include <list>
+#include <marto/forwardDecl.h>
 
 namespace marto {
-/* Forward declarations */
-class Transition;
-class Event;
 
 /** Set implementation ; internal structure
 */
