@@ -12,18 +12,18 @@ namespace marto {
 
 template<typename T>
 T *Allocator<T>::allocate() {
-      if (this->empty()) {
-            return new T;
-      } else {
-            T *result = this->top();
-            this->pop();
-            return result;
-      }
+    if (this->empty()) {
+        return new T;
+    } else {
+        T *result = this->top();
+        this->pop();
+        return result;
+    }
 }
-      
+
 template<typename T>
 void Allocator<T>::free(T *o) {
-      push(o);
+    push(o);
 }
 
 }
