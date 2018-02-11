@@ -14,8 +14,12 @@
 namespace marto {
 
 class Configuration {
+private:
     std::vector<EventType *> eventTypesVector;
     std::map<std::string, Transition *> transitionsVector;
+    //* \brief private constructor to avoid duplicate instanciation
+    Configuration() {};
+    friend class Global;
 public :
     EventType *getEventType(unsigned num);
     Transition *getTransition(std::string name);
