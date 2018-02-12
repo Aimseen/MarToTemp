@@ -22,6 +22,12 @@ public:
     HistoryIncompleteEvent(std::string s): std::runtime_error(s) {};
 };
 
+/** Exception launched when trying to read a event not yet all written */
+class UnknownTransition : public std::runtime_error {
+public:
+    UnknownTransition(std::string name): std::runtime_error(name) {};
+};
+
 }
 
 #endif

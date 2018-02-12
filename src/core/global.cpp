@@ -1,16 +1,50 @@
 #include <marto.h>
 
+//#include <iostream>
+
 namespace marto {
 
 Configuration *Global::config = nullptr;
 
-void Configuration::setTransition(string name, Transition *trans) {
-    auto element = new std::pair<string, Transition *>(name, trans);
-    transitionsVector.insert(*element);
+Transition *Configuration::registerTransition(string name, Transition *trans) {
+    auto it = transitionsMap.find(name);
+    if (marto_likely(it == transitionsMap.end())) {
+        auto element = new std::pair<string, Transition *>(name, trans);
+        transitionsMap.insert(*element);
+        //std::cerr << "Returnning value for " << name << std::endl;
+        return trans;
+    }
+    Transition *previous=it->second;
+    if (previous == trans) {
+        //std::cerr << "Returnning old value for " << name << std::endl;
+        return trans;
+    }
+    //std::cerr << "Returnning NULL for " << name << std::endl;
+    return nullptr;
+}
+
+EventType* Configuration::registerEventType(EventType* eventType) {
+    Event::code_t code=eventTypesVector.size();
+    eventTypesVector.push_back(eventType);
+    eventType->setCode(code);
+    return eventType;
 }
 
 Transition *Configuration::getTransition(string name) {
-    return transitionsVector.at(name);
+    return transitionsMap.at(name);
+}
+
+Transition *Configuration::getTransition0(string name) {
+    try {
+        return transitionsMap.at(name);
+    } catch (const std::out_of_range& oor) {
+        return NULL;
+    }
+}
+
+EventType *Configuration::getEventType(unsigned num) {
+    assert(num < eventTypesVector.size());
+    return eventTypesVector[num];
 }
 
 Configuration *Global::getConfig() {
@@ -22,18 +56,6 @@ Configuration *Global::getConfig() {
         // setTransition("JSQ2", new JSQ2());
     }
     return config;
-}
-
-EventType *Configuration::getEventType(unsigned num) {
-    assert(num < eventTypesVector.size());
-    return eventTypesVector[num];
-}
-
-EventType* Configuration::registerEventType(EventType* eventType) {
-    Event::code_t code=eventTypesVector.size();
-    eventTypesVector.push_back(eventType);
-    eventType->setCode(code);
-    return eventType;
 }
 
 }

@@ -26,8 +26,11 @@ ostream &operator << (ostream &out, const marto::EventType &ev) {
 namespace marto {
 
 EventType::EventType(Configuration *config, string idEvT, double evtRate, string idTr, FormalParameters *fp):
-    name(idEvT), transition(config->getTransition(idTr)), rate(evtRate), parameters(fp)
+    name(idEvT), transition(config->getTransition0(idTr)), rate(evtRate), parameters(fp)
 {
+    if (marto_unlikely(transition == nullptr)) {
+        throw UnknownTransition(idTr);
+    }
     config->registerEventType(this);
 }
 

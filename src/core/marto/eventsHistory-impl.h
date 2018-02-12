@@ -22,14 +22,14 @@ void EventsIStream::read(T&var) {
     void* ptr=(void*)buf;
     if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
         /* no enough place in the buffer to read the requested data */
-        throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
+        throw HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
     }
     T *newbuf=((T*)ptr)+1;
     size_t size = sizeof(T);
     if (marto_unlikely(size > bufsize)) {
         /* no enough place in the buffer to read the requested data */
         bufsize += ((char*)ptr-buf);
-        throw new HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
+        throw HistoryOutOfBound("No enough place in the current buffer to read the requested data!");
     }
     bufsize -= size;
     buf = (char*)newbuf;
@@ -44,14 +44,14 @@ T* EventsOStream::write(const T &value) {
     void* ptr=(void*)buf;
     if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
         abort();
-        throw new HistoryOutOfBound("Not enough place for the current event");
+        throw HistoryOutOfBound("Not enough place for the current event");
     }
     T *newbuf=((T*)ptr)+1;
     size_t size = sizeof(T);
     if (marto_unlikely(size > bufsize)) {
         // bufsize += ((char*)ptr-buf); // no need: ostream wont be used anymore
         abort();
-        throw new HistoryOutOfBound("Not enough place for the current event");
+        throw HistoryOutOfBound("Not enough place for the current event");
     }
     bufsize -= size;
     eventsize += size;

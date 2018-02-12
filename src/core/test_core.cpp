@@ -21,7 +21,7 @@ class TransitionBidon:public Transition {
 int main() {
     Configuration *config=Global::getConfig();
     // Fill the hardcoded transition names
-    config->setTransition("TransitionBidon", new TransitionBidon());
+    config->registerTransition("TransitionBidon", new TransitionBidon());
 
     Point *p = new Point();
     p->resize(3);
