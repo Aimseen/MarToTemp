@@ -69,6 +69,10 @@ AC_CHECK_HEADERS([])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+# For now, pthread is not used
+AM_CONDITIONAL([HAVE_PTHREADS], [false])
+
+# Doxygen configuration
 DX_INIT_DOXYGEN([MarTo], [doxygen.conf], [doxygen-doc])
 DX_PS_FEATURE([OFF])
 DX_PDF_FEATURE([OFF])
@@ -81,6 +85,19 @@ ACX_LIB_ADD_PUBLIC_FLAGS([MARTOLIB], [-I\${includedir}])
 
 ACX_LIB_NEW_PRG([MARTOPROGS])
 
+dnl ----------------------------------------------------------------
+dnl Define libs and progs created by this software
+dnl ----------------------------------------------------------------
+GTEST_DIR='${top_srcdir}/gtest'
+AC_SUBST([GTEST_DIR])
+ACX_LIB_NEW_LIB([GTESTLIB], [-isystem \${GTEST_DIR}/include])
+ACX_LIB_ADD_BUILD_FLAGS([GTESTLIB])
+
+ACX_LIB_NEW_PRG([GTESTPROGS])
+ACX_LIB_LINK([GTESTPROGS], [GTESTLIB])
+ACX_LIB_ADD_BUILD_FLAGS([GTESTPROGS],
+        [-isystem \$(GTEST_DIR)/include],[],[],
+        [\$(top_builddir)/gtest/libgtest.la \$(top_builddir)/gtest/libgtest_main.la])
 dnl -----------------------------------------------------------------------
 dnl Dependencies between libs
 dnl -----------------------------------------------------------------------
@@ -92,6 +109,7 @@ ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
 # Checks for library functions.
 AC_CONFIG_FILES([
 	doc/Makefile
+	gtest/Makefile
 	src/Makefile
 	src/core/Makefile
 	Makefile

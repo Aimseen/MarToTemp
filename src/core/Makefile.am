@@ -42,7 +42,8 @@ test_core_SOURCES=test_core.cpp
 test_core_LDADD=libmarto.la
 
 test_history_SOURCES=test_history.cpp
-test_history_LDADD=libmarto.la
+test_history_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
+test_history_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)
 
 #test_transition_SOURCES=test_transition.cpp
 #test_transition_LDADD=libmarto.la
