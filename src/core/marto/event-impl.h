@@ -31,25 +31,27 @@ T ParameterValues::get(unsigned int index) {
     }
 }
 
+inline bool Event::valid() {
+    return status == EVENT_STATUS_FILLED;
+}
+
+inline void Event::clear() {
+    parameters.clear();
+    status=EVENT_STATUS_INVALID;
+}
+
+inline EventType *Event::type() {
+    assert(status != EVENT_STATUS_INVALID);
+    return _type;
+}
+
 inline EventType *Event::setType(EventType *type) {
-    this->type=type;
+    this->_type=type;
     if (type == nullptr) {
         status = EVENT_STATUS_INVALID;
         return nullptr;
     }
     status = EVENT_STATUS_TYPED;
-    return type;
-}
-
-inline EventType *Event::setTypeFromCode(Configuration *config) {
-    assert(config != nullptr);
-    return setType(config->getEventType(code));
-}
-
-inline EventType *Event::setTypeAndCode(EventType *type) {
-    if (setType(type)) {
-        code=type->code();
-    }
     return type;
 }
 

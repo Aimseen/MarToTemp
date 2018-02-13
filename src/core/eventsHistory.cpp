@@ -78,7 +78,7 @@ event_access_t EventsIterator::loadNextEvent(Event * ev) {
         buffer,
         curChunk->bufferEnd-buffer
     );
-    auto evRead = ev->load(istream, curChunk->history);
+    auto evRead = loadEventContent(istream, ev);
     position += istream.eventSize();
     eventNumber ++;
 
@@ -106,7 +106,7 @@ event_access_t EventsIterator::storeNextEvent(Event *ev) {
         );
 
         try {
-            event_access_t access=ev->store(ostream, curChunk->history);
+            event_access_t access=storeEventContent(ostream, ev);
             if (access != EVENT_STORED) {
                 ostream.abort();
             } else {
@@ -122,6 +122,38 @@ event_access_t EventsIterator::storeNextEvent(Event *ev) {
             }
         }
     } while(true); // start over after creating new chunk
+}
+
+event_access_t EventsIterator::storeEventContent(EventsOStream &ostream, Event *ev) {
+    assert(ev != nullptr);
+    if (marto_unlikely(!ev->valid())) {
+        return EVENT_STORE_UNDEFINED_ERROR;
+    }
+    EventType *type=ev->type();
+    if (ostream << type->code()) {
+        return type->store(ostream, ev, curChunk->history);
+    }
+    return EVENT_STORE_ERROR;
+}
+
+/*  an eventType is stored compactly as an integer
+   (example of event type : arrival in queue 1)
+   it is read from a table built from user config file
+ */
+event_access_t EventsIterator::loadEventContent(EventsIStream &istream, Event *ev) {
+    Event::code_t code;
+    assert(ev != nullptr);
+    ev->clear();
+    if (istream >> code) {   //eventype is encoded in the first integer of the event buffer.
+        EventsHistory *hist=curChunk->history;
+        EventType *type=hist->getConfig()->getEventType(code);
+        if (ev->setType(type)) {
+            if (type->load(istream, ev, hist)) {
+                return EVENT_LOADED;
+            }
+        }
+    }
+    return EVENT_LOAD_CODE_ERROR;
 }
 
 // EventsHistory

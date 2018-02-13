@@ -112,18 +112,6 @@ public:
     Event();
     /** Creates an event from a given type */
     Event(EventType *type);
-    /** Load the event data from its serialization
-     *
-     */
-    event_access_t load(EventsIStream &istream, EventsHistory *h);
-    /** Stores a compact representation of the event
-     *
-     *  Note: the store can be aborted (with an exception)
-     *  if the current chunk buffer is not bif enough
-     *  In this case, storeNextEvent will restart the
-     *  call to this function in a new chunk.
-     */
-    event_access_t store(EventsOStream &ostream, EventsHistory *h);
     /** Creates (generate) a new Event
      * SEEMS WRONG : because of the rate, the generation should
      * randomly decide of which eventType to generate
@@ -134,6 +122,18 @@ public:
     void generate() {
         status=EVENT_STATUS_FILLED;
     };
+
+    /** An event is valid when all its parameters are available */
+    inline bool valid();
+
+    /** \brief clear an event
+     *
+     * All parameters are emptied
+     * The EventType is forgotten
+     */
+    inline void clear();
+
+    inline EventType *type();
 
     ParameterValues *getParameter(string name);
     void apply(Point *p);
@@ -160,27 +160,14 @@ private:
     enum eventStatus { EVENT_STATUS_INVALID, EVENT_STATUS_TYPED, EVENT_STATUS_FILLED };
 
     std::vector < ParameterValues * >parameters;   /**< actual parameters (not formal), used to apply transition */
-    EventType *type;
+    EventType *_type;
     enum eventStatus status;
-    code_t code;
 
-    /** \brief setup the EventType of the event
-     *
-     * \return the EventType (or nullptr if not found in config)
-     *
-     * reinitialize the parameters and other attribute if required
-     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
-     */
-    inline EventType * setTypeFromCode(Configuration *c);
-    /** \brief setup the EventType of the event
-     *
-     * \return the parameter type
-     *
-     * reinitialize the parameters and other attribute if required
-     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
-     * the code of the Event is set from the EventType
-     */
-    inline EventType * setTypeAndCode(EventType *type);
+    friend EventsIterator;
+    void loaded() {
+        status = EVENT_STATUS_FILLED;
+    }
+
     /** \brief setup the EventType of the event
      *
      * \return the parameter type
@@ -193,6 +180,7 @@ private:
 
 class EventType {
     friend class Event;
+    friend class EventsIterator;
 public:
     /** \brief create a new EventType in the configuration
      *

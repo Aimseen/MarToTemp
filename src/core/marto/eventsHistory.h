@@ -93,6 +93,19 @@ private:
     EventsChunk *curChunk;
     char *position;         ///< current position in the chunk buffer
     uint32_t eventNumber;   ///< # event in the current chunk to be read or written
+
+    /** Load the event data from its serialization
+     *
+     */
+    event_access_t loadEventContent(EventsIStream &istream, Event *event);
+    /** Stores a compact representation of the event
+     *
+     *  Note: the store can be aborted (with an exception)
+     *  if the current chunk buffer is not bif enough
+     *  In this case, storeNextEvent will restart the
+     *  call to this function in a new chunk.
+     */
+    event_access_t storeEventContent(EventsOStream &ostream, Event *event);
 };
 
 /** \brief Base class to read of write events in history */
