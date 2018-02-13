@@ -34,13 +34,13 @@ public:
     * hyperrectangle structure
     	 * default : applies transition to each point of the hyperrectangle
     	 */
-    virtual SetImpl *apply(HyperRectangle * h, Event * ev) = 0;
+    virtual SetImpl *apply(HyperRectangle * h, Event * ev);
 
     /** Apply transition to a set of states with
     * union structure;
     	 * default : applies transition to each point of the union
     	 */
-    virtual SetImpl *apply(Union * u, Event * ev) = 0;
+    virtual SetImpl *apply(Union * u, Event * ev);
 
 };
 
