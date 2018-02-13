@@ -31,14 +31,10 @@ EventType* Configuration::registerEventType(EventType* eventType) {
 }
 
 Transition *Configuration::getTransition(string name) {
-    return transitionsMap.at(name);
-}
-
-Transition *Configuration::getTransition0(string name) {
     try {
         return transitionsMap.at(name);
     } catch (const std::out_of_range& oor) {
-        return NULL;
+        throw UnknownTransition(name);
     }
 }
 

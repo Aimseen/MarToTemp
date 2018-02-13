@@ -25,14 +25,9 @@ public :
     /** \brief retrieve the transition by its name
      *
      * \return the transition
-     * generate an out_of_range exception if the transition is not registered
+     * generate an UnknownTransition exception if the transition is not registered
      */
     Transition *getTransition(std::string name);
-    /** \brief retrieve the transition by its name
-     *
-     * \return NULL if the transition is not registered
-     */
-    Transition *getTransition0(std::string name);
     /** \brief register the provided transition
      *
      * \return NULL if the name is already registered with another transition else the transition itself
