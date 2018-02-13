@@ -124,6 +124,5 @@ event_access_t Event::store(EventsOStream &ostream, EventsHistory * hist) {
         return type->store(ostream, this, hist);
     }
     return EVENT_STORE_ERROR;
-}
-
+}   
 }

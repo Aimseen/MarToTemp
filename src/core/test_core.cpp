@@ -9,12 +9,6 @@ class TransitionBidon:public Transition {
             p->at(i)++;
         return p;
     }
-    HyperRectangle *apply(HyperRectangle * h, __attribute__((unused)) Event * ev) {
-        return h;
-    }
-    Union *apply(Union * u, __attribute__((unused)) Event * ev) {
-        return u;
-    }
 };
 
 // Do test stuff
