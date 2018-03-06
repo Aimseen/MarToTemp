@@ -36,15 +36,19 @@ public:
     virtual SetImpl * accept(Transition * t, Event * ev);
     marto::Point * inf() const {
         return inf_;
-    } marto::Point * inf(marto::Point * p) {        //sets inf_ to Point p
+    };
+    marto::Point * inf(marto::Point * p) {        //sets inf_ to Point p
         inf_ = p;
         return inf_;
-    } marto::Point * sup() const {
+    };
+    marto::Point * sup() const {
         return sup_;
-    } marto::Point * sup(marto::Point * p) {
+    };
+    marto::Point * sup(marto::Point * p) {
         sup_ = p;
         return sup_;
-    } private:
+    };
+private:
     marto::Point * inf_, *sup_;
 };
 
@@ -60,14 +64,16 @@ private:
 public:
     unionList::iterator begin() {
         return list.begin();
-    } unionList::iterator end() {
+    };
+    unionList::iterator end() {
         return list.end();
-    }
-    unionList::const_iterator begin()const {
+    };
+    unionList::const_iterator begin() const {
         return list.begin();
-    } unionList::const_iterator end() const {
+    };
+    unionList::const_iterator end() const {
         return list.end();
-    }
+    };
 };
 
 
