@@ -7,34 +7,30 @@
 
 using std::ostream;
 
-ostream &operator << (ostream &out, const marto::FormalParameters &fp) {
-    // FIXME:
-    for (auto it=fp;;) {
-        out << it << std::endl;
-    }
-    return out;
-}
-
 ostream &operator << (ostream &out, const marto::EventType &ev) {
     out << "EventType : " << ev.name << std::endl;
     out << "-> " << ev.transition << std::endl;
     out << "-> parameters : " << std::endl;
-    out << ev.parameters << std::endl;
+    for (auto it=ev.formalParameters.begin(); it != ev.formalParameters.end(); it++) {
+        // TODO : missing << for FormalParameterValue
+        out << "Un parametre trouvé " << std::endl;
+    }
     return out;
 }
 
 namespace marto {
 
-EventType::EventType(Configuration *config, string idEvT, double evtRate, string idTr, FormalParameters *fp):
-    name(idEvT), transition(config->getTransition(idTr)), rate(evtRate), parameters(fp)
+EventType::EventType(Configuration *config, string idEvT, double evtRate, string idTr):
+    name(idEvT), transition(config->getTransition(idTr)), rate(evtRate)
 {
+    // FIXME : complete (formal parameters for instance)
     config->registerEventType(this);
 }
 
 int EventType::findIndex(string parameterName) {
-    auto couple = parameters->find(parameterName);
-    assert(couple != parameters->end());
-    return couple->second.first;   //couple is a pair, whose first element is the index in the parameters table
+    auto couple = formalParametersNames.find(parameterName);
+    assert(couple != formalParametersNames.end());
+    return couple->second;   //couple is a pair, whose first element is the index in the parameters table
 }
 
 event_access_t EventType::load(EventsIStream &istream, Event *ev, EventsHistory * hist) {
@@ -42,9 +38,10 @@ event_access_t EventType::load(EventsIStream &istream, Event *ev, EventsHistory 
     if (!istream) {
         istream >> ev >> hist;
     }
-    for (auto pair:*parameters) {
+    for (auto pair:formalParameters) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+        (void) pair;
     }
     return EVENT_LOADED;
 }
@@ -54,9 +51,10 @@ event_access_t EventType::store(EventsOStream &ostream, Event *ev, EventsHistory
     if (!ostream) {
         ostream << ev << hist;
     }
-    for (auto pair:*parameters) {
+    for (auto pair:formalParameters) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
+        (void) pair;
     }
     return EVENT_STORED;
 }
@@ -68,29 +66,24 @@ ParameterValues *Event::getParameter(string name) {
     return nullptr;
 }
 
-ParameterValues::ParameterValues(void *vals, size_t nb) : u(u.generator.cache(10)) {
-    u.array.values = vals;
-    u.array.nbValues = nb;
+ParameterValues::ParameterValues() {
+    kind = UNDEFINED;
+    bufferSize = 0;
+    buffer = nullptr;
+    nbValues = 0;
+    reference = nullptr;
 }
 
 size_t ParameterValues::size() {
-    switch (kind) {
-    case ARRAY:
-        return u.array.nbValues;
-    case GENERATOR:
-        return SIZE_MAX;
-    case REFERENCE:
-        marto_BUG(); // TODO: handle this case
-    }
-    marto_BUG(); // Never reached
-    return 0; // for compiler
+    // TODO : keep nbValues coherent for all kinds
+    return nbValues;
 }
 
-FormalConstantList::FormalConstantList(ParamType type, size_t s) {
-    FormalParameterValue(type, s);
+FormalConstantList::FormalConstantList(ParamType type, size_t s) : FormalParameterValue(type, s) {
     switch (type) {
         case IntList:
-            values = new ParameterValues(new int[1], 1);
+            // TODO : temporary, for testing only
+            values = new ParameterValues();
         default:
             marto_BUG();
     }

@@ -41,23 +41,16 @@ public:
     template < typename T > T get(unsigned int index);
     size_t size();
 private:
+    friend class FormalConstantList;
     friend class ParametersBaseTest;
-    ParameterValues(void *vals, size_t nb);
-    enum { ARRAY, GENERATOR, REFERENCE } kind;
-    union {
-        struct {
-            void *values;
-            size_t nbValues;
-        } array;
-        struct {
-            // Note: std::vector no allowed in anonymous union
-            std::vector < double >cache;
-            // TODO: declare/define Generator type => also update event.cpp
-            // ParameterValues::get()
-            Random g;
-        } generator;
-        ParameterValues *reference;
-    } u;                    //need to choose between one of those 3 fields, depending on "kind"
+    ParameterValues();
+    template < typename T > ParameterValues(T *vals, size_t nb);
+    enum { ARRAY, GENERATOR, REFERENCE, UNDEFINED } kind; // reference= formalconstantlist ; array can be either a list of constants or a fixed list
+    void *buffer;
+    size_t bufferSize;
+    size_t nbValues;
+    Random g;
+    ParameterValues *reference;
 };
 
 enum ParamType {
@@ -76,31 +69,25 @@ private:
     size_t length;
 };
 
-// collection of FormalParameter
-// Après 6 mois, on penserait qu'il s'agit de:
-// string (nom du parametre) -> taille liste, contenu liste
-// avec la convention taille==-1 => taille variable (potentiellement infinie)
-class FormalParameters:public std::map < string, std::pair < int, FormalParameterValue >> {
-    friend ostream & ::operator << (ostream &out, const FormalParameters &ev);
-    //void addParam(string name, FormalParameterValue *value);
-};
-
 class FormalConstantList:public FormalParameterValue {
     FormalConstantList(ParamType type, size_t s);
 private:
-    ParameterValues values;
+    ParameterValues *values;
 };
 
 class FormalDistribution:public FormalParameterValue {
 public:
     FormalDistribution(string idRandom, FormalParameters fp);
 };
-
+/* when the event is created the values are generated and stored for future direct use at replay */
 class FormalDistributionFixedList:public FormalDistribution {
 public:
     FormalDistributionFixedList(string idRandom, FormalParameters fp);
 };
 
+/* the event only stores the generator : values are re-generated at every replay to save buffer space 
+    some long fixed lists could be more optimally stored using this generator.
+*/ 
 class FormalDistributionVariadicList:public FormalDistribution {
 public:
     FormalDistributionVariadicList(string idRandom, FormalParameters fp);
@@ -141,24 +128,6 @@ public:
 
     ParameterValues *getParameter(string name);
     void apply(Point *p);
-
-    /* Parameters accessors */
-    int8_t int8Parameter(int index);
-    int16_t int16Parameter(int index);
-    int32_t int32Parameter(int index);
-    int64_t int64Parameter(int index);
-    double doubleParameter(int index);
-    int8_t int8Parameter(const string & pname);
-    int16_t int16Parameter(const string & pname);
-    int32_t int32Parameter(const string & pname);
-    int64_t int64Parameter(const string & pname);
-    double doubleParameter(const string & pname);
-
-    void set(int index, int8_t value);
-    void set(int index, int16_t value);
-    void set(int index, int32_t value);
-    void set(int index, int64_t value);
-    void set(int index, double value);
 
 private:
     enum eventStatus { EVENT_STATUS_INVALID, EVENT_STATUS_TYPED, EVENT_STATUS_FILLED };
@@ -206,15 +175,19 @@ public:
      *
      * \note the EventType will be registered into the provided configuration
      */
-    EventType(Configuration * config, string eventName, double evtRate, string idTr, FormalParameters *fp);
+    EventType(Configuration * config, string eventName, double evtRate, string idTr);
 private:
     friend ostream & ::operator << (ostream &out, const EventType &ev);
+    // Name for this event type
     string name;
     Transition * transition;
     double rate;
-    // TODO: choose if we use a pointer or an object, same for constructor.
-    FormalParameters *parameters;
+    // Numbered formal parameters
+    std::vector < FormalParameterValue > formalParameters;
+    // Association from names to formal parameter number
+    std::map < string, int > formalParametersNames;
     Event::code_t _code; ///< code of this EventType as assigned by the configuration
+    
     /** used by the Configuration to assign a code */
     void setCode(Event::code_t c) {
         _code=c;
@@ -236,10 +209,11 @@ public:
     Event::code_t code() {
         return _code;
     };
+    /** \brief returns the index of the named parameter (internal use)
+     * 
+     * \return a positive index or -1 if the name does not exist
+     */
     int findIndex(string parameterName);
-    //GetParameter gp; /* ??? FIXME */
-    int nbIntStaticParameters();
-    int nbDoubleStaticParameters();
 };
 
 }

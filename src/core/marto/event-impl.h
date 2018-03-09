@@ -15,19 +15,32 @@
 namespace marto {
 
 template <typename T>
+ParameterValues::ParameterValues(T *vals, size_t nb) {
+    kind = ARRAY;
+    bufferSize = nb*sizeof(T);
+    // TODO : decide if we want to copy vals or just use it
+    buffer = vals;
+    assert(buffer != nullptr);
+    nbValues = nb;
+}
+
+template <typename T>
 T ParameterValues::get(unsigned int index) {
+    T *values = (T *) buffer;
     switch (kind) {
     case GENERATOR:
-        if (u.generator.cache.size() <= index) {
-            for (auto i=u.generator.cache.size(); i<index+1; i++)
-                u.generator.cache[i] = u.generator.g.next();
+        // TODO : resize buffer
+        if (nbValues <= index) {
+            for (auto i=nbValues; i<index+1; i++)
+                values[i] = g.next();
         }
-        return (T) u.generator.cache[index];
+        return values[index];
     case REFERENCE:
         marto_BUG(); // TODO: handle this case
     case ARRAY:
-        T *array = (T *) u.array.values;
-        return array[index];
+        return values[index];
+    default:
+        marto_BUG();
     }
 }
 
