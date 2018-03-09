@@ -9,11 +9,10 @@ double Random::next() {
 };
 
 /*  internal generic-type uniform generator */
-RandomUniformInterval::RandomUniformInterval(double _inf, double _sup): inf(_inf), sup(_sup) {
-};
+RandomUniformInterval::RandomUniformInterval(double _inf, double _sup)
+    : inf(_inf), sup(_sup){};
 
 double RandomUniformInterval::next() {
     return (inf + (sup - inf) * Random::next());
 };
-
 }

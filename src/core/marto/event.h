@@ -5,21 +5,22 @@
 
 #ifdef __cplusplus
 
-#include <marto/forwardDecl.h>
-#include <marto/random.h>
-#include <marto/global.h>
-#include <marto/types.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string>
-#include <map>
 #include <list>
+#include <map>
+#include <marto/forwardDecl.h>
+#include <marto/global.h>
+#include <marto/random.h>
+#include <marto/types.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string>
 
 // convolution to keep operator<< in global namespace
-// See https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
+// See
+// https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
 using std::ostream;
-ostream &operator << (ostream &out, const marto::EventType &ev);
-ostream &operator << (ostream &out, const marto::FormalParameters &ev);
+ostream &operator<<(ostream &out, const marto::EventType &ev);
+ostream &operator<<(ostream &out, const marto::FormalParameters &ev);
 
 namespace marto {
 
@@ -31,14 +32,15 @@ enum ParamType {
     QueueList,
     IntList,
     DoubleList,
-    //Martostring,
+    // Martostring,
     InvalidType
 };
 
 class FormalParameterValue {
-public:
+  public:
     FormalParameterValue(ParamType type, size_t l);
-private:
+
+  private:
     ParamType paramType;
     size_t length;
 };
@@ -47,33 +49,34 @@ private:
 // Après 6 mois, on penserait qu'il s'agit de:
 // string (nom du parametre) -> taille liste, contenu liste
 // avec la convention taille==-1 => taille variable (potentiellement infinie)
-class FormalParameters:public std::map < string, std::pair < int, FormalParameterValue >> {
-    friend ostream & ::operator << (ostream &out, const FormalParameters &ev);
-    //void addParam(string name, FormalParameterValue *value);
+class FormalParameters
+    : public std::map<string, std::pair<int, FormalParameterValue>> {
+    friend ostream & ::operator<<(ostream &out, const FormalParameters &ev);
+    // void addParam(string name, FormalParameterValue *value);
 };
 
-class FormalConstantList:public FormalParameterValue {
-    std::list < double >l;
+class FormalConstantList : public FormalParameterValue {
+    std::list<double> l;
 };
 
-class FormalDistribution:public FormalParameterValue {
-public:
+class FormalDistribution : public FormalParameterValue {
+  public:
     FormalDistribution(string idRandom, FormalParameters fp);
 };
 
-class FormalDistributionFixedList:public FormalDistribution {
-public:
+class FormalDistributionFixedList : public FormalDistribution {
+  public:
     FormalDistributionFixedList(string idRandom, FormalParameters fp);
 };
 
-class FormalDistributionVariadicList:public FormalDistribution {
-public:
+class FormalDistributionVariadicList : public FormalDistribution {
+  public:
     FormalDistributionVariadicList(string idRandom, FormalParameters fp);
 };
 
 /* list of values for this parameter (for instance : input queues) */
 class ParameterValues {
-public:
+  public:
     // This is not an abstract class because we do not want to allocate
     // a new object for each parameter list of each event generated.
     // Instead, the parameter class is a placeholder wich can store either
@@ -82,9 +85,10 @@ public:
     // In the case of an array, this assumes that the user always ask for the
     // same value type and does not exceed the size she has declared in
     // the configuration.
-    template < typename T > T get(unsigned int index);
+    template <typename T> T get(unsigned int index);
     size_t size();
-private:
+
+  private:
     enum { ARRAY, GENERATOR, REFERENCE } kind;
     union {
         struct {
@@ -93,18 +97,18 @@ private:
         } array;
         struct {
             // Note: std::vector no allowed in anonymous union
-            std::vector < double >cache;
+            std::vector<double> cache;
             // TODO: declare/define Generator type => also update event.cpp
             // ParameterValues::get()
             Random g;
         } generator;
         ParameterValues *reference;
-    } u;                    //need to choose between one of those 3 fields, depending on "kind"
+    } u; // need to choose between one of those 3 fields, depending on "kind"
 };
 
 /* each simulation sequence only uses 1 object of type Event */
 class Event {
-public:
+  public:
     /** type used to store the event code */
     typedef unsigned code_t;
     /** Create an empty (unusable) event
@@ -117,11 +121,9 @@ public:
      * randomly decide of which eventType to generate
      * useful if for one eventype there is a random choice to be made e.g. JSQ)
      *  returns 1 */
-    static int generate(EventType * type);
+    static int generate(EventType *type);
     /* FIXME: just here for basic tests */
-    void generate() {
-        status=EVENT_STATUS_FILLED;
-    };
+    void generate() { status = EVENT_STATUS_FILLED; };
 
     /** An event is valid when all its parameters are available */
     inline bool valid();
@@ -144,11 +146,11 @@ public:
     int32_t int32Parameter(int index);
     int64_t int64Parameter(int index);
     double doubleParameter(int index);
-    int8_t int8Parameter(const string & pname);
-    int16_t int16Parameter(const string & pname);
-    int32_t int32Parameter(const string & pname);
-    int64_t int64Parameter(const string & pname);
-    double doubleParameter(const string & pname);
+    int8_t int8Parameter(const string &pname);
+    int16_t int16Parameter(const string &pname);
+    int32_t int32Parameter(const string &pname);
+    int64_t int64Parameter(const string &pname);
+    double doubleParameter(const string &pname);
 
     void set(int index, int8_t value);
     void set(int index, int16_t value);
@@ -156,32 +158,38 @@ public:
     void set(int index, int64_t value);
     void set(int index, double value);
 
-private:
-    enum eventStatus { EVENT_STATUS_INVALID, EVENT_STATUS_TYPED, EVENT_STATUS_FILLED };
+  private:
+    enum eventStatus {
+        EVENT_STATUS_INVALID,
+        EVENT_STATUS_TYPED,
+        EVENT_STATUS_FILLED
+    };
 
-    std::vector < ParameterValues * >parameters;   /**< actual parameters (not formal), used to apply transition */
+    std::vector<ParameterValues *> parameters; /**< actual parameters (not
+                                                  formal), used to apply
+                                                  transition */
     EventType *_type;
     enum eventStatus status;
 
     friend EventsIterator;
-    void loaded() {
-        status = EVENT_STATUS_FILLED;
-    }
+    void loaded() { status = EVENT_STATUS_FILLED; }
 
     /** \brief setup the EventType of the event
      *
      * \return the parameter type
      *
      * reinitialize the parameters and other attribute if required
-     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this function returns nullptr)
+     * status is set to EVENT_STATUS_TYPED (or EVENT_STATUS_INVALID if this
+     * function returns nullptr)
      */
-    inline EventType * setType(EventType *type);
+    inline EventType *setType(EventType *type);
 };
 
 class EventType {
     friend class Event;
     friend class EventsIterator;
-public:
+
+  public:
     /** \brief create a new EventType in the configuration
      *
      * \param idTr indicates which transition function will be used.
@@ -190,48 +198,50 @@ public:
      *
      * \note the EventType will be registered into the provided configuration
      */
-    EventType(Configuration * config, string eventName, double evtRate, string idTr, FormalParameters *fp);
-private:
-    friend ostream & ::operator << (ostream &out, const EventType &ev);
+    EventType(Configuration *config, string eventName, double evtRate,
+              string idTr, FormalParameters *fp);
+
+  private:
+    friend ostream & ::operator<<(ostream &out, const EventType &ev);
     string name;
-    Transition * transition;
+    Transition *transition;
     double rate;
     // TODO: choose if we use a pointer or an object, same for constructor.
     FormalParameters *parameters;
-    Event::code_t _code; ///< code of this EventType as assigned by the configuration
+    Event::code_t
+        _code; ///< code of this EventType as assigned by the configuration
     /** used by the Configuration to assign a code */
-    void setCode(Event::code_t c) {
-        _code=c;
-    };
-    friend EventType* Configuration::registerEventType(EventType*);
-protected:
+    void setCode(Event::code_t c) { _code = c; };
+    friend EventType *Configuration::registerEventType(EventType *);
+
+  protected:
     /** \brief load actual parameters from history to an event
      *
      * \return true if the load is successful
      */
-    virtual event_access_t load(EventsIStream &istream, Event *event, EventsHistory * hist);
+    virtual event_access_t load(EventsIStream &istream, Event *event,
+                                EventsHistory *hist);
     /** \brief store actual parameters of an event into history
      *
      * \return true if the store is successful
      */
-    virtual event_access_t store(EventsOStream &ostream, Event *event, EventsHistory * hist);
-public:
+    virtual event_access_t store(EventsOStream &ostream, Event *event,
+                                 EventsHistory *hist);
+
+  public:
     /** Code of this kind of event */
-    Event::code_t code() {
-        return _code;
-    };
+    Event::code_t code() { return _code; };
     int findIndex(string parameterName);
-    //GetParameter gp; /* ??? FIXME */
+    // GetParameter gp; /* ??? FIXME */
     int nbIntStaticParameters();
     int nbDoubleStaticParameters();
 };
-
 }
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),
 // we try to include the implementation, hoping to avoid include loops
-#  include <marto/event-impl.h>
+#include <marto/event-impl.h>
 #endif
 
 #endif

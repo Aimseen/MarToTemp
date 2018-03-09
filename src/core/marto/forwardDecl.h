@@ -6,13 +6,13 @@
 #ifdef __cplusplus
 
 // generated with:
-// for f in $(ls src/core/marto/*.h | sort ) ; do echo "/* $(basename $f) */"; grep '^class.*{' $f | sed -e 's,^\(class [^ :{]*\)[ :{].*,\1;,' ; done
+// for f in $(ls src/core/marto/*.h | sort ) ; do echo "/* $(basename $f) */";
+// grep '^class.*{' $f | sed -e 's,^\(class [^ :{]*\)[ :{].*,\1;,' ; done
 
 namespace marto {
 
 /* allocator.h */
-template <typename T>
-class Allocator;
+template <typename T> class Allocator;
 
 /* event.h */
 class FormalParameterValue;

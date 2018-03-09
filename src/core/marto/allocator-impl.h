@@ -5,13 +5,12 @@
 #ifdef __cplusplus
 
 #ifndef MARTO_ALLOCATOR_H
-#  error "Do not include this file directly"
+#error "Do not include this file directly"
 #endif
 
 namespace marto {
 
-template<typename T>
-T *Allocator<T>::allocate() {
+template <typename T> T *Allocator<T>::allocate() {
     if (this->empty()) {
         return new T;
     } else {
@@ -21,11 +20,7 @@ T *Allocator<T>::allocate() {
     }
 }
 
-template<typename T>
-void Allocator<T>::free(T *o) {
-    push(o);
-}
-
+template <typename T> void Allocator<T>::free(T *o) { push(o); }
 }
 
 #endif

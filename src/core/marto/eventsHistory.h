@@ -5,15 +5,15 @@
 
 #ifdef __cplusplus
 
+#include <cassert>
+#include <marto/except.h>
+#include <marto/forwardDecl.h>
+#include <marto/macros.h>
+#include <marto/random.h>
+#include <marto/types.h>
+#include <memory>
 #include <stdint.h>
 #include <stdlib.h>
-#include <memory>
-#include <marto/random.h>
-#include <marto/macros.h>
-#include <marto/except.h>
-#include <marto/types.h>
-#include <marto/forwardDecl.h>
-#include <cassert>
 
 namespace marto {
 
@@ -24,19 +24,25 @@ namespace marto {
  *
  * The chunk notion should be transparent to the user of EventsHistory.
  *
- * Chunk are also used when some events must be inserted into an existing history (not yet implemented)
+ * Chunk are also used when some events must be inserted into an existing
+ * history (not yet implemented)
  */
 class EventsChunk {
     friend EventsIterator;
     friend EventsHistory;
-private:
-    EventsChunk(uint32_t capacity, EventsChunk * prev, EventsChunk * next, EventsHistory * hist);
+
+  private:
+    EventsChunk(uint32_t capacity, EventsChunk *prev, EventsChunk *next,
+                EventsHistory *hist);
     ~EventsChunk();
-    bool allocOwner;       ///< true if bufferMemory is malloc'ed
+    bool allocOwner; ///< true if bufferMemory is malloc'ed
     char *bufferMemory;
-    char *bufferStart;      ///< beginning of history chunk; same as chunkStart ptr in the plain backward scheme
-    char *bufferEnd;        ///< end of history chunk;
-    uint32_t eventsCapacity;///< maximum number of allowed events in this chunk and possible additional chunks
+    char
+        *bufferStart; ///< beginning of history chunk; same as chunkStart ptr in
+    /// the plain backward scheme
+    char *bufferEnd;         ///< end of history chunk;
+    uint32_t eventsCapacity; ///< maximum number of allowed events in this chunk
+    /// and possible additional chunks
     uint32_t nbEvents;      ///< current number of events in the chunk
     EventsChunk *nextChunk; ///< always later in simulated time
     EventsChunk *prevChunk; ///< always earlier in simulated time
@@ -55,7 +61,8 @@ private:
      * needed when current chunk is full
      * The new chunk is placed just after the current one (in simulated time)
      * Its event capacity is set to the remaining of the current one
-     * The capacity of the current chunk is adjusted its current number of events
+     * The capacity of the current chunk is adjusted its current number of
+     * events
      */
     EventsChunk *allocateNextChunk();
 };
@@ -66,20 +73,21 @@ private:
  * \note some parallel version will be to be implemented
  */
 class EventsIterator {
-private:
-    EventsIterator(EventsHistory * hist);
-    //friend EventsIterator *EventsHistory::iterator();
+  private:
+    EventsIterator(EventsHistory *hist);
+    // friend EventsIterator *EventsHistory::iterator();
     friend class EventsHistory;
-public:
+
+  public:
     /** \brief Fill ev with the next event, loading from the history
      */
-    event_access_t loadNextEvent(Event * ev);
+    event_access_t loadNextEvent(Event *ev);
 
     /** \brief Write the event in the history.
      *
      * Some place (for events) must be available at the current position
      */
-    event_access_t storeNextEvent(Event * ev);
+    event_access_t storeNextEvent(Event *ev);
     /* we do not store events reversely. Never. If really required, we
      * should go back for several events and generate and store them
      * forward.
@@ -87,12 +95,13 @@ public:
     int storePrevEvent(Event * ev); // for reverse trajectory algorithm
     */
 
-private:
+  private:
     EventsChunk *setNewChunk(EventsChunk *chunk);
 
     EventsChunk *curChunk;
-    char *position;         ///< current position in the chunk buffer
-    uint32_t eventNumber;   ///< # event in the current chunk to be read or written
+    char *position; ///< current position in the chunk buffer
+    uint32_t
+        eventNumber; ///< # event in the current chunk to be read or written
 
     /** Load the event data from its serialization
      *
@@ -114,41 +123,35 @@ class EventsStreamBase {
     EventsStreamBase(const EventsStreamBase &) = delete;
     /** \brief forbid assignment of this kind of objects */
     EventsStreamBase &operator=(const EventsStreamBase &) = delete;
-protected:
+
+  protected:
     char *buf;
     size_t bufsize;
     size_t eventsize;
-    unsigned int eofbit:1;
+    unsigned int eofbit : 1;
 
     /** \brief Create a object that consumes a bounded buffer
      *
      * It will be inherited by Events[IO]Stream
      */
-    EventsStreamBase(char* buffer, size_t lim):
-        buf(buffer), bufsize(lim), eventsize(0), eofbit(0) {};
-    size_t eventSize() {
-        return eventsize;
-    };
-public:
+    EventsStreamBase(char *buffer, size_t lim)
+        : buf(buffer), bufsize(lim), eventsize(0), eofbit(0){};
+    size_t eventSize() { return eventsize; };
+
+  public:
     /** \brief conversion in bool for while loops */
-    explicit operator bool() {
-        return !eof();
-    };
-    bool eof() {
-        return eofbit;
-    };
+    explicit operator bool() { return !eof(); };
+    bool eof() { return eofbit; };
 };
 
 /** \brief Class to read one event from history */
 class EventsIStream : public EventsStreamBase {
-private:
+  private:
     /** \brief Create a object that will allow read anything in a buffer
      *
      * This will be created by EventsIterator::read*()
      */
-    EventsIStream(char* buffer, size_t lim):
-        EventsStreamBase(buffer, lim) {
-
+    EventsIStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
         *this >> eventsize;
         if (marto_unlikely(eventsize == 0)) {
             /* Event not yet fully written (finalized not called)
@@ -157,25 +160,24 @@ private:
             throw new HistoryIncompleteEvent("Event not yet all written");
         }
         if (marto_unlikely(eventsize > lim)) {
-            /* the event to read is longer than the buffer in the current chunk! */
-            throw new HistoryOutOfBound("Event too long for the current buffer!");
+            /* the event to read is longer than the buffer in the current chunk!
+             */
+            throw new HistoryOutOfBound(
+                "Event too long for the current buffer!");
         }
         /* limiting the following reads to the event data */
-        bufsize = eventsize - (buf-buffer);
+        bufsize = eventsize - (buf - buffer);
     };
     friend event_access_t EventsIterator::loadNextEvent(Event *ev);
 
-    template<typename T>
-    void external_func_for_compiler(T&var);
+    template <typename T> void external_func_for_compiler(T &var);
 
-    template<typename T>
-    void read(T&var);
+    template <typename T> void read(T &var);
 
-public:
+  public:
     /** \brief classical >> input stream operator
      */
-    template<typename T>
-    EventsIStream& operator>>(T& var) {
+    template <typename T> EventsIStream &operator>>(T &var) {
         read(var);
         return *this;
     }
@@ -185,36 +187,29 @@ public:
 /** \brief Class to write the content of one event in a buffer
  */
 class EventsOStream : public EventsStreamBase {
-private:
+  private:
     size_t *eventSizePtr;
     /** \brief Create a object that will allow write anything in a buffer
      *
      * This will be created by EventsIterator::store*()
      */
-    EventsOStream(char* buffer, size_t lim):
-        EventsStreamBase(buffer, lim) {
+    EventsOStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
         eventSizePtr = write((size_t)0);
     };
-    ~EventsOStream() {
-        finalize();
-    };
+    ~EventsOStream() { finalize(); };
     friend event_access_t EventsIterator::storeNextEvent(Event *ev);
 
-    template<typename T>
-    T* write(const T &value);
+    template <typename T> T *write(const T &value);
 
-public:
+  public:
     /** \brief classical << output stream operator
      */
-    template<typename T>
-    EventsOStream& operator<<(const T& var) {
+    template <typename T> EventsOStream &operator<<(const T &var) {
         write(var);
         return *this;
     }
     /** \brief called when a store is interrupted */
-    void abort() {
-        eofbit=1;
-    }
+    void abort() { eofbit = 1; }
     /** \brief finalize the write of the event in the history
      *
      * If not explicitely called, it will be called from destructor
@@ -223,18 +218,18 @@ public:
         if (eof()) {
             return;
         }
-        size_t size=eventSize();
-        assert(*eventSizePtr == 0 || *eventSizePtr==size);
-        *eventSizePtr=size;
+        size_t size = eventSize();
+        assert(*eventSizePtr == 0 || *eventSizePtr == size);
+        *eventSizePtr = size;
     };
 };
 
 /** \brief Class to manage an events history
  */
 class EventsHistory {
-public:
+  public:
     /** \brief Initialize a new history of events */
-    EventsHistory(Configuration * conf);
+    EventsHistory(Configuration *conf);
     /** \brief Get an iterator positioned at the begining of the history */
     EventsIterator *iterator();
 
@@ -254,43 +249,43 @@ public:
      * associated to the current simulation context One stream per
      * chunk (to be able to regenerate the same events)
      */
-    Random nextStream;// FIXME: attribute or method? provides a clone and advances to next stream
+    Random nextStream; // FIXME: attribute or method? provides a clone and
+                       // advances to next stream
 
-private:
+  private:
     /// EventsIterator need to access to firstChunk
     friend EventsIterator::EventsIterator(EventsHistory *hist);
-    Configuration * configuration;
-    EventsChunk *firstChunk;        ///< beginning of history
-    //uint32_t _nbEvents; // useful ?
-public:
-    Configuration * getConfig() {
-        return configuration;
-    };
-protected:
+    Configuration *configuration;
+    EventsChunk *firstChunk; ///< beginning of history
+                             // uint32_t _nbEvents; // useful ?
+  public:
+    Configuration *getConfig() { return configuration; };
+
+  protected:
     /** \brief Allocate Memory for a chunk
-     * \param size must be filled with the size of the allocated buffer if not NULL
+     * \param size must be filled with the size of the allocated buffer if not
+     * NULL
      * \return address of a buffer that can be used by an EventsChunk
      *
      * The default implementation allocates 4096 bytes but any derived
      * class can choose different sizes
      */
-    virtual char* allocChunkBuffer(size_t *size) {
-        const size_t s=4096;
-        char *buffer=(char*)malloc(s);
+    virtual char *allocChunkBuffer(size_t *size) {
+        const size_t s = 4096;
+        char *buffer = (char *)malloc(s);
         if (size) {
-            *size=buffer?s:0;
+            *size = buffer ? s : 0;
         }
         return buffer;
     }
     friend class EventsChunk;
 };
-
 }
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),
 // we try to include the implementation, hoping to avoid include loops
-#  include <marto/eventsHistory-impl.h>
+#include <marto/eventsHistory-impl.h>
 #endif
 
 #endif

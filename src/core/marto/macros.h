@@ -9,14 +9,14 @@
 
 namespace marto {
 
-#define marto_likely(x)       __builtin_expect(!!(x),1)
-#define marto_unlikely(x)     __builtin_expect(!!(x),0)
+#define marto_likely(x) __builtin_expect(!!(x), 1)
+#define marto_unlikely(x) __builtin_expect(!!(x), 0)
 
-#define marto_BUG() do {                        \
-    assert(0);                                  \
-    abort();                                    \
-    } while(0);
-
+#define marto_BUG()                                                            \
+    do {                                                                       \
+        assert(0);                                                             \
+        abort();                                                               \
+    } while (0);
 }
 
 #endif

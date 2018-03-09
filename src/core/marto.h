@@ -2,6 +2,7 @@
 #ifndef MARTO_H
 #define MARTO_H
 
+#include <marto/RngStream.h>
 #include <marto/allocator.h>
 #include <marto/event.h>
 #include <marto/eventsHistory.h>
@@ -9,7 +10,6 @@
 #include <marto/global.h>
 #include <marto/macros.h>
 #include <marto/random.h>
-#include <marto/RngStream.h>
 #include <marto/state.h>
 #include <marto/transition.h>
 #include <marto/types.h>
