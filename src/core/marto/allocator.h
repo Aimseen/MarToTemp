@@ -10,18 +10,16 @@ namespace marto {
 
 using std::stack;
 
-template <typename T>
-class Allocator: public stack<T *> {
+template <typename T> class Allocator : public stack<T *> {
     T *allocate();
     void free(T *o);
 };
-
 }
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),
 // we try to include the implementation, hoping to avoid include loops
-#  include <marto/allocator-impl.h>
+#include <marto/allocator-impl.h>
 #endif
 
 #endif

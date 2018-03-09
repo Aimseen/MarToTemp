@@ -1,7 +1,7 @@
-#include <marto/event.h>
-#include <marto.h>
 #include <cstdint>
 #include <iostream>
+#include <marto.h>
+#include <marto/event.h>
 
 #include <cassert>
 
@@ -33,7 +33,8 @@ int EventType::findIndex(string parameterName) {
     return couple->second;   //couple is a pair, whose first element is the index in the parameters table
 }
 
-event_access_t EventType::load(EventsIStream &istream, Event *ev, EventsHistory * hist) {
+event_access_t EventType::load(EventsIStream &istream, Event *ev,
+                               EventsHistory *hist) {
     // FIXME: avoir unused parameter;
     if (!istream) {
         istream >> ev >> hist;
@@ -46,7 +47,8 @@ event_access_t EventType::load(EventsIStream &istream, Event *ev, EventsHistory 
     return EVENT_LOADED;
 }
 
-event_access_t EventType::store(EventsOStream &ostream, Event *ev, EventsHistory * hist) {
+event_access_t EventType::store(EventsOStream &ostream, Event *ev,
+                                EventsHistory *hist) {
     // FIXME: avoir unused parameter;
     if (!ostream) {
         ostream << ev << hist;
@@ -60,7 +62,7 @@ event_access_t EventType::store(EventsOStream &ostream, Event *ev, EventsHistory
 }
 
 ParameterValues *Event::getParameter(string name) {
-    if (int index = type->findIndex(name)) {
+    if (int index = type()->findIndex(name)) {
         return parameters[index];
     }
     return nullptr;
@@ -94,41 +96,7 @@ Event::Event():
 {
 }
 
-Event::Event(EventType *t):
-    Event()
-{
-    setTypeAndCode(t);
-}
+Event::Event(EventType *t) : Event() { setType(t); }
 
-void Event::apply(Point *p) {
-    type->transition->apply(p, this);
-}
-
-/*  an eventType is stored compactly as an integer
-   (example of event type : arrival in queue 1)
-   it is read from a table built from user config file
- */
-event_access_t Event::load(EventsIStream &istream, EventsHistory * hist) {
-    parameters.clear();     /* clears previously stored event information */
-    if (istream >> code) {   //eventype is encoded in the first integer of the event buffer.
-        if (setTypeFromCode(hist->getConfig())) {
-            if (type->load(istream, this, hist)) {
-                status = EVENT_STATUS_FILLED;
-                return EVENT_LOADED;
-            }
-        }
-    }
-    return EVENT_LOAD_CODE_ERROR;
-}
-
-event_access_t Event::store(EventsOStream &ostream, EventsHistory * hist) {
-    if (status != EVENT_STATUS_FILLED) {
-        return EVENT_STORE_UNDEFINED_ERROR;
-    }
-    if (ostream << code) {
-        return type->store(ostream, this, hist);
-    }
-    return EVENT_STORE_ERROR;
-}
-
+void Event::apply(Point *p) { type()->transition->apply(p, this); }
 }

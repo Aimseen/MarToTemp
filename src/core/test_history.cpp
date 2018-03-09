@@ -1,32 +1,27 @@
-#include <marto.h>
 #include "gtest/gtest.h"
+#include <marto.h>
 
 namespace {
 
 using namespace marto;
 
-class TransitionTest:public Transition {
-    Point *apply(Point * p, __attribute__((unused)) Event * ev) {
+class TransitionTest : public Transition {
+    Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
             p->at(i)++;
         return p;
-    }
-    HyperRectangle *apply(HyperRectangle * h, __attribute__((unused)) Event * ev) {
-        return h;
-    }
-    Union *apply(Union * u, __attribute__((unused)) Event * ev) {
-        return u;
     }
 };
 
 // The fixture for testing class Foo.
 class EventsHistoryBaseTest : public ::testing::Test {
-protected:
+  protected:
     EventsHistoryBaseTest() {
-        c=Global::getConfig();
+        c = Global::getConfig();
         // ensure TransitionTest exists. Can return NULL if already registered.
         c->registerTransition("TransitionTest", new TransitionTest());
-        et = new EventType(c, "My super event", 42.0, "TransitionTest", new FormalParameters());
+        et = new EventType(c, "My super event", 42.0, "TransitionTest",
+                           new FormalParameters());
         e = new Event(et);
         h = new EventsHistory(c);
     }
@@ -57,50 +52,56 @@ protected:
 };
 
 TEST(Configuration, RegisterTransitionTwice) {
-    auto c=Global::getConfig();
-    Transition* tr=new TransitionTest();
+    auto c = Global::getConfig();
+    Transition *tr = new TransitionTest();
     ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
     ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
 }
 
 TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
-    auto c=Global::getConfig();
+    auto c = Global::getConfig();
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
     try {
-        new EventType(c, "My super event", 42.0, "UnknownTransitionForTest", new FormalParameters());
-        ASSERT_THROW(c->getTransition("UnknownTransitionForTest"), UnknownTransition)
-            << "Transition 'UnknownTransitionForTest' should not exists";
+        new EventType(c, "My super event", 42.0, "UnknownTransitionForTest",
+                      new FormalParameters());
+        ASSERT_THROW(c->getTransition("UnknownTransitionForTest"),
+                     UnknownTransition)
+            << "Transition 'UnknownTransitionForTest' should not exist";
         FAIL() << "EventType successfully created with an unknown transition";
     } catch (const UnknownTransition &e) {
         SUCCEED();
+    } catch (...) {
+        FAIL() << "EventType creation generated an unknown transition";
+        throw;
     }
 }
 
 TEST(Configuration, RegisterEventTypeTwice) {
-    auto c=Global::getConfig();
+    auto c = Global::getConfig();
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest", new FormalParameters()));
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest", new FormalParameters()));
+    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
+                              new FormalParameters()));
+    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
+                              new FormalParameters()));
 }
 
 // Tests that writing a undefined event correctly fails
 TEST_F(EventsHistoryBaseTest, writeUndefinedEvent) {
-    auto it=h->iterator();
+    auto it = h->iterator();
     ASSERT_TRUE(it);
     ASSERT_EQ(EVENT_STORE_UNDEFINED_ERROR, it->storeNextEvent(e));
 }
 
 // Tests that it is possible to write 10 events
 TEST_F(EventsHistoryBaseTest, writeEvents) {
-    auto it=h->iterator();
+    auto it = h->iterator();
     ASSERT_TRUE(it);
     e->generate();
-    for (int i=0; i<10; i++) {
+    for (int i = 0; i < 10; i++) {
         ASSERT_EQ(EVENT_STORED, it->storeNextEvent(e));
     }
 }
 
-}  // namespace
-
+} // namespace

@@ -16,15 +16,16 @@
  * please cite the following relevant articles in which MRG32k3a
  * and the package with multiple streams were proposed:
 
- * P. L'Ecuyer, ``Good Parameter Sets for Combined Multiple Recursive Random Number Generators'',
+ * P. L'Ecuyer, ``Good Parameter Sets for Combined Multiple Recursive Random
+Number Generators'',
  * Operations Research, 47, 1 (1999), 159--164.
 
  * P. L'Ecuyer, R. Simard, E. J. Chen, and W. D. Kelton,
- * ``An Objected-Oriented Random-Number Package with Many Long Streams and Substreams'',
+ * ``An Objected-Oriented Random-Number Package with Many Long Streams and
+Substreams'',
  * Operations Research, 50, 6 (2002), 1073--1075
  *
 \***********************************************************************/
-
 
 #ifndef RNGSTREAM_H
 #define RNGSTREAM_H
@@ -32,8 +33,7 @@
 #include <string>
 
 class RngStream {
-public:
-
+  public:
     /** Information on a stream. The arrays {Cg, Bg, Ig} contain the current
      state of the stream, the starting state of the current SubStream, and the
      starting state of the stream. This stream generates antithetic variates
@@ -50,62 +50,45 @@ public:
     /** Back to the beginning of the current substream : Cg<- Bg */
     void ResetStartStream();
 
-
     void ResetStartSubstream();
 
-    /** This advances the current state Cg and the substream seed Bg to the beginning of the next substream (based on current Bg). Useful to create new substream generators.
+    /** This advances the current state Cg and the substream seed Bg to the
+     * beginning of the next substream (based on current Bg). Useful to create
+     * new
+     * substream generators.
      */
     void ResetNextSubstream();
 
-
     void SetAntithetic(bool a);
-
 
     void IncreasedPrecis(bool incp);
 
-
     bool SetSeed(const unsigned long seed[6]);
-
 
     void AdvanceState(long e, long c);
 
-
     void GetState(unsigned long seed[6]) const;
-
 
     void WriteState() const;
 
-
     void WriteStateFull() const;
-
 
     double RandU01();
 
-
     int RandInt(int i, int j);
 
-
-
-private:
-
+  private:
     double Cg[6], Bg[6], Ig[6];
-
 
     bool anti, incPrec;
 
-
     std::string name;
-
 
     static double nextSeed[6];
 
-
     double U01();
 
-
     double U01d();
-
-
 };
 
 #endif

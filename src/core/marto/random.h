@@ -14,15 +14,21 @@ Etat courant de PSI3 :
 - pas de AdvanceState
 
 Questions :
-- Get/WriteState ne travaille que sur Cg (WriteStateFull, verbeux travaille sur les 3)
-- AdvanceState : semble être un déplacement dans le stream, non utilisé par PSI3, utile ?
-- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Cg, MAIS Get/WriteState ne travaille que sur Cg
-- SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça, non ?
-- ResetNextSubStream : apparemment pour passer au substream suivant mais non utilisé dans psi
+- Get/WriteState ne travaille que sur Cg (WriteStateFull, verbeux travaille sur
+les 3)
+- AdvanceState : semble être un déplacement dans le stream, non utilisé par
+PSI3, utile ?
+- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Cg, MAIS
+Get/WriteState ne travaille que sur Cg
+- SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça,
+non ?
+- ResetNextSubStream : apparemment pour passer au substream suivant mais non
+utilisé dans psi
 - Le constructeur semble créer un générateur sur le stream suivant
 
 Objectif :
-[ chunk d'evènements contenant dans evènements à nombre variable de paramètres (substreams) ]
+[ chunk d'evènements contenant dans evènements à nombre variable de paramètres
+(substreams) ]
 
 
 
@@ -49,7 +55,7 @@ public:
     size_t load(void *buffer);
     size_t store(void *buffer);
 
-protected:
+  protected:
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
     RngStream *intGen;
@@ -57,9 +63,10 @@ protected:
 
 /** Internal Random generator with uniform distribution; type double */
 class RandomUniformInterval : public Random {
-private:
+  private:
     double inf, sup;
-public:
+
+  public:
     virtual double next();
     RandomUniformInterval(double inf, double sub);
 };
@@ -67,8 +74,6 @@ public:
 class InternalGeneratorFabric {
     // Should be a singleton because Lecuyer RngStream has to be initialized
 };
-
 }
 
 #endif
-
