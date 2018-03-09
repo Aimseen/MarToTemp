@@ -27,50 +27,6 @@ using std::string;
 
 typedef uint32_t Queue;
 
-enum ParamType {
-    QueueList,
-    IntList,
-    DoubleList,
-    //Martostring,
-    InvalidType
-};
-
-class FormalParameterValue {
-public:
-    FormalParameterValue(ParamType type, size_t l);
-private:
-    ParamType paramType;
-    size_t length;
-};
-
-// collection of FormalParameter
-// Après 6 mois, on penserait qu'il s'agit de:
-// string (nom du parametre) -> taille liste, contenu liste
-// avec la convention taille==-1 => taille variable (potentiellement infinie)
-class FormalParameters:public std::map < string, std::pair < int, FormalParameterValue >> {
-    friend ostream & ::operator << (ostream &out, const FormalParameters &ev);
-    //void addParam(string name, FormalParameterValue *value);
-};
-
-class FormalConstantList:public FormalParameterValue {
-    std::list < double >l;
-};
-
-class FormalDistribution:public FormalParameterValue {
-public:
-    FormalDistribution(string idRandom, FormalParameters fp);
-};
-
-class FormalDistributionFixedList:public FormalDistribution {
-public:
-    FormalDistributionFixedList(string idRandom, FormalParameters fp);
-};
-
-class FormalDistributionVariadicList:public FormalDistribution {
-public:
-    FormalDistributionVariadicList(string idRandom, FormalParameters fp);
-};
-
 /* list of values for this parameter (for instance : input queues) */
 class ParameterValues {
 public:
@@ -79,12 +35,14 @@ public:
     // Instead, the parameter class is a placeholder wich can store either
     // an array of values or a sequence generated from a given generator seed.
     //
-    // In the case of an array, this assumes that the user always ask for the
+    // In the case of an array, this assumes that the user always asks for the
     // same value type and does not exceed the size she has declared in
     // the configuration.
     template < typename T > T get(unsigned int index);
     size_t size();
 private:
+    friend class ParametersBaseTest;
+    ParameterValues(void *vals, size_t nb);
     enum { ARRAY, GENERATOR, REFERENCE } kind;
     union {
         struct {
@@ -100,6 +58,52 @@ private:
         } generator;
         ParameterValues *reference;
     } u;                    //need to choose between one of those 3 fields, depending on "kind"
+};
+
+enum ParamType {
+    QueueList,
+    IntList,
+    DoubleList,
+    //Martostring,
+    InvalidType
+};
+
+class FormalParameterValue {
+public:
+    FormalParameterValue(ParamType type, size_t l) : paramType(type), length(l) {}
+private:
+    ParamType paramType;
+    size_t length;
+};
+
+// collection of FormalParameter
+// Après 6 mois, on penserait qu'il s'agit de:
+// string (nom du parametre) -> taille liste, contenu liste
+// avec la convention taille==-1 => taille variable (potentiellement infinie)
+class FormalParameters:public std::map < string, std::pair < int, FormalParameterValue >> {
+    friend ostream & ::operator << (ostream &out, const FormalParameters &ev);
+    //void addParam(string name, FormalParameterValue *value);
+};
+
+class FormalConstantList:public FormalParameterValue {
+    FormalConstantList(ParamType type, size_t s);
+private:
+    ParameterValues values;
+};
+
+class FormalDistribution:public FormalParameterValue {
+public:
+    FormalDistribution(string idRandom, FormalParameters fp);
+};
+
+class FormalDistributionFixedList:public FormalDistribution {
+public:
+    FormalDistributionFixedList(string idRandom, FormalParameters fp);
+};
+
+class FormalDistributionVariadicList:public FormalDistribution {
+public:
+    FormalDistributionVariadicList(string idRandom, FormalParameters fp);
 };
 
 /* each simulation sequence only uses 1 object of type Event */

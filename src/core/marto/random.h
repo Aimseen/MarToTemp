@@ -39,6 +39,8 @@ namespace marto {
 */
 class Random {
 public:
+    /* TODO : complete and decide on visibility */
+    Random() {}
     static Random nextStream(); // creates a new independent RNG
     /* Generic random is on (0,1)
        - one should specialize when forking is required

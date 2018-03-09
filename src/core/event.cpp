@@ -68,6 +68,11 @@ ParameterValues *Event::getParameter(string name) {
     return nullptr;
 }
 
+ParameterValues::ParameterValues(void *vals, size_t nb) : u(u.generator.cache(10)) {
+    u.array.values = vals;
+    u.array.nbValues = nb;
+}
+
 size_t ParameterValues::size() {
     switch (kind) {
     case ARRAY:
@@ -80,6 +85,16 @@ size_t ParameterValues::size() {
     marto_BUG(); // Never reached
     return 0; // for compiler
 }
+
+FormalConstantList::FormalConstantList(ParamType type, size_t s) {
+    FormalParameterValue(type, s);
+    switch (type) {
+        case IntList:
+            values = new ParameterValues(new int[1], 1);
+        default:
+            marto_BUG();
+    }
+};
 
 Event::Event():
     parameters(), status(EVENT_STATUS_INVALID)
