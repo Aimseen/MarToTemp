@@ -20,7 +20,7 @@
 // https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
 using std::ostream;
 ostream &operator<<(ostream &out, const marto::EventType &ev);
-ostream &operator<<(ostream &out, const marto::FormalParameters &ev);
+ostream &operator<<(ostream &out, const marto::FormalParameterValues &ev);
 
 namespace marto {
 
@@ -62,28 +62,43 @@ enum ParamType {
     InvalidType
 };
 
-class FormalParameterValue {
+/** Parameters coming from the model description
+ *
+ * type is used to compact the data if needed
+ * l is the maximum number of actual parameters that can be extracted. 0 means no limit. 
+ */
+class FormalParameterValues {
 public:
-    FormalParameterValue(ParamType type, size_t l) : paramType(type), length(l) {}
+    FormalParameterValues(ParamType type, size_t l) : paramType(type), length(l) {};
+    virtual void generateParameterValues(ParameterValues *actualValues) = 0;
+    virtual void store(EventsOStream &os, ParameterValues*actualValues) = 0;
 private:
     ParamType paramType;
     size_t length;
 };
 
-class FormalConstantList:public FormalParameterValue {
-    FormalConstantList(ParamType type, size_t s);
+class FormalConstantList:public FormalParameterValues {
+public:
+    template<typename T>
+    FormalConstantList(ParamType type, size_t s, std::vector<T> *values);
+    virtual void generateParameterValues(ParameterValues *actualValues __attribute__((unused))) {};
+    /* store nothing, all is constant */
+    virtual void store(EventsOStream &os __attribute__((unused)),
+                       ParameterValues*actualValues __attribute__((unused))) {};
 private:
     ParameterValues *values;
 };
 
-class FormalDistribution : public FormalParameterValue {
-  public:
-    FormalDistribution(string idRandom, FormalParameters fp);
+class FormalDistribution : public FormalParameterValues {
+public:
+    FormalDistribution(ParamType type, size_t l, Random *rand);
+private:
+    Random *rand;
 };
 /* when the event is created the values are generated and stored for future direct use at replay */
 class FormalDistributionFixedList:public FormalDistribution {
 public:
-    FormalDistributionFixedList(string idRandom, FormalParameters fp);
+    FormalDistributionFixedList(ParamType type, size_t l, string idRandom);
 };
 
 /* the event only stores the generator : values are re-generated at every replay to save buffer space 
@@ -91,11 +106,12 @@ public:
 */ 
 class FormalDistributionVariadicList:public FormalDistribution {
 public:
-    FormalDistributionVariadicList(string idRandom, FormalParameters fp);
+    FormalDistributionVariadicList(ParamType type, size_t l, string idRandom);
 };
 
 /* each simulation sequence only uses 1 object of type Event */
 class Event {
+    friend EventType;
   public:
     /** type used to store the event code */
     typedef unsigned code_t;
@@ -165,6 +181,11 @@ class EventType {
      * \note the EventType will be registered into the provided configuration
      */
     EventType(Configuration * config, string eventName, double evtRate, string idTr);
+    void registerParameter(string name, FormalParameterValues *fp) {
+        // TODO : check for duplicate name, ...
+        formalParametersNames.insert(std::make_pair(name, formalParameters.size()));
+        formalParameters.push_back(fp);
+    };
 private:
     friend ostream & ::operator << (ostream &out, const EventType &ev);
     // Name for this event type
@@ -172,7 +193,7 @@ private:
     Transition *transition;
     double rate;
     // Numbered formal parameters
-    std::vector < FormalParameterValue > formalParameters;
+    std::vector < FormalParameterValues* > formalParameters;
     // Association from names to formal parameter number
     std::map < string, int > formalParametersNames;
     Event::code_t _code; ///< code of this EventType as assigned by the configuration
@@ -184,13 +205,13 @@ private:
   protected:
     /** \brief load actual parameters from history to an event
      *
-     * \return true if the load is successful
+     * \return EVENT_LOADED if the load is successful
      */
     virtual event_access_t load(EventsIStream &istream, Event *event,
                                 EventsHistory *hist);
     /** \brief store actual parameters of an event into history
      *
-     * \return true if the store is successful
+     * \return EVENT_STORED if the store is successful
      */
     virtual event_access_t store(EventsOStream &ostream, Event *event,
                                  EventsHistory *hist);

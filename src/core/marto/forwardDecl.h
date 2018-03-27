@@ -15,8 +15,7 @@ namespace marto {
 template <typename T> class Allocator;
 
 /* event.h */
-class FormalParameterValue;
-class FormalParameters;
+class FormalParameterValues;
 class FormalConstantList;
 class FormalDistribution;
 class FormalDistributionFixedList;

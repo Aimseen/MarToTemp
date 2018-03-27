@@ -35,28 +35,23 @@ int EventType::findIndex(string parameterName) {
 
 event_access_t EventType::load(EventsIStream &istream, Event *ev,
                                EventsHistory *hist) {
-    // FIXME: avoir unused parameter;
-    if (!istream) {
-        istream >> ev >> hist;
-    }
-    for (auto pair:formalParameters) {
+    for (auto fpit=formalParameters.begin(); fpit != formalParameters.end(); fpit++) {
         /* pair iterates on all elements in fp (list of pairs) */
         //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
-        (void) pair;
+        //auto fp=*fpit;
+        (void) fpit;
     }
     return EVENT_LOADED;
 }
 
 event_access_t EventType::store(EventsOStream &ostream, Event *ev,
                                 EventsHistory *hist) {
-    // FIXME: avoir unused parameter;
-    if (!ostream) {
-        ostream << ev << hist;
-    }
-    for (auto pair:formalParameters) {
-        /* pair iterates on all elements in fp (list of pairs) */
-        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
-        (void) pair;
+    auto fpit=formalParameters.begin();
+    auto pit=ev->parameters.begin();
+    for (;
+         fpit != formalParameters.end();
+         fpit++, pit++) {
+        (*fpit)->store(ostream, *pit);
     }
     return EVENT_STORED;
 }
@@ -80,16 +75,6 @@ size_t ParameterValues::size() {
     // TODO : keep nbValues coherent for all kinds
     return nbValues;
 }
-
-FormalConstantList::FormalConstantList(ParamType type, size_t s) : FormalParameterValue(type, s) {
-    switch (type) {
-        case IntList:
-            // TODO : temporary, for testing only
-            values = new ParameterValues();
-        default:
-            marto_BUG();
-    }
-};
 
 Event::Event():
     parameters(), status(EVENT_STATUS_INVALID)

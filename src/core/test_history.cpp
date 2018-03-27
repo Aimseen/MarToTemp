@@ -20,8 +20,11 @@ class EventsHistoryBaseTest : public ::testing::Test {
         c = Global::getConfig();
         // ensure TransitionTest exists. Can return NULL if already registered.
         c->registerTransition("TransitionTest", new TransitionTest());
-        et = new EventType(c, "My super event", 42.0, "TransitionTest",
-                           new FormalParameters());
+        et = new EventType(c, "My super event", 42.0, "TransitionTest");
+        std::vector<int> v;
+        v.push_back(5);
+        v.push_back(6);
+        et->registerParameter("to", new FormalConstantList(IntList, 2, &v));
         e = new Event(et);
         h = new EventsHistory(c);
     }
@@ -63,8 +66,7 @@ TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
     try {
-        new EventType(c, "My super event", 42.0, "UnknownTransitionForTest",
-                      new FormalParameters());
+        new EventType(c, "My super event", 42.0, "UnknownTransitionForTest");
         ASSERT_THROW(c->getTransition("UnknownTransitionForTest"),
                      UnknownTransition)
             << "Transition 'UnknownTransitionForTest' should not exist";
@@ -81,10 +83,8 @@ TEST(Configuration, RegisterEventTypeTwice) {
     auto c = Global::getConfig();
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
-                              new FormalParameters()));
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
-                              new FormalParameters()));
+    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
+    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
 }
 
 // Tests that writing a undefined event correctly fails

@@ -51,6 +51,20 @@ inline void Event::clear() {
     status = EVENT_STATUS_INVALID;
 }
 
+template<typename T>
+// TODO To discuss : 'type' versus 'T'
+FormalConstantList::FormalConstantList(ParamType type, size_t s, std::vector<T> *v) : FormalParameterValues(type, s) {
+    switch (type) {
+        case IntList:
+            // TODO : temporary, for testing only
+            // TODO : copy v into values
+            values = new ParameterValues();
+            break;
+        default:
+            marto_BUG();
+    }
+}
+
 inline EventType *Event::type() {
     assert(status != EVENT_STATUS_INVALID);
     return _type;
@@ -63,6 +77,7 @@ inline EventType *Event::setType(EventType *type) {
         return nullptr;
     }
     status = EVENT_STATUS_TYPED;
+    parameters.reserve(type->formalParameters.size());
     return type;
 }
 }
