@@ -178,6 +178,7 @@ class EventsIStream : public EventsStreamBase {
     /** \brief classical >> input stream operator
      */
     template <typename T> EventsIStream &operator>>(T &var) {
+        static_assert(std::is_arithmetic<T>::value, "T must be numeric");
         read(var);
         return *this;
     }
@@ -205,6 +206,7 @@ class EventsOStream : public EventsStreamBase {
     /** \brief classical << output stream operator
      */
     template <typename T> EventsOStream &operator<<(const T &var) {
+        static_assert(std::is_arithmetic<T>::value, "T must be numeric");
         write(var);
         return *this;
     }
