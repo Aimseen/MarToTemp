@@ -43,9 +43,21 @@ namespace marto {
 
 /**  internal random number generation
 *  Random is the core brick providing a uniform random number in (0,1).
+* 
+* Intended usage :
+* - use all variants of next to advance in the current stream
+* - to spawn a generator to the next substream from myGenerator :
+*   Random newGenerator = new Random(myGenerator);
+*   newGenerator.nextSubStream();
+* - it's similar to spawn a generator to the next stream
 */
 class Random {
+    friend class Configuration;
+    friend class eventsHistory;
+    
 public:
+    /** \brief creates a copy of a given generator */
+    Random(const Random &original);
     /* Generic random is on (0,1)
        - one should specialize when forking is required
     */
@@ -81,8 +93,6 @@ protected:
     Random();
     /** \brief creates a new Random at the given seed */
     Random(unsigned long seed[]);
-    /** \brief creates a copy of a given generator */
-    Random(const Random &original);
     /** \brief advances to the next stream */
     void nextStream();
     /** \brief resets to the begining of the current stream */
