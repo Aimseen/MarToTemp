@@ -35,11 +35,12 @@ int EventType::findIndex(string parameterName) {
 
 event_access_t EventType::load(EventsIStream &istream, Event *ev,
                                EventsHistory *hist) {
-    for (auto fpit=formalParameters.begin(); fpit != formalParameters.end(); fpit++) {
-        /* pair iterates on all elements in fp (list of pairs) */
-        //parameters.insert(pair.first, pair.second.load(intBuffer+1);/* inserts actual parameters computed using the load method of formalParameterValue class */
-        //auto fp=*fpit;
-        (void) fpit;
+    auto fpit=formalParameters.begin();
+    auto pit=ev->parameters.begin();
+    for (;
+         fpit != formalParameters.end();
+         fpit++, pit++) {
+        (*fpit)->load(istream, *pit);
     }
     return EVENT_LOADED;
 }

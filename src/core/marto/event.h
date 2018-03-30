@@ -72,6 +72,7 @@ public:
     FormalParameterValues(ParamType type, size_t l) : paramType(type), length(l) {};
     virtual void generateParameterValues(ParameterValues *actualValues) = 0;
     virtual void store(EventsOStream &os, ParameterValues*actualValues) = 0;
+    virtual void load(EventsIStream &is, ParameterValues*actualValues) = 0;
 private:
     ParamType paramType;
     size_t length;
@@ -85,6 +86,9 @@ public:
     /* store nothing, all is constant */
     virtual void store(EventsOStream &os __attribute__((unused)),
                        ParameterValues*actualValues __attribute__((unused))) {};
+    /* nothing to load, all is constant */
+    virtual void load(EventsIStream &is __attribute__((unused)),
+                      ParameterValues*actualValues __attribute__((unused))) {};
 private:
     ParameterValues *values;
 };
