@@ -42,20 +42,12 @@ template <typename T> T ParameterValues::get(unsigned int index) {
 }
 
 template <typename T>
-// TODO To discuss : 'type' versus 'T'
-FormalConstantList::FormalConstantList(ParamType type, size_t s,
-                                       std::vector<T> *v)
-    : FormalParameterValues(type, s) {
-    switch (type) {
-    case IntList:
-        // TODO : temporary, for testing only
-        // TODO : copy v into values
-        values = new ParameterValues();
-        // TODO
-        break;
-    default:
-        marto_BUG();
-    }
+FormalConstantList<T>::FormalConstantList(size_t s, std::vector<T> *v)
+    : FormalParameterValuesTyped<T>(s) {
+    // TODO : temporary, for testing only
+    // TODO : copy v into values
+    values = new ParameterValues();
+    // TODO
 }
 }
 
