@@ -14,56 +14,11 @@
 
 namespace marto {
 
-template <typename T>
-ParameterValues::ParameterValues(T *vals, size_t nb) {
-    kind = ARRAY;
-    bufferSize = nb*sizeof(T);
-    // TODO : decide if we want to copy vals or just use it
-    buffer = vals;
-    assert(buffer != nullptr);
-    nbValues = nb;
-}
-
-template <typename T>
-T ParameterValues::get(unsigned int index) {
-    T *values = (T *) buffer;
-    switch (kind) {
-    case GENERATOR:
-        // TODO : resize buffer
-        if (nbValues <= index) {
-            for (auto i=nbValues; i<index+1; i++)
-                values[i] = g.next();
-        }
-        return values[index];
-    case REFERENCE:
-        marto_BUG(); // TODO: handle this case
-    case ARRAY:
-        return values[index];
-    default:
-        marto_BUG();
-    }
-}
-
 inline bool Event::valid() { return status == EVENT_STATUS_FILLED; }
 
 inline void Event::clear() {
     parameters.clear();
     status = EVENT_STATUS_INVALID;
-}
-
-template<typename T>
-// TODO To discuss : 'type' versus 'T'
-FormalConstantList::FormalConstantList(ParamType type, size_t s, std::vector<T> *v) : FormalParameterValues(type, s) {
-    switch (type) {
-        case IntList:
-            // TODO : temporary, for testing only
-            // TODO : copy v into values
-            values = new ParameterValues();
-            // TODO 
-            break;
-        default:
-            marto_BUG();
-    }
 }
 
 inline EventType *Event::type() {

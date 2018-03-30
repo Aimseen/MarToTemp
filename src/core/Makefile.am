@@ -12,6 +12,8 @@ nobase_include_HEADERS=\
       marto/forwardDecl.h \
       marto/global.h \
       marto/macros.h \
+      marto/parameters.h \
+      marto/parameters-impl.h \
       marto/random.h \
       marto/RngStream.h \
       marto/state.h \
@@ -34,6 +36,7 @@ libmarto_la_SOURCES=\
 	event.cpp \
 	eventsHistory.cpp \
 	global.cpp \
+	parameters.cpp \
 	random.cpp
 
 pkgconfig_DATA=marto.pc

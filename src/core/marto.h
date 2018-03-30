@@ -9,6 +9,7 @@
 #include <marto/except.h>
 #include <marto/global.h>
 #include <marto/macros.h>
+#include <marto/parameters.h>
 #include <marto/random.h>
 #include <marto/state.h>
 #include <marto/transition.h>
@@ -17,5 +18,6 @@
 #include <marto/allocator-impl.h>
 #include <marto/event-impl.h>
 #include <marto/eventsHistory-impl.h>
+#include <marto/parameters-impl.h>
 
 #endif
