@@ -1,19 +1,23 @@
 #include <marto/random.h>
-#include <marto/RngStream.h>
+/* We include the .c because we need the static constants it contains */
+#include <RngStream.c>
+#include <string.h>
 
 namespace marto {
 
-size_t load(void *buffer) {
-    RngStream storage = (RngStream) buffer;
-    *generator = *storage;
-    return sizeof(struct RngStream_InfoState);
+static void advanceStream(double *state) {
+    /* Taken from Lecuyer implementation (see RngStream_CreateStream in RngStream.c).
+       Extracted because it is not separated from memory allocation */
+    MatVecModM (A1p127, state, state, m1);
+    MatVecModM (A2p127, &state[3], &state[3], m2);
 }
 
-size_t store(void *buffer) {
-    RngStream storage = (RngStream) buffer;
-    *storage = *generator;
-    return sizeof(struct RngStream_InfoState);
-}
+/* We use some knowledge about the implementation from Lecuyer :
+   - the begining of the current stream is in state.Ig
+   - the begining of the current substream is in state.Bg
+   - the current position is in state.Cg
+   - a seed is an array of 6 double
+*/
 
 static int seedSize=6;
 static size_t copySeed(void *dest, void *src) {
@@ -21,50 +25,75 @@ static size_t copySeed(void *dest, void *src) {
     return seedSize*sizeof(double);
 }
 
-size_t storeStream(void *buffer) {
-    return copySeed(buffer, generator->Ig);
+void Random::nextSubStream() {
+    RngStream_ResetNextSubstream(&state);
 }
 
-size_t restoreStream(void *buffer) {
-    copySeed(generator->Ig, buffer);
-    copySeed(generator->Bg, generator->Ig);
-    return copySeed(generator->Cg, generator->Ig);
-}
-
-size_t storeSubStream(void *buffer) {
-    return copySeed(buffer, generator->Bg);
-}
-
-size_t restoreSubStream(void *buffer) {
-    copySeed(generator->Bg, buffer);
-    return copySeed(generator->Cg, generator->Bg);
-}
-
-Random::Random() {
-    generator = nullptr;
-}
-
-Random *Random::nextStream() {
-    Random *result = new Random();
-    // TODO : to be synchronized for multithreading
-    generator = RngStream_CreateStream(name);
-}
-
-Random::~Random() {
-    RngStream_DeleteStream(generator);
-}
-
-Random::Random(const Random &original) {
-    generator = new struct RngStream_InfoState();
-    *generator = *original.generator;
-    generator->name = strdup(original.generator->name);
+void Random::resetSubStream() {
+    copySeed(state.Cg, state.Bg);
 }
 
 double Random::next() {
-    /* FIXME */
-    /* but garantee true random with a roll dice */
-    return 4;
+    return RngStream_RandU01(&state);
 };
+
+int Random::next(int i, int j) {
+    return RngStream_RandInt(&state, i, j);
+}
+
+size_t Random::load(void *buffer) {
+    RngStream storage = (RngStream) buffer;
+    state = *storage;
+    return sizeof(struct RngStream_InfoState);
+}
+
+size_t Random::store(void *buffer) {
+    RngStream storage = (RngStream) buffer;
+    *storage = state;
+    return sizeof(struct RngStream_InfoState);
+}
+
+size_t Random::storeStream(void *buffer) {
+    return copySeed(buffer, state.Ig);
+}
+
+size_t Random::loadStream(void *buffer) {
+    size_t result = copySeed(state.Ig, buffer);
+    resetStream();
+    return result;
+}
+
+size_t Random::storeSubStream(void *buffer) {
+    return copySeed(buffer, state.Bg);
+}
+
+size_t Random::loadSubStream(void *buffer) {
+    size_t result = copySeed(state.Bg, buffer);
+    resetSubStream();
+    return result;
+}
+
+Random::Random() {
+    loadStream(nextSeed);
+}
+
+Random::Random(unsigned long seed[]) {
+    RngStream_SetSeed(&state, seed);
+}
+
+Random::Random(const Random &original) {
+    state = original.state;
+}
+
+void Random::nextStream() {
+    advanceStream(state.Ig);
+    resetStream();
+}
+
+void Random::resetStream() {
+    copySeed(state.Bg, state.Ig);
+    copySeed(state.Cg, state.Ig);
+}
 
 /*  internal generic-type uniform generator */
 RandomUniformInterval::RandomUniformInterval(double _inf, double _sup)

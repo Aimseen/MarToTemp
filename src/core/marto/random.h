@@ -36,7 +36,7 @@ Objective :
 #ifndef MARTO_RANDOM_H
 #define MARTO_RANDOM_H
 
-#include <marto/RngStream.h>
+#include <RngStream.h>
 #include <stddef.h>
 
 namespace marto {
@@ -45,23 +45,30 @@ namespace marto {
 *  Random is the core brick providing a uniform random number in (0,1).
 */
 class Random {
-    /** \brief forbid assignment of this kind of objects */
-    Random &operator=(const Random &) = delete;
-
 public:
     /* Generic random is on (0,1)
        - one should specialize when forking is required
     */
-    Random nextSubStream();
-    virtual double next();
-    /* Full generator storage management */
+    /** \brief advances this generator to the next substream */
+    void nextSubStream();
+    /** \brief resets to the begining of the current substream */
+    void resetSubStream();
+    /** \brief returns the next double in (0,1) */
+    double next();
+    /** \brief returns the next int in [i,j) */
+    int next(int i, int j);
+    /** \brief loads a full generator state */
     size_t load(void *buffer);
+    /** \brief stores a full generator state */
     size_t store(void *buffer);
-    /* Relates to the begining of the current stream */
+    /** \brief loads a stream and also sets it as current substream and current position  */
     size_t loadStream(void *buffer);
+    /** \brief stores the begining of the current stream */
     size_t storeStream(void *buffer);
-    /* Relates to the beginning of the current substream */
+    /** \brief loads a substream and also sets it as current position
+        Warning : this assumes that the loaded substream is a substream of the current stream */
     size_t loadSubStream(void *buffer);
+    /** \brief stores the begining of the current substream */
     size_t storeSubStream(void *buffer);
 
 protected:
@@ -70,15 +77,19 @@ protected:
        multithreaded versions, each new thread should be given a stream
        not already in use by another thread
     */
-    /** \brief creates a new Random on the next stream */
-    Random(const char *name);
+    /** \brief creates a new Random using a predefined seed */
+    Random();
+    /** \brief creates a new Random at the given seed */
+    Random(unsigned long seed[]);
     /** \brief creates a copy of a given generator */
     Random(const Random &original);
-    /** \brief advances to the next substream */
-    void nextSubStream();
+    /** \brief advances to the next stream */
+    void nextStream();
+    /** \brief resets to the begining of the current stream */
+    void resetStream();
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
-    RngStream generator;
+    struct RngStream_InfoState state;
 };
 
 /** Internal Random generator with uniform distribution; type double */

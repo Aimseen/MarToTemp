@@ -118,7 +118,7 @@ class ParameterValues {
     void *buffer;
     size_t bufferSize;
     size_t nbValues;
-    Random g;
+    Random *g;
     ParameterValues *reference;
 };
 }

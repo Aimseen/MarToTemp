@@ -29,7 +29,7 @@ template <typename T> T ParameterValues::get(unsigned int index) {
         // TODO : resize buffer
         if (nbValues <= index) {
             for (auto i = nbValues; i < index + 1; i++)
-                values[i] = g.next();
+                values[i] = g->next();
         }
         return values[index];
     case REFERENCE:
