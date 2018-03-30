@@ -17,5 +17,4 @@ size_t ParameterValues::size() {
     // TODO : keep nbValues coherent for all kinds
     return nbValues;
 }
-
 }

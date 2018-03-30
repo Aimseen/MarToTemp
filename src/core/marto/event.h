@@ -9,9 +9,9 @@
 #include <map>
 #include <marto/forwardDecl.h>
 #include <marto/global.h>
+#include <marto/parameters.h>
 #include <marto/random.h>
 #include <marto/types.h>
-#include <marto/parameters.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
@@ -29,6 +29,7 @@ using std::string;
 /* each simulation sequence only uses 1 object of type Event */
 class Event {
     friend EventType;
+
   public:
     /** type used to store the event code */
     typedef unsigned code_t;
@@ -61,8 +62,12 @@ class Event {
     ParameterValues *getParameter(string name);
     void apply(Point *p);
 
-private:
-    enum eventStatus { EVENT_STATUS_INVALID, EVENT_STATUS_TYPED, EVENT_STATUS_FILLED };
+  private:
+    enum eventStatus {
+        EVENT_STATUS_INVALID,
+        EVENT_STATUS_TYPED,
+        EVENT_STATUS_FILLED
+    };
 
     std::vector<ParameterValues *> parameters; /**< actual parameters (not
                                                   formal), used to apply
@@ -97,24 +102,28 @@ class EventType {
      *
      * \note the EventType will be registered into the provided configuration
      */
-    EventType(Configuration * config, string eventName, double evtRate, string idTr);
+    EventType(Configuration *config, string eventName, double evtRate,
+              string idTr);
     void registerParameter(string name, FormalParameterValues *fp) {
         // TODO : check for duplicate name, ...
-        formalParametersNames.insert(std::make_pair(name, formalParameters.size()));
+        formalParametersNames.insert(
+            std::make_pair(name, formalParameters.size()));
         formalParameters.push_back(fp);
     };
-private:
-    friend ostream & ::operator << (ostream &out, const EventType &ev);
+
+  private:
+    friend ostream & ::operator<<(ostream &out, const EventType &ev);
     // Name for this event type
     string name;
     Transition *transition;
     double rate;
     // Numbered formal parameters
-    std::vector < FormalParameterValues* > formalParameters;
+    std::vector<FormalParameterValues *> formalParameters;
     // Association from names to formal parameter number
-    std::map < string, int > formalParametersNames;
-    Event::code_t _code; ///< code of this EventType as assigned by the configuration
-    
+    std::map<string, int> formalParametersNames;
+    Event::code_t
+        _code; ///< code of this EventType as assigned by the configuration
+
     /** used by the Configuration to assign a code */
     void setCode(Event::code_t c) { _code = c; };
     friend EventType *Configuration::registerEventType(EventType *);
@@ -135,11 +144,9 @@ private:
 
   public:
     /** Code of this kind of event */
-    Event::code_t code() {
-        return _code;
-    };
+    Event::code_t code() { return _code; };
     /** \brief returns the index of the named parameter (internal use)
-     * 
+     *
      * \return a positive index or -1 if the name does not exist
      */
     int findIndex(string parameterName);
