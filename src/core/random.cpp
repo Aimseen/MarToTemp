@@ -40,13 +40,25 @@ size_t restoreSubStream(void *buffer) {
     return copySeed(generator->Cg, generator->Bg);
 }
 
-Random Random::nextStream(const char *name) {
-    Random result;
-    result.generator = RngStream_CreateStream(name);
-    return result;
+Random::Random() {
+    generator = nullptr;
 }
 
+Random *Random::nextStream() {
+    Random *result = new Random();
+    // TODO : to be synchronized for multithreading
+    generator = RngStream_CreateStream(name);
+}
 
+Random::~Random() {
+    RngStream_DeleteStream(generator);
+}
+
+Random::Random(const Random &original) {
+    generator = new struct RngStream_InfoState();
+    *generator = *original.generator;
+    generator->name = strdup(original.generator->name);
+}
 
 double Random::next() {
     /* FIXME */

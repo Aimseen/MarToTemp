@@ -18,7 +18,7 @@ Questions :
 les 3)
 - AdvanceState : semble être un déplacement dans le stream, non utilisé par
 PSI3, utile ?
-- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Cg, MAIS
+- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Ig, MAIS
 Get/WriteState ne travaille que sur Cg
 - SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça,
 non ?
@@ -45,8 +45,6 @@ namespace marto {
 *  Random is the core brick providing a uniform random number in (0,1).
 */
 class Random {
-      /** \brief forbid copy of this kind of objects */
-    Random(const Random &) = delete;
     /** \brief forbid assignment of this kind of objects */
     Random &operator=(const Random &) = delete;
 
@@ -72,8 +70,12 @@ protected:
        multithreaded versions, each new thread should be given a stream
        not already in use by another thread
     */
-    Random() {}
-    Random nextStream(); // creates a new independent RNG
+    /** \brief creates a new Random on the next stream */
+    Random(const char *name);
+    /** \brief creates a copy of a given generator */
+    Random(const Random &original);
+    /** \brief advances to the next substream */
+    void nextSubStream();
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
     RngStream generator;
