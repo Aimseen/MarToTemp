@@ -1,6 +1,52 @@
 #include <marto/random.h>
+#include <marto/RngStream.h>
 
 namespace marto {
+
+size_t load(void *buffer) {
+    RngStream storage = (RngStream) buffer;
+    *generator = *storage;
+    return sizeof(struct RngStream_InfoState);
+}
+
+size_t store(void *buffer) {
+    RngStream storage = (RngStream) buffer;
+    *storage = *generator;
+    return sizeof(struct RngStream_InfoState);
+}
+
+static int seedSize=6;
+static size_t copySeed(void *dest, void *src) {
+    memcpy(dest, src, seedSize*sizeof(double));
+    return seedSize*sizeof(double);
+}
+
+size_t storeStream(void *buffer) {
+    return copySeed(buffer, generator->Ig);
+}
+
+size_t restoreStream(void *buffer) {
+    copySeed(generator->Ig, buffer);
+    copySeed(generator->Bg, generator->Ig);
+    return copySeed(generator->Cg, generator->Ig);
+}
+
+size_t storeSubStream(void *buffer) {
+    return copySeed(buffer, generator->Bg);
+}
+
+size_t restoreSubStream(void *buffer) {
+    copySeed(generator->Bg, buffer);
+    return copySeed(generator->Cg, generator->Bg);
+}
+
+Random Random::nextStream(const char *name) {
+    Random result;
+    result.generator = RngStream_CreateStream(name);
+    return result;
+}
+
+
 
 double Random::next() {
     /* FIXME */

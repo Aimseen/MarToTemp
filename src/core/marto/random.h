@@ -26,9 +26,9 @@ non ?
 utilisé dans psi
 - Le constructeur semble créer un générateur sur le stream suivant
 
-Objectif :
-[ chunk d'evènements contenant dans evènements à nombre variable de paramètres
-(substreams) ]
+Objective :
+- Each chunk is associated with a different stream
+- Each variadic parameter is associated with a different substream
 
 
 
@@ -37,6 +37,7 @@ Objectif :
 #define MARTO_RANDOM_H
 
 #include <marto/RngStream.h>
+#include <stddef.h>
 
 namespace marto {
 
@@ -44,21 +45,38 @@ namespace marto {
 *  Random is the core brick providing a uniform random number in (0,1).
 */
 class Random {
+      /** \brief forbid copy of this kind of objects */
+    Random(const Random &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    Random &operator=(const Random &) = delete;
+
 public:
-    /* TODO : complete and decide on visibility */
-    Random() {}
-    static Random nextStream(); // creates a new independent RNG
     /* Generic random is on (0,1)
        - one should specialize when forking is required
     */
+    Random nextSubStream();
     virtual double next();
+    /* Full generator storage management */
     size_t load(void *buffer);
     size_t store(void *buffer);
+    /* Relates to the begining of the current stream */
+    size_t loadStream(void *buffer);
+    size_t storeStream(void *buffer);
+    /* Relates to the beginning of the current substream */
+    size_t loadSubStream(void *buffer);
+    size_t storeSubStream(void *buffer);
 
-  protected:
+protected:
+    /* TODO : complete and give access to all this stuff from Config :
+       access to distinct streams should be centralized because in the
+       multithreaded versions, each new thread should be given a stream
+       not already in use by another thread
+    */
+    Random() {}
+    Random nextStream(); // creates a new independent RNG
     /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
        il faut penser à le rendre accessible jusqu'ici */
-    RngStream *intGen;
+    RngStream generator;
 };
 
 /** Internal Random generator with uniform distribution; type double */
