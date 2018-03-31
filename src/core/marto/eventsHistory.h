@@ -245,13 +245,14 @@ class EventsHistory {
      */
     void backward(uint32_t nbEvents);
 
-    /* \brief Returns a new generator
+    // DELETED : the next stream is provided by the configuration (globalized service)
+    /* \brief generator for the current history
      *
-     * The new generator is starting at the new available stream
+     * This generator is starting at a new available stream
      * associated to the current simulation context One stream per
      * chunk (to be able to regenerate the same events)
      */
-    Random nextStream; // FIXME: attribute or method? provides a clone and
+    // Random *stream; // FIXME: attribute or method? provides a clone and
                        // advances to next stream
 
   private:
