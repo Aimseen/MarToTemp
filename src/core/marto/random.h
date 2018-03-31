@@ -36,7 +36,7 @@ Objective :
 #ifndef MARTO_RANDOM_H
 #define MARTO_RANDOM_H
 
-#include <RngStream.h>
+#include <marto/RngStream.h>
 #include <stddef.h>
 
 namespace marto {
