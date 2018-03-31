@@ -42,7 +42,7 @@ template <typename T> T ParameterValues::get(unsigned int index) {
 }
 
 template <typename T>
-FormalConstantList<T>::FormalConstantList(size_t s, std::vector<T> *v)
+FormalConstantList<T>::FormalConstantList(size_t s, const std::vector<T> &v)
     : FormalParameterValuesTyped<T>(s) {
     // TODO : temporary, for testing only
     // TODO : copy v into values

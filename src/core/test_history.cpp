@@ -24,7 +24,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
         std::vector<int> v;
         v.push_back(5);
         v.push_back(6);
-        et->registerParameter("to", new FormalConstantList(IntList, 2, &v));
+        et->registerParameter("to", new FormalConstantList<int>(2, v));
         e = new Event(et);
         h = new EventsHistory(c);
     }

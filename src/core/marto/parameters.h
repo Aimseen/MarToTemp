@@ -43,6 +43,8 @@ class FormalParameterValues {
 
 template <typename T>
 class FormalParameterValuesTyped : public FormalParameterValues {
+  protected:
+    FormalParameterValuesTyped(size_t l) : FormalParameterValues(l) {};
   public:
     typedef T Type;
     virtual size_t sizeofValues() { return sizeof(T); }
@@ -51,7 +53,7 @@ class FormalParameterValuesTyped : public FormalParameterValues {
 template <typename T>
 class FormalConstantList : public FormalParameterValuesTyped<T> {
   public:
-    FormalConstantList(size_t s, std::vector<T> *values);
+    FormalConstantList(size_t s, const std::vector<T> &values);
     virtual void generateParameterValues(ParameterValues *actualValues
                                          __attribute__((unused))){};
     /* store nothing, all is constant */
