@@ -6,9 +6,9 @@
 namespace marto {
 
 ParameterValues::ParameterValues() {
-    bufferSize=128;
-    buffer=malloc(bufferSize);
-    assert(buffer!=nullptr);
+    bufferSize = 128;
+    buffer = malloc(bufferSize);
+    assert(buffer != nullptr);
     reset();
 }
 

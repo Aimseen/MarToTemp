@@ -19,6 +19,13 @@ namespace marto {
     } while (0);
 }
 
+#include <climits>
+template <typename T> T next_power2(T value) {
+    return 1 << ((sizeof(T) * CHAR_BIT) - __builtin_clz(value - 1));
+}
+
+#define __marto_unused(x) x __attribute__((unused))
+
 #endif
 
 #endif

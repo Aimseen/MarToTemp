@@ -6,9 +6,11 @@
 #ifdef __cplusplus
 
 #include <marto/forwardDecl.h>
+#include <marto/macros.h>
 #include <marto/random.h>
 #include <ostream>
 #include <string>
+#include <typeinfo>
 
 // convolution to keep operator<< in global namespace
 // See
@@ -37,20 +39,63 @@ class FormalParameterValues {
     FormalParameterValues &operator=(const FormalParameterValues &) = delete;
 
   public:
-    FormalParameterValues(size_t l) : length(l){};
-    virtual void generateParameterValues(ParameterValues *actualValues) = 0;
-    virtual void store(EventsOStream &os, ParameterValues *actualValues) = 0;
-    virtual void load(EventsIStream &is, ParameterValues *actualValues) = 0;
-    virtual size_t sizeofValues() = 0;
-    virtual void initParameterValues(ParameterValues* ep, Random *g);
+    template <typename T>
+    FormalParameterValues(size_t l, T *__marto_unused(unused))
+        : length(l), sizeofValue(sizeof(T)), typeinfoValue(typeid(T)) {}
+
+    template <typename T>
+    T getEffective(size_t index, ParameterValues *actualValues) {
+        T value;
+        checkType<T>();
+        getEffective(index, actualValues, &value);
+        return value;
+    }
+
+    /** \brief called when a new event is generated */
+    virtual void generate(ParameterValues *actualValues,
+                          Random *__marto_unused(g)) {
+        setup(actualValues);
+    };
+    /** \brief called when an event must be stored into history */
+    virtual void store(EventsOStream &__marto_unused(os),
+                       ParameterValues *__marto_unused(actualValues)){};
+    /** \brief called when an event must be loaded from history */
+    virtual void load(EventsIStream &__marto_unused(is),
+                      ParameterValues *actualValues) {
+        setup(actualValues);
+    };
+    /** \brief called when an event(-shell) is reseted */
+    virtual void release(ParameterValues *actualValues);
+    /** \brief return the size (in byte) of parameter values */
+    size_t sizeofValues() { return sizeofValue; };
+
   protected:
-    size_t length;
+    /** \brief called by generate() and load() */
+    virtual void setup(ParameterValues *actualValues);
+
+    /** \brief computes and returns an effective value
+     *
+     * \param pvalue is a pointer to a buffer used to store the value
+     *
+     * Note: no genericity as we want a virtual method
+     */
+    virtual void getEffective(size_t index, ParameterValues *actualValues,
+                              void *pvalue) = 0;
+
+    template <typename T> void checkType();
+
+  private:
+    const size_t length;      ///< length of the parameters (0 means no limit)
+    const size_t sizeofValue; ///< size in byte of a value
+    const std::type_info &typeinfoValue; ///< typeid of the effective values
 };
 
 template <typename T>
 class FormalParameterValuesTyped : public FormalParameterValues {
   protected:
-    FormalParameterValuesTyped(size_t l) : FormalParameterValues(l) {};
+    FormalParameterValuesTyped(size_t l)
+        : FormalParameterValues(l, (T *)nullptr){};
+
   public:
     typedef T Type;
     virtual size_t sizeofValues() { return sizeof(T); }
@@ -60,14 +105,9 @@ template <typename T>
 class FormalConstantList : public FormalParameterValuesTyped<T> {
   public:
     FormalConstantList(size_t s, const std::vector<T> &values);
-    virtual void generateParameterValues(ParameterValues *actualValues
-                                         __attribute__((unused))){};
-    /* store nothing, all is constant */
-    virtual void store(EventsOStream &os __attribute__((unused)),
-                       ParameterValues *actualValues __attribute__((unused))){};
-    /* nothing to load, all is constant */
-    virtual void load(EventsIStream &is __attribute__((unused)),
-                      ParameterValues *actualValues __attribute__((unused))){};
+
+    virtual void getEffective(size_t index, ParameterValues *actualValues,
+                              void *pvalue);
 
   private:
     ParameterValues *values;
@@ -125,49 +165,75 @@ class ParameterValues {
   public:
     /** \brief create and initialize a ParameterValues
      *
-     * Note: these objects are reused for different kind of event without reallocation
+     * Note: these objects are reused for different kind of event without
+     * reallocation
      */
     ParameterValues();
-    
-    /** \brief get an indexed element of type T from the buffer
+
+    /** \brief get an indexed element of type T
      *
+     * The value come from the buffer if present, else fp is used
+     *
+     * Notes:
      * - only numeric types are supported (for now)
-     * - it is an error to use 'get' with different type without calling 'reset' in between
-     * - the index must be lesser than size()
+     * - the state must be set to FPFILLED
+     * - it is an error to use 'get' with different type without calling 'reset'
+     * in between
+     * - the index must be lesser than size() (but size() is 0)
      */
     template <typename T> T get(size_t index);
 
+    /** \brief return the number of values that can be got
+     *
+     * the special 0 value means as many as wanted
+     */
     size_t size();
 
-    /** \brief cleanup all fields so that this object can be reused without reallocation
+    /** \brief cleanup all fields so that this object can be reused without
+     * reallocation
      *
      * Only the malloced buffer (and its size) are not resetted.
      */
     void reset() {
-        kind=UNDEFINED;
-        nbValues=0;
-        g=nullptr;
-        reference=nullptr;
-        fp=nullptr;
+        state = UNUSED;
+        nbValues = 0;
+        pinfo = nullptr;
+        fp = nullptr;
     };
 
   private:
     template <typename T> friend class FormalConstantList;
     friend class ParametersBaseTest;
     friend class FormalParameterValues;
+    /** \brief state of the current object
+     *
+     * the state can be modified by the following transitions:
+     * - UNUSED -> FPLINKED when setFormalParameterValues() is called
+     * - FPLINKED -> FPFILLED when fp->load() or fp->generate() is called
+     * - FPFILLED -> UNUSED when fp->release() is called
+     */
     enum {
-        ARRAY,
-        GENERATOR,
-        REFERENCE,
-        UNDEFINED
-    } kind; // reference= formalconstantlist ; array can be either a list of
-            // constants or a fixed list
-    void *buffer; ///< adress of a malloced memory buffer. This object can realloc the buffer if required. This field is never null
+        UNUSED,
+        FPLINKED,
+        FPFILLED,
+    } state;
+    /** \brief ensure that the buffer can contain at lease nbValues elements
+     *
+     * The size of an element comes from the current fp.
+     * The state must be set to FPLINKED
+     */
+    void setCapacity(size_t nbValues);
+    void *buffer; ///< adress of a malloced memory buffer. This object can
+                  ///realloc the buffer if required. This field is never null
     size_t bufferSize; ///< size of the malloced buffer
+    /** \brief register the FormalParameterValues linked to this ParameterValues
+     *
+     * state must be set to UNUSED before and is set to FPLINKED after
+     */
+    void setFormalParameterValues(FormalParameterValues *fp);
     FormalParameterValues *fp; ///< related FormalParameterValue
-    size_t nbValues; ///< # objects cyrrently stored in the buffer
-    Random *g; ///< # random object to use for this parameter if required
-    ParameterValues *reference; ///< if kind is set to REFERENCE, delegate 'get' to this object
+    size_t nbValues;           ///< # values currently stored in the buffer
+    void *pinfo; ///< generic pointer to be used by the FormalParameterValue
 };
 }
 
