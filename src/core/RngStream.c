@@ -25,7 +25,7 @@
 \***********************************************************************/
 
 
-#include "marto/RngStream.h"
+#include "RngStream.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

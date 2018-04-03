@@ -38,6 +38,7 @@ libmarto_la_SOURCES=\
 	global.cpp \
 	parameters.cpp \
 	RngStream.c \
+        RngStream.h \
 	random.cpp
 
 pkgconfig_DATA=marto.pc
