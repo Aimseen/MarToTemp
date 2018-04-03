@@ -6,10 +6,11 @@
 namespace marto {
 
 static void advanceStream(double *state) {
-    /* Taken from Lecuyer implementation (see RngStream_CreateStream in RngStream.c).
+    /* Taken from Lecuyer implementation (see RngStream_CreateStream in
+       RngStream.c).
        Extracted because it is not separated from memory allocation */
-    MatVecModM (A1p127, state, state, m1);
-    MatVecModM (A2p127, &state[3], &state[3], m2);
+    MatVecModM(A1p127, state, state, m1);
+    MatVecModM(A2p127, &state[3], &state[3], m2);
 }
 
 /* We use some knowledge about the implementation from Lecuyer :
@@ -19,43 +20,33 @@ static void advanceStream(double *state) {
    - a seed is an array of 6 double
 */
 
-static int seedSize=6;
+static int seedSize = 6;
 static size_t copySeed(void *dest, void *src) {
-    memcpy(dest, src, seedSize*sizeof(double));
-    return seedSize*sizeof(double);
+    memcpy(dest, src, seedSize * sizeof(double));
+    return seedSize * sizeof(double);
 }
 
-void Random::nextSubStream() {
-    RngStream_ResetNextSubstream(&state);
-}
+void Random::nextSubStream() { RngStream_ResetNextSubstream(&state); }
 
-void Random::resetSubStream() {
-    copySeed(state.Cg, state.Bg);
-}
+void Random::resetSubStream() { copySeed(state.Cg, state.Bg); }
 
-double Random::next() {
-    return RngStream_RandU01(&state);
-};
+double Random::next() { return RngStream_RandU01(&state); };
 
-int Random::next(int i, int j) {
-    return RngStream_RandInt(&state, i, j);
-}
+int Random::next(int i, int j) { return RngStream_RandInt(&state, i, j); }
 
 size_t Random::load(void *buffer) {
-    RngStream storage = (RngStream) buffer;
+    RngStream storage = (RngStream)buffer;
     state = *storage;
     return sizeof(struct RngStream_InfoState);
 }
 
 size_t Random::store(void *buffer) {
-    RngStream storage = (RngStream) buffer;
+    RngStream storage = (RngStream)buffer;
     *storage = state;
     return sizeof(struct RngStream_InfoState);
 }
 
-size_t Random::storeStream(void *buffer) {
-    return copySeed(buffer, state.Ig);
-}
+size_t Random::storeStream(void *buffer) { return copySeed(buffer, state.Ig); }
 
 size_t Random::loadStream(void *buffer) {
     size_t result = copySeed(state.Ig, buffer);
@@ -73,17 +64,11 @@ size_t Random::loadSubStream(void *buffer) {
     return result;
 }
 
-Random::Random() {
-    loadStream(nextSeed);
-}
+Random::Random() { loadStream(nextSeed); }
 
-Random::Random(unsigned long seed[]) {
-    RngStream_SetSeed(&state, seed);
-}
+Random::Random(unsigned long seed[]) { RngStream_SetSeed(&state, seed); }
 
-Random::Random(const Random &original) {
-    state = original.state;
-}
+Random::Random(const Random &original) { state = original.state; }
 
 void Random::nextStream() {
     advanceStream(state.Ig);

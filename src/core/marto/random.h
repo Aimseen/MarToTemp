@@ -43,7 +43,7 @@ namespace marto {
 
 /**  internal random number generation
 *  Random is the core brick providing a uniform random number in (0,1).
-* 
+*
 * Intended usage :
 * - use all variants of next to advance in the current stream
 * - to spawn a generator to the next substream from myGenerator :
@@ -54,8 +54,8 @@ namespace marto {
 class Random {
     friend class Configuration;
     friend class eventsHistory;
-    
-public:
+
+  public:
     /** \brief creates a copy of a given generator */
     Random(const Random &original);
     /* Generic random is on (0,1)
@@ -73,17 +73,19 @@ public:
     size_t load(void *buffer);
     /** \brief stores a full generator state */
     size_t store(void *buffer);
-    /** \brief loads a stream and also sets it as current substream and current position  */
+    /** \brief loads a stream and also sets it as current substream and current
+     * position  */
     size_t loadStream(void *buffer);
     /** \brief stores the begining of the current stream */
     size_t storeStream(void *buffer);
     /** \brief loads a substream and also sets it as current position
-        Warning : this assumes that the loaded substream is a substream of the current stream */
+        Warning : this assumes that the loaded substream is a substream of the
+       current stream */
     size_t loadSubStream(void *buffer);
     /** \brief stores the begining of the current substream */
     size_t storeSubStream(void *buffer);
 
-protected:
+  protected:
     /* TODO : complete and give access to all this stuff from Config :
        access to distinct streams should be centralized because in the
        multithreaded versions, each new thread should be given a stream
