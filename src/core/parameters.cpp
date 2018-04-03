@@ -6,11 +6,10 @@
 namespace marto {
 
 ParameterValues::ParameterValues() {
-    kind = UNDEFINED;
-    bufferSize = 0;
-    buffer = nullptr;
-    nbValues = 0;
-    reference = nullptr;
+    bufferSize=128;
+    buffer=malloc(bufferSize);
+    assert(buffer!=nullptr);
+    reset();
 }
 
 size_t ParameterValues::size() {

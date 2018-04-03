@@ -13,16 +13,7 @@
 
 namespace marto {
 
-template <typename T> ParameterValues::ParameterValues(T *vals, size_t nb) {
-    kind = ARRAY;
-    bufferSize = nb * sizeof(T);
-    // TODO : decide if we want to copy vals or just use it
-    buffer = vals;
-    assert(buffer != nullptr);
-    nbValues = nb;
-}
-
-template <typename T> T ParameterValues::get(unsigned int index) {
+template <typename T> T ParameterValues::get(size_t index) {
     T *values = (T *)buffer;
     switch (kind) {
     case GENERATOR:
@@ -39,6 +30,11 @@ template <typename T> T ParameterValues::get(unsigned int index) {
     default:
         marto_BUG();
     }
+}
+
+inline void FormalParameterValues::initParameterValues(ParameterValues* ep,
+                                                Random *g __attribute__((unused))) {
+    ep->fp=this;
 }
 
 template <typename T>

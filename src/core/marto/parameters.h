@@ -31,12 +31,18 @@ typedef uint32_t Queue;
  * info we have at runtime in the core code.
  */
 class FormalParameterValues {
+    /** \brief forbid copy of this kind of objects */
+    FormalParameterValues(const FormalParameterValues &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    FormalParameterValues &operator=(const FormalParameterValues &) = delete;
+
   public:
     FormalParameterValues(size_t l) : length(l){};
     virtual void generateParameterValues(ParameterValues *actualValues) = 0;
     virtual void store(EventsOStream &os, ParameterValues *actualValues) = 0;
     virtual void load(EventsIStream &is, ParameterValues *actualValues) = 0;
     virtual size_t sizeofValues() = 0;
+    virtual void initParameterValues(ParameterValues* ep, Random *g);
   protected:
     size_t length;
 };
@@ -111,15 +117,44 @@ class FormalDistributionVariadicList : public FormalDistribution<T> {
  * transition code)
  */
 class ParameterValues {
+    /** \brief forbid copy of this kind of objects */
+    ParameterValues(const ParameterValues &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    ParameterValues &operator=(const ParameterValues &) = delete;
+
   public:
-    template <typename T> T get(unsigned int index);
+    /** \brief create and initialize a ParameterValues
+     *
+     * Note: these objects are reused for different kind of event without reallocation
+     */
+    ParameterValues();
+    
+    /** \brief get an indexed element of type T from the buffer
+     *
+     * - only numeric types are supported (for now)
+     * - it is an error to use 'get' with different type without calling 'reset' in between
+     * - the index must be lesser than size()
+     */
+    template <typename T> T get(size_t index);
+
     size_t size();
+
+    /** \brief cleanup all fields so that this object can be reused without reallocation
+     *
+     * Only the malloced buffer (and its size) are not resetted.
+     */
+    void reset() {
+        kind=UNDEFINED;
+        nbValues=0;
+        g=nullptr;
+        reference=nullptr;
+        fp=nullptr;
+    };
 
   private:
     template <typename T> friend class FormalConstantList;
     friend class ParametersBaseTest;
-    ParameterValues();
-    template <typename T> ParameterValues(T *vals, size_t nb);
+    friend class FormalParameterValues;
     enum {
         ARRAY,
         GENERATOR,
@@ -127,11 +162,12 @@ class ParameterValues {
         UNDEFINED
     } kind; // reference= formalconstantlist ; array can be either a list of
             // constants or a fixed list
-    void *buffer;
-    size_t bufferSize;
-    size_t nbValues;
-    Random *g;
-    ParameterValues *reference;
+    void *buffer; ///< adress of a malloced memory buffer. This object can realloc the buffer if required. This field is never null
+    size_t bufferSize; ///< size of the malloced buffer
+    FormalParameterValues *fp; ///< related FormalParameterValue
+    size_t nbValues; ///< # objects cyrrently stored in the buffer
+    Random *g; ///< # random object to use for this parameter if required
+    ParameterValues *reference; ///< if kind is set to REFERENCE, delegate 'get' to this object
 };
 }
 
