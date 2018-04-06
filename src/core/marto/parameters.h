@@ -51,38 +51,108 @@ class FormalParameterValues {
         return value;
     }
 
-    /** \brief called when a new event is generated */
-    virtual void generate(ParameterValues *actualValues,
-                          Random *__marto_unused(g)) {
-        setup(actualValues);
-    };
-    /** \brief called when an event must be stored into history */
-    virtual void store(EventsOStream &__marto_unused(os),
-                       ParameterValues *__marto_unused(actualValues)){};
-    /** \brief called when an event must be loaded from history */
-    virtual void load(EventsIStream &__marto_unused(is),
-                      ParameterValues *actualValues) {
-        setup(actualValues);
-    };
-    /** \brief called when an event(-shell) is reseted */
-    virtual void release(ParameterValues *actualValues);
+    /** \brief return the number of parameter values
+     *
+     * 0 means no bound
+     */
+    size_t size() const { return length; };
+
     /** \brief return the size (in byte) of parameter values */
     size_t sizeofValues() { return sizeofValue; };
 
+    /** \brief called when a new event is generated
+    */
+    void generate(ParameterValues *actualValues, Random *g) {
+        initPV(actualValues);
+        doGenerate(actualValues, g);
+    };
+
+    /** \brief called to load a PV from history
+     */
+    void load(EventsIStream &is, ParameterValues *actualValues) {
+        initPV(actualValues);
+        doLoad(is, actualValues);
+    };
+
+    /** \brief called to store a PV into history
+     */
+    void store(EventsOStream &os, ParameterValues *actualValues) {
+        doStore(os, actualValues);
+    }
+
+    /** \brief called when an event(-shell) is reseted
+     */
+    void release(ParameterValues *actualValues);
+
   protected:
-    /** \brief called by generate() and load() */
-    virtual void setup(ParameterValues *actualValues);
+    /** \brief called when a new event is generated
+     *
+     * The effective parameters must be generated unless lazzy methods are used.
+     * In the latter case, the programmer must take care of the random generator
+     * (ie request and store a substream if required)
+     *
+     * \param actualValues: the effective parameter values to generate.
+     * The object is already initialized (with initPV) when called and
+     * in FPLINKED state. It will be put in FPFILLED state after this
+     * method
+     */
+    virtual void doGenerate(ParameterValues *actualValues, Random *g) = 0;
+
+    /** \brief called when an event must be loaded from history
+     *
+     * The effective parameters must be generated unless lazzy methods are used.
+     * In the latter case, the programmer must probably handle a random
+     * generator
+     * whose initial state is loadeded from the stream.
+     *
+     * \param actualValues: the effective parameter values to load.
+     * The object is already initialized (with initPV) when called and
+     * in FPLINKED state. It will be put in FPFILLED state after this
+     * method
+     */
+    virtual void doLoad(EventsIStream &is, ParameterValues *actualValues) = 0;
+
+    /** \brief called when an event must be stored into history
+     *
+     * If a specific stream from the random generator is used, its initial state
+     * should probably be stored in the stream
+     */
+    virtual void doStore(EventsOStream &os, ParameterValues *actualValues) = 0;
+    /** \brief called when an event(-shell) is reseted
+     *
+     * \param actualValues is in FPFILLED state when called. It will
+     * be put in UNUSED state after this method
+     *
+     * If pinfo from actualValues is used, it must be cleanup (and associated
+     * information freed if need be)
+     */
+    virtual void doRelease(ParameterValues *actualValues) = 0;
 
     /** \brief computes and returns an effective value
      *
      * \param pvalue is a pointer to a buffer used to store the value
      *
-     * Note: no genericity as we want a virtual method
+     * \note no genericity as we want a virtual method
+     *
+     * \note this method wont be called if no lazzy generation is used
      */
     virtual void getEffective(size_t index, ParameterValues *actualValues,
                               void *pvalue) = 0;
 
+    friend class ParameterValues;
+    /** \brief generate an error if T is not the type of the values
+     */
     template <typename T> void checkType();
+
+    /** \brief initializes the effective parameter
+     *
+     * it is called before generate() and load()
+     *
+     * \param actualValues: the effective parameter values to
+     * initialize. It must be in UNUSED state when called. It will
+     * be put in FPLINKED state after this method.
+     */
+    virtual void initPV(ParameterValues *actualValues);
 
   private:
     const size_t length;      ///< length of the parameters (0 means no limit)
@@ -106,8 +176,17 @@ class FormalConstantList : public FormalParameterValuesTyped<T> {
   public:
     FormalConstantList(size_t s, const std::vector<T> &values);
 
+  protected:
     virtual void getEffective(size_t index, ParameterValues *actualValues,
                               void *pvalue);
+    /* Nothing to do for the following methods */
+    void doGenerate(ParameterValues *__marto_unused(actualValues),
+                    Random *__marto_unused(g)){};
+    void doLoad(EventsIStream &__marto_unused(is),
+                ParameterValues *__marto_unused(actualValues)){};
+    void doStore(EventsOStream &__marto_unused(os),
+                 ParameterValues *__marto_unused(actualValues)){};
+    void doRelease(ParameterValues *__marto_unused(actualValues)){};
 
   private:
     ParameterValues *values;
@@ -169,6 +248,13 @@ class ParameterValues {
      * reallocation
      */
     ParameterValues();
+    /** \brief create and initialize a ParameterValues with an explicit initial
+     * bufferSize
+     *
+     * Note: these objects are reused for different kind of event without
+     * reallocation
+     */
+    ParameterValues(size_t bufSize);
 
     /** \brief get an indexed element of type T
      *
@@ -180,14 +266,25 @@ class ParameterValues {
      * - it is an error to use 'get' with different type without calling 'reset'
      * in between
      * - the index must be lesser than size() (but size() is 0)
+     * - the type T must be the same as the one from the linked FPV
      */
     template <typename T> T get(size_t index);
+
+    /** \brief add a value into the buffer
+     *
+     * \param value: the value to store
+     *
+     * \param index: the index at which to store the value
+     * \note for now, it is an error to give any other indexes but the next free
+     * one
+     */
+    template <typename T> void push(const T &value, size_t index);
 
     /** \brief return the number of values that can be got
      *
      * the special 0 value means as many as wanted
      */
-    size_t size();
+    size_t size() const;
 
     /** \brief cleanup all fields so that this object can be reused without
      * reallocation
@@ -224,7 +321,7 @@ class ParameterValues {
      */
     void setCapacity(size_t nbValues);
     void *buffer; ///< adress of a malloced memory buffer. This object can
-                  ///realloc the buffer if required. This field is never null
+                  /// realloc the buffer if required. This field is never null
     size_t bufferSize; ///< size of the malloced buffer
     /** \brief register the FormalParameterValues linked to this ParameterValues
      *

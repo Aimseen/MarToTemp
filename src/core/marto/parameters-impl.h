@@ -17,13 +17,26 @@ namespace marto {
 template <typename T> T ParameterValues::get(size_t index) {
     T *values = (T *)buffer;
     assert(state == FPFILLED);
-    if (index < size()) {
+    fp->checkType<T>();
+    if (index < nbValues) {
         return values[index];
     }
+    assert(size() == 0 || index < size());
     /* the value needs to be generated if the formal parameter
        support lazzy generation (else, this is a bug) */
     return fp->getEffective<T>(index, this);
     // fp->
+}
+
+template <typename T> void ParameterValues::push(const T &value, size_t index) {
+    assert(state == FPLINKED);
+    fp->checkType<T>();
+    assert(index == nbValues);
+    assert(size() == 0 || index < size());
+    nbValues++;
+    setCapacity(nbValues);
+    T *values = (T *)buffer;
+    values[index] = value;
 }
 
 inline void ParameterValues::setCapacity(size_t nbValues) {
@@ -39,19 +52,26 @@ inline void ParameterValues::setCapacity(size_t nbValues) {
 inline void
 ParameterValues::setFormalParameterValues(FormalParameterValues *fp) {
     assert(state == UNUSED);
-    assert(fp != nullptr);
+    assert(this->fp == nullptr);
     this->fp = fp;
     state = FPLINKED;
 }
 
-inline void FormalParameterValues::setup(ParameterValues *ep) {
-    ep->fp = this;
+inline size_t ParameterValues::size() const {
+    assert(state >= FPLINKED);
+    return fp->size();
+}
+
+inline void FormalParameterValues::initPV(ParameterValues *ep) {
+    ep->setFormalParameterValues(this);
     if (length > 0) {
         ep->setCapacity(length);
     }
+    assert(ep->state == ParameterValues::FPLINKED);
 }
 
 inline void FormalParameterValues::release(ParameterValues *actualValues) {
+    doRelease(actualValues);
     actualValues->reset();
 }
 
@@ -62,13 +82,14 @@ template <typename T> void FormalParameterValues::checkType() {
 }
 
 template <typename T>
-FormalConstantList<T>::FormalConstantList(
-    size_t s, const std::vector<T> &__marto_unused(v))
+FormalConstantList<T>::FormalConstantList(size_t s, const std::vector<T> &v)
     : FormalParameterValuesTyped<T>(s) {
-    // TODO : temporary, for testing only
-    // TODO : copy v into values
-    values = new ParameterValues();
-    // TODO
+    assert(v.size() >= this->size());
+    values = new ParameterValues(s * sizeof(T));
+    this->initPV(values);
+    for (size_t i = 0; i < this->size(); i++) {
+        values->push(v[i], i);
+    }
 }
 
 template <typename T>
