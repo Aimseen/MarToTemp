@@ -28,11 +28,20 @@ EventType::EventType(Configuration *config, string idEvT, double evtRate,
     config->registerEventType(this);
 }
 
+void EventType::registerParameter(string name, FormalParameterValues *fp) {
+    // TODO : check for duplicate name, ...
+    formalParametersNames.insert(std::make_pair(name, formalParameters.size()));
+    formalParameters.push_back(fp);
+}
+
 int EventType::findIndex(string parameterName) {
     auto couple = formalParametersNames.find(parameterName);
-    assert(couple != formalParametersNames.end());
-    return couple->second; // couple is a pair, whose first element is the index
-                           // in the parameters table
+    if (couple == formalParametersNames.end()) {
+        return -1;
+    }
+    // couple is a pair, whose second element is the index in the parameters
+    // table
+    return (couple->second);
 }
 
 event_access_t EventType::load(EventsIStream &istream, Event *ev,
@@ -55,16 +64,25 @@ event_access_t EventType::store(EventsOStream &ostream, Event *ev,
     return EVENT_STORED;
 }
 
+Event::Event() : parameters(), status(EVENT_STATUS_INVALID) {}
+
+void Event::generate(EventType *t, Random *g) {
+    setType(t);
+    size_t i = 0;
+    for (auto fp : t->formalParameters) {
+        fp->generate(parameters[i], g);
+        i++;
+    }
+    status = EVENT_STATUS_FILLED;
+}
+
 ParameterValues *Event::getParameter(string name) {
-    if (int index = type()->findIndex(name)) {
+    int index = type()->findIndex(name);
+    if (index >= 0) {
         return parameters[index];
     }
     return nullptr;
 }
-
-Event::Event() : parameters(), status(EVENT_STATUS_INVALID) {}
-
-Event::Event(EventType *t) : Event() { setType(t); }
 
 void Event::apply(Point *p) { type()->transition->apply(p, this); }
 }

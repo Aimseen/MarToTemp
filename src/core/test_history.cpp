@@ -25,7 +25,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
         v.push_back(5);
         v.push_back(6);
         et->registerParameter("to", new FormalConstantList<int>(2, v));
-        e = new Event(et);
+        e = new Event();
         h = new EventsHistory(c);
     }
 
@@ -98,7 +98,8 @@ TEST_F(EventsHistoryBaseTest, writeUndefinedEvent) {
 TEST_F(EventsHistoryBaseTest, writeEvents) {
     auto it = h->iterator();
     ASSERT_TRUE(it);
-    e->generate();
+    // Fixme : generator
+    e->generate(et, nullptr);
     for (int i = 0; i < 10; i++) {
         ASSERT_EQ(EVENT_STORED, it->storeNextEvent(e));
     }

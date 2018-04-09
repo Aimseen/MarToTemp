@@ -23,7 +23,9 @@ int main() {
         p->at(i) = i + 1;
     EventType *et =
         new EventType(config, "My super event", 42.0, "TransitionBidon");
-    Event *e = new Event(et);
+    Event *e = new Event();
+    // Fixme: handle randomGenerator
+    e->generate(et, nullptr);
 
     std::cout << p << std::endl;
     e->apply(p);

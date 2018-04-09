@@ -21,7 +21,9 @@ template <typename T> T ParameterValues::get(size_t index) {
     if (index < nbValues) {
         return values[index];
     }
-    assert(size() == 0 || index < size());
+    if (size() > 0 && index >= size()) {
+        throw std::out_of_range("parameterValues");
+    }
     /* the value needs to be generated if the formal parameter
        support lazzy generation (else, this is a bug) */
     return fp->getEffective<T>(index, this);
@@ -62,6 +64,20 @@ inline size_t ParameterValues::size() const {
     return fp->size();
 }
 
+inline void FormalParameterValues::generate(ParameterValues *actualValues,
+                                            Random *g) {
+    initPV(actualValues);
+    doGenerate(actualValues, g);
+    actualValues->filled();
+}
+
+inline void FormalParameterValues::load(EventsIStream &is,
+                                        ParameterValues *actualValues) {
+    initPV(actualValues);
+    doLoad(is, actualValues);
+    actualValues->filled();
+}
+
 inline void FormalParameterValues::initPV(ParameterValues *ep) {
     ep->setFormalParameterValues(this);
     if (length > 0) {
@@ -90,6 +106,7 @@ FormalConstantList<T>::FormalConstantList(size_t s, const std::vector<T> &v)
     for (size_t i = 0; i < this->size(); i++) {
         values->push(v[i], i);
     }
+    values->filled();
 }
 
 template <typename T>

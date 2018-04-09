@@ -36,16 +36,12 @@ class Event {
     /** Create an empty (unusable) event
      */
     Event();
-    /** Creates an event from a given type */
-    Event(EventType *type);
     /** Creates (generate) a new Event
      * SEEMS WRONG : because of the rate, the generation should
      * randomly decide of which eventType to generate
      * useful if for one eventype there is a random choice to be made e.g. JSQ)
-     *  returns 1 */
-    static int generate(EventType *type);
-    /* FIXME: just here for basic tests */
-    void generate() { status = EVENT_STATUS_FILLED; };
+     */
+    void generate(EventType *type, Random *g);
 
     /** An event is valid when all its parameters are available */
     inline bool valid();
@@ -104,12 +100,7 @@ class EventType {
      */
     EventType(Configuration *config, string eventName, double evtRate,
               string idTr);
-    void registerParameter(string name, FormalParameterValues *fp) {
-        // TODO : check for duplicate name, ...
-        formalParametersNames.insert(
-            std::make_pair(name, formalParameters.size()));
-        formalParameters.push_back(fp);
-    };
+    void registerParameter(string name, FormalParameterValues *fp);
 
   private:
     friend ostream & ::operator<<(ostream &out, const EventType &ev);

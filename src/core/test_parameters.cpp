@@ -25,9 +25,12 @@ class EventsHistoryBaseTest : public ::testing::Test {
         c = Global::getConfig();
         // ensure TransitionTest exists. Can return NULL if already registered.
         c->registerTransition("TransitionTest", new TransitionTest());
-        et = new EventType(c, "My super event", 42.0, "TransitionTest",
-                           new FormalParameters());
-        e = new Event(et);
+        et = new EventType(c, "My super event", 42.0, "TransitionTest");
+        std::vector<int> v;
+        v.push_back(5);
+        v.push_back(6);
+        et->registerParameter("to", new FormalConstantList<int>(2, v));
+        e = new Event();
         h = new EventsHistory(c);
     }
 
@@ -56,54 +59,61 @@ class EventsHistoryBaseTest : public ::testing::Test {
     EventsHistory *h;
 };
 
-TEST(Configuration, RegisterTransitionTwice) {
+TEST(Event, GenerateEventsWithConstantParameters) {
     auto c = Global::getConfig();
     Transition *tr = new TransitionTest();
-    ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
-    ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
-}
-
-TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
-    auto c = Global::getConfig();
-    // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
-    try {
-        new EventType(c, "My super event", 42.0, "UnknownTransitionForTest",
-                      new FormalParameters());
-        ASSERT_THROW(c->getTransition("UnknownTransitionForTest"),
-                     UnknownTransition)
-            << "Transition 'UnknownTransitionForTest' should not exists";
-        FAIL() << "EventType successfully created with an unknown transition";
-    } catch (const UnknownTransition &e) {
-        SUCCEED();
-    }
+    EventType *et1 = new EventType(c, "My super event", 42.0, "TransitionTest");
+    std::vector<int> v1 = {5, 6};
+    et1->registerParameter("to", new FormalConstantList<int>(2, v1));
+    Event *e = new Event();
+    // Fixme: add a randomGenerator
+    e->generate(et1, nullptr);
+    ASSERT_TRUE(e->getParameter("to") != nullptr);
+    ASSERT_EQ(e->getParameter("from"), nullptr);
+    auto p = e->getParameter("to");
+    ASSERT_EQ(p->get<int>(0), 5);
+    ASSERT_EQ(p->get<int>(1), 6);
+    ASSERT_THROW(p->get<int>(2), std::out_of_range)
+        << "Accessing a non-existant parameter value!";
+
+    // Fixme: add a randomGenerator
+    e->generate(et1, nullptr);
+    ASSERT_TRUE(e->getParameter("to") != nullptr);
+    ASSERT_EQ(e->getParameter("from"), nullptr);
+    p = e->getParameter("to");
+    ASSERT_EQ(p->get<int>(0), 5);
+    ASSERT_EQ(p->get<int>(1), 6);
+    ASSERT_THROW(p->get<int>(2), std::out_of_range)
+        << "Accessing a non-existant parameter value!";
+
+    EventType *et2 =
+        new EventType(c, "My super event 2", 42.0, "TransitionTest");
+    std::vector<int> v2 = {15, 16, 17};
+    et2->registerParameter("from", new FormalConstantList<int>(3, v2));
+
+    // Fixme: add a randomGenerator
+    e->generate(et2, nullptr);
+    ASSERT_EQ(e->getParameter("to"), nullptr);
+    ASSERT_TRUE(e->getParameter("from") != nullptr);
+    p = e->getParameter("from");
+    ASSERT_EQ(p->get<int>(0), 15);
+    ASSERT_EQ(p->get<int>(1), 16);
+    ASSERT_EQ(p->get<int>(2), 17);
+    ASSERT_THROW(p->get<int>(3), std::out_of_range)
+        << "Accessing a non-existant parameter value!";
+
+    // Fixme: add a randomGenerator
+    e->generate(et1, nullptr);
+    ASSERT_TRUE(e->getParameter("to") != nullptr);
+    ASSERT_EQ(e->getParameter("from"), nullptr);
+    p = e->getParameter("to");
+    ASSERT_EQ(p->get<int>(0), 5);
+    ASSERT_EQ(p->get<int>(1), 6);
+    ASSERT_THROW(p->get<int>(2), std::out_of_range)
+        << "Accessing a non-existant parameter value!";
 }
 
-TEST(Configuration, RegisterEventTypeTwice) {
-    auto c = Global::getConfig();
-    // ensure TransitionTest exists. Can return NULL if already registered.
-    c->registerTransition("TransitionTest", new TransitionTest());
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
-                              new FormalParameters()));
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest",
-                              new FormalParameters()));
-}
-
-// Tests that writing a undefined event correctly fails
-TEST_F(EventsHistoryBaseTest, writeUndefinedEvent) {
-    auto it = h->iterator();
-    ASSERT_TRUE(it);
-    ASSERT_EQ(EVENT_STORE_UNDEFINED_ERROR, it->storeNextEvent(e));
-}
-
-// Tests that it is possible to write 10 events
-TEST_F(EventsHistoryBaseTest, writeEvents) {
-    auto it = h->iterator();
-    ASSERT_TRUE(it);
-    e->generate();
-    for (int i = 0; i < 10; i++) {
-        ASSERT_EQ(EVENT_STORED, it->storeNextEvent(e));
-    }
-}
+// TODO : put these 4 events into an history and reload them
 
 } // namespace

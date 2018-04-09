@@ -17,7 +17,16 @@ namespace marto {
 inline bool Event::valid() { return status == EVENT_STATUS_FILLED; }
 
 inline void Event::clear() {
-    parameters.clear();
+    if (status == EVENT_STATUS_FILLED) {
+        size_t fpsize = this->type()->formalParameters.size();
+        size_t i = 0;
+        for (auto p : parameters) {
+            if (i == fpsize) {
+                break;
+            }
+            p->reset();
+        }
+    }
     status = EVENT_STATUS_INVALID;
 }
 
@@ -27,13 +36,21 @@ inline EventType *Event::type() {
 }
 
 inline EventType *Event::setType(EventType *type) {
+    clear();
     this->_type = type;
     if (type == nullptr) {
         status = EVENT_STATUS_INVALID;
         return nullptr;
     }
     status = EVENT_STATUS_TYPED;
-    parameters.reserve(type->formalParameters.size());
+    size_t psize = parameters.size();
+    size_t fpsize = type->formalParameters.size();
+    if (marto_unlikely(psize < fpsize)) {
+        parameters.resize(fpsize);
+        for (size_t i = psize; i < fpsize; i++) {
+            parameters[i] = new ParameterValues();
+        }
+    }
     return type;
 }
 }

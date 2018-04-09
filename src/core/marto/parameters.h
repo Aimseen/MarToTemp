@@ -62,17 +62,11 @@ class FormalParameterValues {
 
     /** \brief called when a new event is generated
     */
-    void generate(ParameterValues *actualValues, Random *g) {
-        initPV(actualValues);
-        doGenerate(actualValues, g);
-    };
+    void generate(ParameterValues *actualValues, Random *g);
 
     /** \brief called to load a PV from history
      */
-    void load(EventsIStream &is, ParameterValues *actualValues) {
-        initPV(actualValues);
-        doLoad(is, actualValues);
-    };
+    void load(EventsIStream &is, ParameterValues *actualValues);
 
     /** \brief called to store a PV into history
      */
@@ -302,6 +296,7 @@ class ParameterValues {
     template <typename T> friend class FormalConstantList;
     friend class ParametersBaseTest;
     friend class FormalParameterValues;
+    friend class Event;
     /** \brief state of the current object
      *
      * the state can be modified by the following transitions:
@@ -328,6 +323,9 @@ class ParameterValues {
      * state must be set to UNUSED before and is set to FPLINKED after
      */
     void setFormalParameterValues(FormalParameterValues *fp);
+    /** \brief called when values can be read
+     */
+    void filled() { state = FPFILLED; };
     FormalParameterValues *fp; ///< related FormalParameterValue
     size_t nbValues;           ///< # values currently stored in the buffer
     void *pinfo; ///< generic pointer to be used by the FormalParameterValue
