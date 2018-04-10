@@ -59,13 +59,14 @@ inline event_access_t EventsOStream::finalize() {
         return EVENT_STORE_ERROR;
     }
     void *ptr = (void *)buf;
-    if (!std::align(alignof(size_t), 0, ptr, bufsize)) {
+    if (!std::align(alignof(eventsize_t), 0, ptr, bufsize)) {
         abort();
         return EVENT_STORE_ERROR;
     }
     eventsize += (char *)ptr - (char *)buf;
+    assert(eventsize <= (eventsize_t)(-1));
     buf = (char *)ptr;
-    size_t size = eventSize();
+    eventsize_t size = eventSize();
     assert(*eventSizePtr == 0 || *eventSizePtr == size);
     *eventSizePtr = size;
     return EVENT_STORED;

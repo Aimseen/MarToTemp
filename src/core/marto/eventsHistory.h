@@ -124,6 +124,11 @@ class EventsStreamBase {
     /** \brief forbid assignment of this kind of objects */
     EventsStreamBase &operator=(const EventsStreamBase &) = delete;
 
+  public:
+    /** \brief type used to store the size of an event in the history
+     */
+    typedef unsigned int eventsize_t;
+
   protected:
     char *buf;
     size_t bufsize;
@@ -152,7 +157,9 @@ class EventsIStream : public EventsStreamBase {
      * This will be created by EventsIterator::read*()
      */
     EventsIStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
-        *this >> eventsize;
+        eventsize_t evsize;
+        *this >> evsize;
+        eventsize = evsize;
         if (marto_unlikely(eventsize == 0)) {
             /* Event not yet fully written (finalized not called)
              * or read fails
@@ -189,13 +196,13 @@ class EventsIStream : public EventsStreamBase {
  */
 class EventsOStream : public EventsStreamBase {
   private:
-    size_t *eventSizePtr;
+    eventsize_t *eventSizePtr;
     /** \brief Create a object that will allow write anything in a buffer
      *
      * This will be created by EventsIterator::store*()
      */
     EventsOStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
-        eventSizePtr = write((size_t)0);
+        eventSizePtr = write((eventsize_t)0);
     };
     friend event_access_t EventsIterator::storeNextEvent(Event *ev);
 
