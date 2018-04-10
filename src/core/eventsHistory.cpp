@@ -73,13 +73,13 @@ event_access_t EventsIterator::loadNextEvent(Event *ev) {
     char *buffer = position;
     EventsIStream istream(buffer, curChunk->bufferEnd - buffer);
     auto evRead = loadEventContent(istream, ev);
-    position += istream.eventSize();
-    eventNumber++;
 
-    // For now, failed read should never occurs
-    assert(evRead == EVENT_LOADED);
+    if (evRead == EVENT_LOADED) {
+        position += istream.eventSize();
+        eventNumber++;
+    }
 
-    return EVENT_LOADED;
+    return evRead;
 }
 
 event_access_t EventsIterator::storeNextEvent(Event *ev) {
@@ -91,7 +91,9 @@ event_access_t EventsIterator::storeNextEvent(Event *ev) {
     }
     do {
         /* We must be at the end of a chunk */
-        assert(eventNumber == curChunk->nbEvents);
+        if (eventNumber != curChunk->nbEvents) {
+            return EVENT_STORE_ERROR;
+        }
 
         char *buffer = position;
         EventsOStream ostream(buffer,
@@ -103,10 +105,15 @@ event_access_t EventsIterator::storeNextEvent(Event *ev) {
             if (access != EVENT_STORED) {
                 ostream.abort();
             } else {
-                ostream.finalize(); // used to store the event size in chunk
-                position += ostream.eventSize();
-                eventNumber++;
-                curChunk->nbEvents++;
+                access =
+                    ostream.finalize(); // used to store the event size in chunk
+                if (access != EVENT_STORED) {
+                    ostream.abort();
+                } else {
+                    position += ostream.eventSize();
+                    eventNumber++;
+                    curChunk->nbEvents++;
+                }
             }
             return access;
         } catch (HistoryOutOfBound const &h) {
@@ -145,9 +152,7 @@ event_access_t EventsIterator::loadEventContent(EventsIStream &istream,
         EventsHistory *hist = curChunk->history;
         EventType *type = hist->getConfig()->getEventType(code);
         if (ev->setType(type)) {
-            if (type->load(istream, ev, hist)) {
-                return EVENT_LOADED;
-            }
+            return type->load(istream, ev, hist);
         }
     }
     return EVENT_LOAD_CODE_ERROR;

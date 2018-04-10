@@ -100,7 +100,15 @@ class EventType {
      */
     EventType(Configuration *config, string eventName, double evtRate,
               string idTr);
-    void registerParameter(string name, FormalParameterValues *fp);
+    /** \brief define a new FormalParameterValues for this EventType
+     *
+     * \param name: name of the formal parameter. Must be unique per EventType.
+     * \param fp: pointer to a formal parameter.
+     *
+     * \return true if 'name' is not already used in this EventType
+     * \return false if 'name' already exists (and then, fp is ignored)
+     */
+    bool registerParameter(string name, FormalParameterValues *fp);
 
   private:
     friend ostream & ::operator<<(ostream &out, const EventType &ev);

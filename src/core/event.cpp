@@ -28,10 +28,13 @@ EventType::EventType(Configuration *config, string idEvT, double evtRate,
     config->registerEventType(this);
 }
 
-void EventType::registerParameter(string name, FormalParameterValues *fp) {
-    // TODO : check for duplicate name, ...
-    formalParametersNames.insert(std::make_pair(name, formalParameters.size()));
-    formalParameters.push_back(fp);
+bool EventType::registerParameter(string name, FormalParameterValues *fp) {
+    auto res = formalParametersNames.insert(
+        std::make_pair(name, formalParameters.size()));
+    if (res.second) {
+        formalParameters.push_back(fp);
+    }
+    return res.second;
 }
 
 int EventType::findIndex(string parameterName) {
@@ -46,11 +49,17 @@ int EventType::findIndex(string parameterName) {
 
 event_access_t EventType::load(EventsIStream &istream, Event *ev,
                                EventsHistory *hist) {
+    assert(ev->status == Event::EVENT_STATUS_TYPED);
+    assert(ev->_type == this);
     auto fpit = formalParameters.begin();
     auto pit = ev->parameters.begin();
     for (; fpit != formalParameters.end(); fpit++, pit++) {
-        (*fpit)->load(istream, *pit);
+        auto res = (*fpit)->load(istream, *pit);
+        if (res != EVENT_LOADED) {
+            return res;
+        }
     }
+    ev->status = Event::EVENT_STATUS_FILLED;
     return EVENT_LOADED;
 }
 

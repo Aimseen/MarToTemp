@@ -8,6 +8,7 @@
 #include <marto/forwardDecl.h>
 #include <marto/macros.h>
 #include <marto/random.h>
+#include <marto/types.h>
 #include <ostream>
 #include <string>
 #include <typeinfo>
@@ -66,12 +67,12 @@ class FormalParameterValues {
 
     /** \brief called to load a PV from history
      */
-    void load(EventsIStream &is, ParameterValues *actualValues);
+    event_access_t load(EventsIStream &is, ParameterValues *actualValues);
 
     /** \brief called to store a PV into history
      */
-    void store(EventsOStream &os, ParameterValues *actualValues) {
-        doStore(os, actualValues);
+    event_access_t store(EventsOStream &os, ParameterValues *actualValues) {
+        return doStore(os, actualValues);
     }
 
     /** \brief called when an event(-shell) is reseted
@@ -104,14 +105,16 @@ class FormalParameterValues {
      * in FPLINKED state. It will be put in FPFILLED state after this
      * method
      */
-    virtual void doLoad(EventsIStream &is, ParameterValues *actualValues) = 0;
+    virtual event_access_t doLoad(EventsIStream &is,
+                                  ParameterValues *actualValues) = 0;
 
     /** \brief called when an event must be stored into history
      *
      * If a specific stream from the random generator is used, its initial state
      * should probably be stored in the stream
      */
-    virtual void doStore(EventsOStream &os, ParameterValues *actualValues) = 0;
+    virtual event_access_t doStore(EventsOStream &os,
+                                   ParameterValues *actualValues) = 0;
     /** \brief called when an event(-shell) is reseted
      *
      * \param actualValues is in FPFILLED state when called. It will
@@ -176,10 +179,14 @@ class FormalConstantList : public FormalParameterValuesTyped<T> {
     /* Nothing to do for the following methods */
     void doGenerate(ParameterValues *__marto_unused(actualValues),
                     Random *__marto_unused(g)){};
-    void doLoad(EventsIStream &__marto_unused(is),
-                ParameterValues *__marto_unused(actualValues)){};
-    void doStore(EventsOStream &__marto_unused(os),
-                 ParameterValues *__marto_unused(actualValues)){};
+    event_access_t doLoad(EventsIStream &__marto_unused(is),
+                          ParameterValues *__marto_unused(actualValues)) {
+        return EVENT_LOADED;
+    };
+    event_access_t doStore(EventsOStream &__marto_unused(os),
+                           ParameterValues *__marto_unused(actualValues)) {
+        return EVENT_STORED;
+    };
     void doRelease(ParameterValues *__marto_unused(actualValues)){};
 
   private:

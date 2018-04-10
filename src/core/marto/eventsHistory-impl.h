@@ -47,17 +47,28 @@ template <typename T> T *EventsOStream::write(const T &value) {
         throw HistoryOutOfBound("Not enough place for the current event");
     }
     T *newbuf = ((T *)ptr) + 1;
-    size_t size = sizeof(T);
-    if (marto_unlikely(size > bufsize)) {
-        // bufsize += ((char*)ptr-buf); // no need: ostream wont be used anymore
-        abort();
-        throw HistoryOutOfBound("Not enough place for the current event");
-    }
-    bufsize -= size;
-    eventsize += size;
+    bufsize -= sizeof(T);
+    eventsize += (char *)newbuf - (char *)buf;
     buf = (char *)newbuf;
     *(T *)ptr = value;
     return (T *)ptr;
+}
+
+inline event_access_t EventsOStream::finalize() {
+    if (eof()) {
+        return EVENT_STORE_ERROR;
+    }
+    void *ptr = (void *)buf;
+    if (!std::align(alignof(size_t), 0, ptr, bufsize)) {
+        abort();
+        return EVENT_STORE_ERROR;
+    }
+    eventsize += (char *)ptr - (char *)buf;
+    buf = (char *)ptr;
+    size_t size = eventSize();
+    assert(*eventSizePtr == 0 || *eventSizePtr == size);
+    *eventSizePtr = size;
+    return EVENT_STORED;
 }
 }
 

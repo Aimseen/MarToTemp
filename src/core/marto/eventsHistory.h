@@ -197,7 +197,6 @@ class EventsOStream : public EventsStreamBase {
     EventsOStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
         eventSizePtr = write((size_t)0);
     };
-    ~EventsOStream() { finalize(); };
     friend event_access_t EventsIterator::storeNextEvent(Event *ev);
 
     template <typename T> T *write(const T &value);
@@ -213,17 +212,8 @@ class EventsOStream : public EventsStreamBase {
     /** \brief called when a store is interrupted */
     void abort() { eofbit = 1; }
     /** \brief finalize the write of the event in the history
-     *
-     * If not explicitely called, it will be called from destructor
      */
-    void finalize() {
-        if (eof()) {
-            return;
-        }
-        size_t size = eventSize();
-        assert(*eventSizePtr == 0 || *eventSizePtr == size);
-        *eventSizePtr = size;
-    };
+    event_access_t finalize();
 };
 
 /** \brief Class to manage an events history

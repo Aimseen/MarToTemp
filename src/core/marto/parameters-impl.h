@@ -71,11 +71,12 @@ inline void FormalParameterValues::generate(ParameterValues *actualValues,
     actualValues->filled();
 }
 
-inline void FormalParameterValues::load(EventsIStream &is,
-                                        ParameterValues *actualValues) {
+inline event_access_t
+FormalParameterValues::load(EventsIStream &is, ParameterValues *actualValues) {
     initPV(actualValues);
-    doLoad(is, actualValues);
+    auto res = doLoad(is, actualValues);
     actualValues->filled();
+    return res;
 }
 
 inline void FormalParameterValues::initPV(ParameterValues *ep) {
