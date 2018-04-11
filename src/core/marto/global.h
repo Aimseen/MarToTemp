@@ -18,25 +18,23 @@ class Configuration {
     Configuration(const Configuration &) = delete;
     /** \brief forbid assignment of this kind of objects */
     Configuration &operator=(const Configuration &) = delete;
+
   private:
     typedef std::map<std::string, Transition *> transitionMap_t;
     typedef std::map<std::string, EventType *> eventTypeMap_t;
-    transitionMap_t transitionsMap; //< Transition by name
-    eventTypeMap_t eventTypesMap; //< EventType by name
+    transitionMap_t transitionsMap;            //< Transition by name
+    eventTypeMap_t eventTypesMap;              //< EventType by name
     std::vector<EventType *> eventTypesVector; //< EventType by code
 
     /** \brief private template to factorize the two 'register' methods
      */
-    template<typename T,
-             typename Func,
-             typename TM=std::map<std::string, T *>,
-             typename TMV=typename std::map<std::string, T *>::value_type>
-    T* _register(TM &map, std::string name, T* value,
-                 Func lambdaIfRegister);
+    template <typename T, typename Func,
+              typename TM = std::map<std::string, T *>,
+              typename TMV = typename std::map<std::string, T *>::value_type>
+    T *_register(TM &map, std::string name, T *value, Func lambdaIfRegister);
 
   public:
-    Configuration()
-        : transitionsMap(), eventTypesMap(), eventTypesVector() {};
+    Configuration() : transitionsMap(), eventTypesMap(), eventTypesVector(){};
     EventType *getEventType(unsigned num);
     /** \brief retrieve the transition by its name
      *

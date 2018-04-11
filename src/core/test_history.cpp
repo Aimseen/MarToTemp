@@ -67,8 +67,7 @@ TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
     c->registerTransition("TransitionTest", new TransitionTest());
     try {
         new EventType(c, "My super event", 42.0, "UnknownTransitionForTest");
-        ASSERT_THROW(c->getTransition("UnknownTransitionForTest"),
-                     UnknownName)
+        ASSERT_THROW(c->getTransition("UnknownTransitionForTest"), UnknownName)
             << "Transition 'UnknownTransitionForTest' should not exist";
         FAIL() << "EventType successfully created with an unknown transition";
     } catch (const UnknownName &e) {
@@ -85,7 +84,7 @@ TEST(Configuration, RegisterEventTypeTwice) {
     c->registerTransition("TransitionTest", new TransitionTest());
     ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
     ASSERT_THROW(new EventType(c, "My super event", 42.0, "TransitionTest"),
-        ExistingName);
+                 ExistingName);
 }
 
 // Tests that writing a undefined event correctly fails

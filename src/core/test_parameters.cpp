@@ -70,8 +70,9 @@ TEST(Event, RegisterConstantParameters) {
     ASSERT_EQ(
         et1->registerParameter("from", new FormalConstantList<int>(2, v2)),
         true);
-    ASSERT_THROW(et1->registerParameter("to", new FormalConstantList<int>(2, v2)),
-              ExistingName);
+    ASSERT_THROW(
+        et1->registerParameter("to", new FormalConstantList<int>(2, v2)),
+        ExistingName);
     Event *e = new Event();
     // Fixme: add a randomGenerator
     e->generate(et1, nullptr);

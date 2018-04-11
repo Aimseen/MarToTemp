@@ -4,11 +4,9 @@
 
 namespace marto {
 
-template<typename T,
-         typename Func,
-         typename TM=std::map<std::string, T *>,
-         typename TMV=typename std::map<std::string, T *>::value_type>
-T* Configuration::_register(TM &map, string name, T* value,
+template <typename T, typename Func, typename TM = std::map<std::string, T *>,
+          typename TMV = typename std::map<std::string, T *>::value_type>
+T *Configuration::_register(TM &map, string name, T *value,
                             Func lambdaIfRegister) {
     assert(value != nullptr);
     auto res = map.insert(TMV(name, value));
@@ -27,17 +25,16 @@ T* Configuration::_register(TM &map, string name, T* value,
 }
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    return _register<Transition>(transitionsMap, name, trans,
-                                 [](){});
+    return _register<Transition>(transitionsMap, name, trans, []() {});
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
-    return _register<EventType>(eventTypesMap, eventType->name(), eventType,
-                                [this, &eventType](){
-                                    Event::code_t code = eventTypesVector.size();
-                                    eventTypesVector.push_back(eventType);
-                                    eventType->setCode(code);
-                                });
+    return _register<EventType>(
+        eventTypesMap, eventType->name(), eventType, [this, &eventType]() {
+            Event::code_t code = eventTypesVector.size();
+            eventTypesVector.push_back(eventType);
+            eventType->setCode(code);
+        });
 }
 
 Transition *Configuration::getTransition(string name) {
