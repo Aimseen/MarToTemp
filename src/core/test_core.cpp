@@ -13,7 +13,7 @@ class TransitionBidon : public Transition {
 
 // Do test stuff
 int main() {
-    Configuration *config = Global::getConfig();
+    Configuration *config = new Configuration();
     // Fill the hardcoded transition names
     config->registerTransition("TransitionBidon", new TransitionBidon());
 

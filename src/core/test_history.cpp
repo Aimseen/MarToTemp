@@ -17,7 +17,7 @@ class TransitionTest : public Transition {
 class EventsHistoryBaseTest : public ::testing::Test {
   protected:
     EventsHistoryBaseTest() {
-        c = Global::getConfig();
+        c = new Configuration();
         // ensure TransitionTest exists. Can return NULL if already registered.
         c->registerTransition("TransitionTest", new TransitionTest());
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
@@ -55,14 +55,14 @@ class EventsHistoryBaseTest : public ::testing::Test {
 };
 
 TEST(Configuration, RegisterTransitionTwice) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     Transition *tr = new TransitionTest();
     ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
     ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
 }
 
 TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
     try {
@@ -80,11 +80,12 @@ TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
 }
 
 TEST(Configuration, RegisterEventTypeTwice) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     // ensure TransitionTest exists. Can return NULL if already registered.
     c->registerTransition("TransitionTest", new TransitionTest());
     ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
-    ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
+    ASSERT_THROW(new EventType(c, "My super event", 42.0, "TransitionTest"),
+        ExistingName);
 }
 
 // Tests that writing a undefined event correctly fails

@@ -4,31 +4,40 @@
 
 namespace marto {
 
-Configuration *Global::config = nullptr;
-
-Transition *Configuration::registerTransition(string name, Transition *trans) {
-    assert(trans != nullptr);
-    auto res = transitionsMap.insert(
-        std::pair<string, Transition *>(name, trans));
-    if (res.second) { // the insertion occurs
-        return trans;
+template<typename T,
+         typename Func,
+         typename TM=std::map<std::string, T *>,
+         typename TMV=typename std::map<std::string, T *>::value_type>
+T* Configuration::_register(TM &map, string name, T* value,
+                            Func lambdaIfRegister) {
+    assert(value != nullptr);
+    auto res = map.insert(TMV(name, value));
+    if (res.second) {
+        // the insertion occurs
+        lambdaIfRegister();
+        return value;
     }
     // the insertion did not occurs, the key already exists
-    Transition *previous = (res.first)->second;
-    if (previous == trans) {
+    T *previous = (res.first)->second;
+    if (previous == value) {
         // std::cerr << "Returnning old value for " << name << std::endl;
-        return trans;
+        return value;
     }
-    // std::cerr << "Returnning NULL for " << name << std::endl;
-    return nullptr;
+    throw ExistingName(name);
+}
+
+Transition *Configuration::registerTransition(string name, Transition *trans) {
+    return _register<Transition>(transitionsMap, name, trans,
+                                 [](){});
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
-    assert(eventType != nullptr);
-    Event::code_t code = eventTypesVector.size();
-    eventTypesVector.push_back(eventType);
-    eventType->setCode(code);
-    return eventType;
+    return _register<EventType>(eventTypesMap, eventType->name(), eventType,
+                                [this, &eventType](){
+                                    Event::code_t code = eventTypesVector.size();
+                                    eventTypesVector.push_back(eventType);
+                                    eventType->setCode(code);
+                                });
 }
 
 Transition *Configuration::getTransition(string name) {
@@ -42,16 +51,5 @@ Transition *Configuration::getTransition(string name) {
 EventType *Configuration::getEventType(unsigned num) {
     assert(num < eventTypesVector.size());
     return eventTypesVector[num];
-}
-
-Configuration *Global::getConfig() {
-    if (config == nullptr) {
-        config = new Configuration();
-
-        // TODO but rather on the libtransition side
-        // Fill the hardcoded transition names
-        // setTransition("JSQ2", new JSQ2());
-    }
-    return config;
 }
 }

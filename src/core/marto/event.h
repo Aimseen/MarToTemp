@@ -113,7 +113,7 @@ class EventType {
   private:
     friend ostream & ::operator<<(ostream &out, const EventType &ev);
     // Name for this event type
-    string name;
+    const string _name;
     Transition *transition;
     double rate;
     // Numbered formal parameters
@@ -149,6 +149,9 @@ class EventType {
      * \return a positive index or -1 if the name does not exist
      */
     int findIndex(string parameterName);
+    /** \brief returns the name of the EventType
+     */
+    string name() const { return _name; }
 };
 }
 

@@ -14,14 +14,29 @@
 namespace marto {
 
 class Configuration {
+    /** \brief forbid copy of this kind of objects */
+    Configuration(const Configuration &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    Configuration &operator=(const Configuration &) = delete;
   private:
-    std::vector<EventType *> eventTypesVector;
-    std::map<std::string, Transition *> transitionsMap;
-    //* \brief private constructor to avoid duplicate instanciation
-    Configuration(){};
-    friend class Global;
+    typedef std::map<std::string, Transition *> transitionMap_t;
+    typedef std::map<std::string, EventType *> eventTypeMap_t;
+    transitionMap_t transitionsMap; //< Transition by name
+    eventTypeMap_t eventTypesMap; //< EventType by name
+    std::vector<EventType *> eventTypesVector; //< EventType by code
+
+    /** \brief private template to factorize the two 'register' methods
+     */
+    template<typename T,
+             typename Func,
+             typename TM=std::map<std::string, T *>,
+             typename TMV=typename std::map<std::string, T *>::value_type>
+    T* _register(TM &map, std::string name, T* value,
+                 Func lambdaIfRegister);
 
   public:
+    Configuration()
+        : transitionsMap(), eventTypesMap(), eventTypesVector() {};
     EventType *getEventType(unsigned num);
     /** \brief retrieve the transition by its name
      *
@@ -32,23 +47,18 @@ class Configuration {
     Transition *getTransition(std::string name);
     /** \brief register the provided transition
      *
-     * \return NULL if the name is already registered with another transition
-     * else
-     * the transition itself
+     * \return the transition itself unless the name is already
+     * registered with another transition. In the later case, a
+     * ExistingName exception is thrown.
      */
     Transition *registerTransition(std::string name, Transition *trans);
     /** \brief register the provided EventType
      *
-     * \return the provided eventType
+     * \return the provided eventType unless the name is already
+     * registered with another eventType. In the later case, a
+     * ExistingName exception is thrown.
      */
     EventType *registerEventType(EventType *eventType);
-};
-
-class Global {
-    static Configuration *config;
-
-  public:
-    static Configuration *getConfig();
 };
 }
 #endif

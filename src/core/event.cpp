@@ -8,7 +8,7 @@
 using std::ostream;
 
 ostream &operator<<(ostream &out, const marto::EventType &ev) {
-    out << "EventType : " << ev.name << std::endl;
+    out << "EventType : " << ev.name() << std::endl;
     out << "-> " << ev.transition << std::endl;
     out << "-> parameters : " << std::endl;
     for (auto it = ev.formalParameters.begin(); it != ev.formalParameters.end();
@@ -23,7 +23,7 @@ namespace marto {
 
 EventType::EventType(Configuration *config, string idEvT, double evtRate,
                      string trName)
-    : name(idEvT), transition(config->getTransition(trName)), rate(evtRate) {
+    : _name(idEvT), transition(config->getTransition(trName)), rate(evtRate) {
     config->registerEventType(this);
     // FIXME: handle an internal state so that parameters cannot be modified
     // once an EventType was used by an Event

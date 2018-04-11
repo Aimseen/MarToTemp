@@ -22,7 +22,7 @@ class TransitionTest : public Transition {
 class EventsHistoryBaseTest : public ::testing::Test {
   protected:
     EventsHistoryBaseTest() {
-        c = Global::getConfig();
+        c = new Configuration();
         // ensure TransitionTest exists. Can return NULL if already registered.
         c->registerTransition("TransitionTest", new TransitionTest());
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
@@ -60,7 +60,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
 };
 
 TEST(Event, RegisterConstantParameters) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     c->registerTransition("TransitionTest", new TransitionTest());
     EventType *et1 = new EventType(c, "Ev type", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
@@ -96,7 +96,7 @@ TEST(Event, RegisterConstantParameters) {
 }
 
 TEST(Event, GenerateEventsWithConstantParameters) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     c->registerTransition("TransitionTest", new TransitionTest());
     EventType *et1 = new EventType(c, "My super event", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
@@ -150,7 +150,7 @@ TEST(Event, GenerateEventsWithConstantParameters) {
 }
 
 TEST(Event, StoreAndLoadEventsWithConstantParameters) {
-    auto c = Global::getConfig();
+    auto c = new Configuration();
     c->registerTransition("TransitionTest", new TransitionTest());
     EventType *et1 = new EventType(c, "Event Type 1", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
