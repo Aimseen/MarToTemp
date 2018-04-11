@@ -22,17 +22,21 @@ ostream &operator<<(ostream &out, const marto::EventType &ev) {
 namespace marto {
 
 EventType::EventType(Configuration *config, string idEvT, double evtRate,
-                     string idTr)
-    : name(idEvT), transition(config->getTransition(idTr)), rate(evtRate) {
-    // FIXME : complete (formal parameters for instance)
+                     string trName)
+    : name(idEvT), transition(config->getTransition(trName)), rate(evtRate) {
     config->registerEventType(this);
+    // FIXME: handle an internal state so that parameters cannot be modified
+    // once an EventType was used by an Event
 }
 
 bool EventType::registerParameter(string name, FormalParameterValues *fp) {
+    // FIXME: see previous comment
     auto res = formalParametersNames.insert(
         std::make_pair(name, formalParameters.size()));
     if (res.second) {
         formalParameters.push_back(fp);
+    } else {
+        throw ExistingName(name);
     }
     return res.second;
 }

@@ -7,14 +7,14 @@ namespace marto {
 Configuration *Global::config = nullptr;
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    auto it = transitionsMap.find(name);
-    if (marto_likely(it == transitionsMap.end())) {
-        auto element = new std::pair<string, Transition *>(name, trans);
-        transitionsMap.insert(*element);
-        // std::cerr << "Returnning value for " << name << std::endl;
+    assert(trans != nullptr);
+    auto res = transitionsMap.insert(
+        std::pair<string, Transition *>(name, trans));
+    if (res.second) { // the insertion occurs
         return trans;
     }
-    Transition *previous = it->second;
+    // the insertion did not occurs, the key already exists
+    Transition *previous = (res.first)->second;
     if (previous == trans) {
         // std::cerr << "Returnning old value for " << name << std::endl;
         return trans;
@@ -24,6 +24,7 @@ Transition *Configuration::registerTransition(string name, Transition *trans) {
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
+    assert(eventType != nullptr);
     Event::code_t code = eventTypesVector.size();
     eventTypesVector.push_back(eventType);
     eventType->setCode(code);
@@ -34,7 +35,7 @@ Transition *Configuration::getTransition(string name) {
     try {
         return transitionsMap.at(name);
     } catch (const std::out_of_range &oor) {
-        throw UnknownTransition(name);
+        throw UnknownName(name);
     }
 }
 

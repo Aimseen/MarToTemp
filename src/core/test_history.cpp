@@ -68,10 +68,10 @@ TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
     try {
         new EventType(c, "My super event", 42.0, "UnknownTransitionForTest");
         ASSERT_THROW(c->getTransition("UnknownTransitionForTest"),
-                     UnknownTransition)
+                     UnknownName)
             << "Transition 'UnknownTransitionForTest' should not exist";
         FAIL() << "EventType successfully created with an unknown transition";
-    } catch (const UnknownTransition &e) {
+    } catch (const UnknownName &e) {
         SUCCEED();
     } catch (...) {
         FAIL() << "EventType creation generated an unknown transition";

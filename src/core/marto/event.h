@@ -92,14 +92,14 @@ class EventType {
   public:
     /** \brief create a new EventType in the configuration
      *
-     * \param idTr indicates which transition function will be used.
+     * \param trName indicates which transition function will be used.
      * \param eventName is a long, detailed name for the event.
      * \param fp include all parameters needed to generate the event
      *
      * \note the EventType will be registered into the provided configuration
      */
     EventType(Configuration *config, string eventName, double evtRate,
-              string idTr);
+              string trName);
     /** \brief define a new FormalParameterValues for this EventType
      *
      * \param name: name of the formal parameter. Must be unique per EventType.
