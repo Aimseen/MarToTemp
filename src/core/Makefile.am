@@ -15,7 +15,7 @@ nobase_include_HEADERS=\
       marto/parameters.h \
       marto/parameters-impl.h \
       marto/random.h \
-      marto/RngStream.h \
+      marto/randomLecuyer.h \
       marto/state.h \
       marto/transition.h \
       marto/types.h
@@ -37,9 +37,12 @@ libmarto_la_SOURCES=\
 	eventsHistory.cpp \
 	global.cpp \
 	parameters.cpp \
-	RngStream.c \
         RngStream.h \
-	random.cpp
+	random.cpp \
+	randomLecuyer.cpp
+
+# directly included from randomLecuyer.cpp
+EXTRA_libmarto_la_SOURCES=RngStream.c
 
 pkgconfig_DATA=marto.pc
 

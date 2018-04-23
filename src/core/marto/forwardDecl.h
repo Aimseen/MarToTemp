@@ -44,12 +44,14 @@ template <typename T> class FormalDistributionVariadicList;
 class ParameterValues;
 
 /* random.h */
+class RandomStream;
+class RandomStreamGenerator;
+class RandomFabric;
+class RandomTest;
 class Random;
-class RandomUniformInterval;
-class InternalGeneratorFabric;
 
-/* RngStream.h */
-class RngStream;
+/* randomLecuyer.h */
+class RandomLecuyer;
 
 /* state.h */
 class SetImpl;

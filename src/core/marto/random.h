@@ -36,86 +36,139 @@ Objective :
 #ifndef MARTO_RANDOM_H
 #define MARTO_RANDOM_H
 
-#include <marto/RngStream.h>
+#include <marto/types.h>
 #include <stddef.h>
 
 namespace marto {
 
-/**  internal random number generation
-*  Random is the core brick providing a uniform random number in (0,1).
-*
-* Intended usage :
-* - use all variants of next to advance in the current stream
-* - to spawn a generator to the next substream from myGenerator :
-*   Random newGenerator = new Random(myGenerator);
-*   newGenerator.nextSubStream();
-* - it's similar to spawn a generator to the next stream
-*/
-class Random {
-    friend class Configuration;
-    friend class eventsHistory;
-
-  public:
-    /** \brief creates a copy of a given generator */
-    Random(const Random &original);
-    /* Generic random is on (0,1)
-       - one should specialize when forking is required
-    */
-    /** \brief advances this generator to the next substream */
-    void nextSubStream();
-    /** \brief resets to the begining of the current substream */
-    void resetSubStream();
-    /** \brief returns the next double in (0,1) */
-    double next();
-    /** \brief returns the next int in [i,j) */
-    int next(int i, int j);
-    /** \brief loads a full generator state */
-    size_t load(void *buffer);
-    /** \brief stores a full generator state */
-    size_t store(void *buffer);
-    /** \brief loads a stream and also sets it as current substream and current
-     * position  */
-    size_t loadStream(void *buffer);
-    /** \brief stores the begining of the current stream */
-    size_t storeStream(void *buffer);
-    /** \brief loads a substream and also sets it as current position
-        Warning : this assumes that the loaded substream is a substream of the
-       current stream */
-    size_t loadSubStream(void *buffer);
-    /** \brief stores the begining of the current substream */
-    size_t storeSubStream(void *buffer);
-
+/** \brief abstract class to obtain a serie of random numbers
+ *
+ * The initial state can be saved/restored into/from an history
+ *
+ * Default methods are provided to transform the (0,1) interval
+ * into other kind of intervals. They can be used or reimplemented.
+ *
+ * \note: only one thread can use this object
+ */
+class RandomStream {
+    /** \brief forbid copy of this kind of objects */
+    RandomStream(const RandomStream &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    RandomStream &operator=(const RandomStream &) = delete;
   protected:
-    /* TODO : complete and give access to all this stuff from Config :
-       access to distinct streams should be centralized because in the
-       multithreaded versions, each new thread should be given a stream
-       not already in use by another thread
-    */
-    /** \brief creates a new Random using a predefined seed */
-    Random();
-    /** \brief creates a new Random at the given seed */
-    Random(unsigned long seed[]);
-    /** \brief advances to the next stream */
-    void nextStream();
-    /** \brief resets to the begining of the current stream */
-    void resetStream();
-    /* Lecuyer nous fournit le uniforme sur (0,1), même si on aimerait [0,1),
-       il faut penser à le rendre accessible jusqu'ici */
-    struct RngStream_InfoState state;
-};
-
-/** Internal Random generator with uniform distribution; type double */
-class RandomUniformInterval : public Random {
-  private:
-    double inf, sup;
-
+    RandomStream() {};
   public:
-    virtual double next();
-    RandomUniformInterval(double inf, double sub);
+    virtual ~RandomStream() {};
+    // method to load/save the initial internal state into an history
+    // in order to replay the whole stream
+    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) = 0;
+    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) = 0;
+    virtual void setInitialStateFromCurrentState() = 0;
+    virtual double U01() = 0;
+    virtual double Uab(double inf, double sup) {
+        return (inf + (sup - inf) * U01());
+    };
+    virtual long Iab(long min, long max) {
+        return (long)Uab(min, max+1);
+    };
 };
 
-class InternalGeneratorFabric {
-    // Should be a singleton because Lecuyer RngStream has to be initialized
+/** \brief abstract class to obtain different (independant) random streams
+ *
+ * \note: there will be one RandomStreamGenerator per history chunk
+ * The first stream will be used for classical event in the chunk
+ * Next streams will be used for non-bounded parameters
+ */
+class RandomStreamGenerator {
+    /** \brief forbid copy of this kind of objects */
+    RandomStreamGenerator(const RandomStreamGenerator &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    RandomStreamGenerator &operator=(const RandomStreamGenerator &) = delete;
+  protected:
+    RandomStreamGenerator() {};
+  public:
+    virtual ~RandomStreamGenerator() {};
+    virtual RandomStream *newRandomStream() = 0;
+    virtual void deleteRandomStream(RandomStream *rs) = 0;
+#if 0
+    // method to load/save the internal state into an history
+    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) = 0;
+    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) = 0;
+#endif
+};
+
+/** \brief abstract class that must be provided to the config
+ *
+ * \note: this object can used in parallel by different threads
+ */
+class RandomFabric {
+    /** \brief forbid copy of this kind of objects */
+    RandomFabric(const RandomFabric &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    RandomFabric &operator=(const RandomFabric &) = delete;
+  protected:
+    RandomFabric() {};
+  public:
+    virtual ~RandomFabric() {};
+    virtual RandomStreamGenerator *newRandomStreamGenerator() = 0;
+    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) = 0;
+};
+
+/** \brief test class that whose streams will return sequential 'random' numbers
+ */
+class RandomTest : public RandomFabric {
+  private:
+    int cur;
+  public:
+    ~RandomTest() {};
+    RandomTest();
+    virtual RandomStreamGenerator *newRandomStreamGenerator();
+    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
+};
+
+// must be used only by one thread at any time
+// will be provided when generating events
+// it should be the only object that the user will deal with
+class Random : public RandomStream, RandomStreamGenerator {
+    /** \brief forbid copy of this kind of objects */
+    Random(const Random &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    Random &operator=(const Random &) = delete;
+    /** \brief constructor */
+    Random(RandomStreamGenerator* v_rsg)
+        : RandomStream(), RandomStreamGenerator(), rsg(v_rsg)
+    {
+        crs=newRandomStream();
+    };
+    ~Random() {
+        rsg->deleteRandomStream(crs);
+    }
+  public:
+    RandomStream *currentRandomStream() { return crs; };
+    virtual RandomStream *newRandomStream() {
+        return rsg->newRandomStream();
+    };
+    virtual void deleteRandomStream(RandomStream *rs) {
+        rsg->deleteRandomStream(rs);
+    };
+    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) {
+        return crs->load(istream, hist);
+    };
+    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) {
+        return crs->store(ostream, hist);
+    };
+    virtual double U01() {
+        return crs->U01();
+    };
+    virtual double Uab(double inf, double sup) {
+        return crs->Uab(inf, sup);
+    };
+    virtual long Iab(long min, long max) {
+        return crs->Iab(min, max);
+    };
+  private:
+    RandomStream *crs;
+    RandomStreamGenerator *rsg;
 };
 }
 
