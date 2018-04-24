@@ -126,6 +126,11 @@ class RandomTest : public RandomFabric {
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
 
+// The comment below seems wrong : we decided to give ParameterValues as the only interface to
+// access a random stream. The user should have access to any random at all.
+// We do this to avoid misuse of the generators : the ParameterValues we provide are saved into the
+// history and reconstructed correctly when replaying.
+//
 // must be used only by one thread at any time
 // will be provided when generating events
 // it should be the only object that the user will deal with
