@@ -4,8 +4,7 @@
 
 namespace marto {
 
-template <typename T, typename Func, typename TM = std::map<std::string, T *>,
-          typename TMV = typename std::map<std::string, T *>::value_type>
+template <typename T, typename Func, typename TM, typename TMV>
 T *Configuration::_register(TM &map, string name, T *value,
                             Func lambdaIfRegister) {
     assert(value != nullptr);
