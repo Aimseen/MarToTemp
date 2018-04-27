@@ -92,7 +92,7 @@ TEST(Event, RegisterConstantParameters) {
     ASSERT_EQ(p->get<int>(0), 15);
 #ifndef NDEBUG
     EXPECT_EXIT(p->get<long>(0), ::testing::KilledBySignal(SIGABRT),
-                "Assertion.*std::type_index.*failed");
+                "Assertion.*std::type_index.*");
 #endif
 }
 
