@@ -29,7 +29,7 @@ testsuite_installed_DEPENDS= \
 testsuite_installed_ATPATH=$(bindir):$(abs_top_builddir)
 installcheck-local: check-testsuite_installed
 
-EXTRA_DIST += marto-installed/using-libmarto.c++
+EXTRA_DIST += marto-installed/using-libmarto.c++ scripts/timeout-missing
 
 # Support to get install paths at test time
 # (useful for the installcheck target)

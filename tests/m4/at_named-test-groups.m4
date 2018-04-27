@@ -196,7 +196,7 @@ m4_define([AT_NTG_CHECK_BUILD],[
 dnl AT_NTG_CHECK_RUN(name, arguments, command-to-parse-stdout, stdout, stderr)
 m4_define([AT_NTG_CHECK_RUN],[
   _AT_NTG_HOOK_RUN([CHECK_RUN],[BEFORE],$@)
-  AT_CHECK([_AT_NTG_WRAPPER timeout 15 $abs_top_builddir/_AT_NTG_SUBDIR/$1 $2], 0,[m4_if([$3],[],[$4],[stdout])],[$5])
+  AT_CHECK([_AT_NTG_WRAPPER $TIMEOUT 15 $abs_top_builddir/_AT_NTG_SUBDIR/$1 $2], 0,[m4_if([$3],[],[$4],[stdout])],[$5])
   m4_if([$3],[],[],[
     AT_CHECK([$3], 0, [$4], [])
   ])

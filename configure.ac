@@ -16,7 +16,7 @@ AM_PROG_AR
 LT_INIT
 
 AT_AM_INIT
-AT_AM_TESTSUITES([tests], [.], [testsuite testsuite-installed])
+AT_AM_TESTSUITES([tests], [.:tests/scripts], [testsuite testsuite-installed])
 AC_CONFIG_FILES([tests/atlocal:tests/atlocal.in:tests/m4/at_install-paths.in:tests/atinstallpath.in])
 
 dnl runstatedir has been introduced in 2.70
@@ -71,6 +71,11 @@ AC_CHECK_HEADERS([])
 
 # For now, pthread is not used
 AM_CONDITIONAL([HAVE_PTHREADS], [false])
+
+AC_CHECK_PROGS([TIMEOUT], [timeout gtimeout], [timeout-missing])
+AS_IF([ test x"$TIMEOUT" = xtimeout-missing ],
+  [AC_MSG_WARN([Running tests wthout the missing 'timeout' command])])
+
 
 # Doxygen configuration
 DX_INIT_DOXYGEN([MarTo], [doxygen.conf], [doxygen-doc])

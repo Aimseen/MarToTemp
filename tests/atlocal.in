@@ -4,4 +4,4 @@ prefix="@prefix@"
 PACKAGE_TARNAME="@PACKAGE_TARNAME@"
 datarootdir="@datarootdir@"
 docdir="@docdir@"
-
+TIMEOUT="@TIMEOUT@"
