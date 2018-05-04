@@ -7,6 +7,8 @@ html-local: doxygen-run
 MOSTLYCLEANFILES=$(DX_CLEANFILES)
 ########################
 
+if DOXYGEN_DOC
+
 pdf-local: $(DX_DOCDIR)/MarTo.pdf
 
 .PHONY: $(DX_DOCDIR)/MarTo.pdf
@@ -45,3 +47,4 @@ install-data-local: html
 uninstall-local:
 	$(RM) -r $(DESTDIR)$(datadir)/$(PACKAGE)/html
 
+endif

@@ -81,6 +81,8 @@ AS_IF([ test x"$TIMEOUT" = xtimeout-missing ],
 DX_INIT_DOXYGEN([MarTo], [doxygen.conf], [doxygen-doc])
 DX_PS_FEATURE([OFF])
 DX_PDF_FEATURE([OFF])
+AM_CONDITIONAL([DOXYGEN_DOC],
+        [ test $DX_FLAG_doc = 1 ] )
 
 dnl ----------------------------------------------------------------
 dnl Define libs and progs created by this software
