@@ -12,7 +12,8 @@ $$(srcdir)/$2: $$($1_MAIN) $$($1_DEPENDS) $$(srcdir)/package.m4
 check-$1: $$(srcdir)/$2 atconfig atlocal
 	$$(SHELL) '$$<' \
 		$$(if $$($1_ATPATH),AUTOTEST_PATH='$$($1_ATPATH)') \
-		$$(testsuite__installed_ATFLAGS) $$(ATFLAGS)
+		$$(testsuite__installed_ATFLAGS) $$(ATFLAGS) \
+		$$($1_TESTSUITEFLAGS)
 clean-$1:
 	test ! -f '$$(srcdir)/$2' || \
 	$$(SHELL) '$$(srcdir)/$2' --clean
