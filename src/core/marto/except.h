@@ -34,6 +34,12 @@ class ExistingName : public std::runtime_error {
   public:
     ExistingName(std::string name) : std::runtime_error(name){};
 };
+
+/** Exception launched a type error is detected at runtime */
+class TypeError : public std::runtime_error {
+  public:
+    TypeError(std::string s) : std::runtime_error(s){};
+};
 }
 
 #endif

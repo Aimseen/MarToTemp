@@ -90,10 +90,7 @@ TEST(Event, RegisterConstantParameters) {
     ASSERT_THROW(p->get<int>(2), std::out_of_range)
         << "Accessing a non-existant parameter value!";
     ASSERT_EQ(p->get<int>(0), 15);
-#ifndef NDEBUG
-    EXPECT_EXIT(p->get<long>(0), ::testing::KilledBySignal(SIGABRT),
-                "Assertion.*std::type_index.*");
-#endif
+    ASSERT_THROW(p->get<unsigned long>(0), TypeError);
 }
 
 TEST(Event, GenerateEventsWithConstantParameters) {

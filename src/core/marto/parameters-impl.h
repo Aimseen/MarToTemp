@@ -10,7 +10,9 @@
 #endif
 
 #include <marto/macros.h>
+#include <marto/except.h>
 #include <typeindex>
+#include <string>
 
 namespace marto {
 
@@ -94,8 +96,13 @@ inline void FormalParameterValues::release(ParameterValues *actualValues) {
 
 template <typename T> void FormalParameterValues::checkType() {
     const std::type_info &typeinfoRequested = typeid(T);
-    assert(std::type_index(typeinfoValue) ==
-           std::type_index(typeinfoRequested));
+    if (std::type_index(typeinfoValue) !=
+        std::type_index(typeinfoRequested)) {
+        std::string s;
+        s = s + "In parameters: requested: " + typeinfoRequested.name()
+            + " / available: " + typeinfoValue.name();
+        throw TypeError(s);
+    }
 }
 
 template <typename T>
