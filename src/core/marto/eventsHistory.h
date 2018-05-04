@@ -164,12 +164,12 @@ class EventsIStream : public EventsStreamBase {
             /* Event not yet fully written (finalized not called)
              * or read fails
              */
-            throw new HistoryIncompleteEvent("Event not yet all written");
+            throw HistoryIncompleteEvent("Event not yet all written");
         }
         if (marto_unlikely(eventsize > lim)) {
             /* the event to read is longer than the buffer in the current chunk!
              */
-            throw new HistoryOutOfBound(
+            throw HistoryOutOfBound(
                 "Event too long for the current buffer!");
         }
         /* limiting the following reads to the event data */
