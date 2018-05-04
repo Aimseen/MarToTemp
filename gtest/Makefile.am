@@ -31,7 +31,7 @@ else
 endif
 
 # Build rules for libraries.
-noinst_LTLIBRARIES = libgtest.la libgtest_main.la
+check_LTLIBRARIES = libgtest.la libgtest_main.la
 
 libgtest_la_SOURCES = src/gtest-all.cc
 
