@@ -193,3 +193,14 @@ Veut-ton composer les evenements (par ex: sortir de la plus grande et
 entrer dans la + petite) afin de ne pas réécrire trop de transitions?
 
 Jean-Marc a répondu que non.
+
+
+
+
+Fonctions d'indexes : à revoir
+
+
+Chunk : Chunk en cours d'écriture : peut être dupliqué.
+Synchro :
+ - à la création (le premier est inséré)
+ - et à la terminaison (le premier fini remplace celui en cours si nécessaire)
