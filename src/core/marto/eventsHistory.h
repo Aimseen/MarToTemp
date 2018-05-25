@@ -271,10 +271,10 @@ class EventsHistory {
      * class can choose different sizes
      */
     virtual char *allocChunkBuffer(size_t *size) {
-        const size_t s = 4096;
-        char *buffer = (char *)malloc(s);
+        const size_t defaultBufferSize = 4096;
+        char *buffer = (char *)malloc(defaultBufferSize);
         if (size) {
-            *size = buffer ? s : 0;
+            *size = buffer ? defaultBufferSize : 0;
         }
         return buffer;
     }
