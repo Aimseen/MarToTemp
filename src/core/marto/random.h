@@ -55,22 +55,24 @@ class RandomStream {
     RandomStream(const RandomStream &) = delete;
     /** \brief forbid assignment of this kind of objects */
     RandomStream &operator=(const RandomStream &) = delete;
+
   protected:
-    RandomStream() {};
+    RandomStream(){};
+
   public:
-    virtual ~RandomStream() {};
+    virtual ~RandomStream(){};
     // method to load/save the initial internal state into an history
     // in order to replay the whole stream
-    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) = 0;
-    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) = 0;
+    virtual event_access_t load(EventsIStream &istream,
+                                EventsHistory *hist) = 0;
+    virtual event_access_t store(EventsOStream &ostream,
+                                 EventsHistory *hist) = 0;
     virtual void setInitialStateFromCurrentState() = 0;
     virtual double U01() = 0;
     virtual double Uab(double inf, double sup) {
         return (inf + (sup - inf) * U01());
     };
-    virtual long Iab(long min, long max) {
-        return (long)Uab(min, max+1);
-    };
+    virtual long Iab(long min, long max) { return (long)Uab(min, max + 1); };
 };
 
 /** \brief abstract class to obtain different (independant) random streams
@@ -84,10 +86,12 @@ class RandomStreamGenerator {
     RandomStreamGenerator(const RandomStreamGenerator &) = delete;
     /** \brief forbid assignment of this kind of objects */
     RandomStreamGenerator &operator=(const RandomStreamGenerator &) = delete;
+
   protected:
-    RandomStreamGenerator() {};
+    RandomStreamGenerator(){};
+
   public:
-    virtual ~RandomStreamGenerator() {};
+    virtual ~RandomStreamGenerator(){};
     virtual RandomStream *newRandomStream() = 0;
     virtual void deleteRandomStream(RandomStream *rs) = 0;
 #if 0
@@ -106,10 +110,12 @@ class RandomFabric {
     RandomFabric(const RandomFabric &) = delete;
     /** \brief forbid assignment of this kind of objects */
     RandomFabric &operator=(const RandomFabric &) = delete;
+
   protected:
-    RandomFabric() {};
+    RandomFabric(){};
+
   public:
-    virtual ~RandomFabric() {};
+    virtual ~RandomFabric(){};
     virtual RandomStreamGenerator *newRandomStreamGenerator() = 0;
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) = 0;
 };
@@ -119,16 +125,19 @@ class RandomFabric {
 class RandomTest : public RandomFabric {
   private:
     int cur;
+
   public:
-    ~RandomTest() {};
+    ~RandomTest(){};
     RandomTest();
     virtual RandomStreamGenerator *newRandomStreamGenerator();
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
 
-// The comment below seems wrong : we decided to give ParameterValues as the only interface to
+// The comment below seems wrong : we decided to give ParameterValues as the
+// only interface to
 // access a random stream. The user should have access to any random at all.
-// We do this to avoid misuse of the generators : the ParameterValues we provide are saved into the
+// We do this to avoid misuse of the generators : the ParameterValues we provide
+// are saved into the
 // history and reconstructed correctly when replaying.
 //
 // must be used only by one thread at any time
@@ -140,19 +149,15 @@ class Random : public RandomStream, RandomStreamGenerator {
     /** \brief forbid assignment of this kind of objects */
     Random &operator=(const Random &) = delete;
     /** \brief constructor */
-    Random(RandomStreamGenerator* v_rsg)
-        : RandomStream(), RandomStreamGenerator(), rsg(v_rsg)
-    {
-        crs=newRandomStream();
+    Random(RandomStreamGenerator *v_rsg)
+        : RandomStream(), RandomStreamGenerator(), rsg(v_rsg) {
+        crs = newRandomStream();
     };
-    ~Random() {
-        rsg->deleteRandomStream(crs);
-    }
+    ~Random() { rsg->deleteRandomStream(crs); }
+
   public:
     RandomStream *currentRandomStream() { return crs; };
-    virtual RandomStream *newRandomStream() {
-        return rsg->newRandomStream();
-    };
+    virtual RandomStream *newRandomStream() { return rsg->newRandomStream(); };
     virtual void deleteRandomStream(RandomStream *rs) {
         rsg->deleteRandomStream(rs);
     };
@@ -162,15 +167,10 @@ class Random : public RandomStream, RandomStreamGenerator {
     virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) {
         return crs->store(ostream, hist);
     };
-    virtual double U01() {
-        return crs->U01();
-    };
-    virtual double Uab(double inf, double sup) {
-        return crs->Uab(inf, sup);
-    };
-    virtual long Iab(long min, long max) {
-        return crs->Iab(min, max);
-    };
+    virtual double U01() { return crs->U01(); };
+    virtual double Uab(double inf, double sup) { return crs->Uab(inf, sup); };
+    virtual long Iab(long min, long max) { return crs->Iab(min, max); };
+
   private:
     RandomStream *crs;
     RandomStreamGenerator *rsg;

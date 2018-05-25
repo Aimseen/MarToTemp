@@ -169,8 +169,7 @@ class EventsIStream : public EventsStreamBase {
         if (marto_unlikely(eventsize > lim)) {
             /* the event to read is longer than the buffer in the current chunk!
              */
-            throw HistoryOutOfBound(
-                "Event too long for the current buffer!");
+            throw HistoryOutOfBound("Event too long for the current buffer!");
         }
         /* limiting the following reads to the event data */
         bufsize = eventsize - (buf - buffer);

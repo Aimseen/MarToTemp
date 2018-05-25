@@ -15,10 +15,10 @@ class TransitionTest : public Transition {
 
 class TestEventsHistory : public EventsHistory {
   public:
-    size_t chunkSize=100;
+    size_t chunkSize = 100;
     size_t nbAllocatedChunk;
     TestEventsHistory(Configuration *c)
-        : EventsHistory(c), nbAllocatedChunk(0) {};
+        : EventsHistory(c), nbAllocatedChunk(0){};
     virtual char *allocChunkBuffer(size_t *size) {
         char *buffer = (char *)malloc(chunkSize);
         if (size) {
@@ -142,13 +142,13 @@ TEST_F(EventsHistoryBaseTest, readWriteEvents) {
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
 
     // Now, we generate new events until a new chunk is required
-    unsigned nbGeneratedEvents=11;
+    unsigned nbGeneratedEvents = 11;
     while (h->nbAllocatedChunk == 1 && nbGeneratedEvents < 1000000) {
         ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
         nbGeneratedEvents++;
     }
     ASSERT_NE(h->nbAllocatedChunk, 1);
-    unsigned nbReadEvents=11;
+    unsigned nbReadEvents = 11;
     while (nbReadEvents < nbGeneratedEvents) {
         ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
         ASSERT_EQ(e->type(), et);
@@ -157,7 +157,7 @@ TEST_F(EventsHistoryBaseTest, readWriteEvents) {
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
     // And we try to load again ALL events
     itr = h->iterator();
-    nbReadEvents=0;
+    nbReadEvents = 0;
     while (nbReadEvents < nbGeneratedEvents) {
         ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
         ASSERT_EQ(e->type(), et);
@@ -165,7 +165,6 @@ TEST_F(EventsHistoryBaseTest, readWriteEvents) {
     }
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
     std::cout << "Nb events: " << nbReadEvents << std::endl;
-
 }
 
 // Tests with various chunkSizes to check limit conditions.
@@ -175,20 +174,21 @@ TEST_F(EventsHistoryBaseTest, chunkSize) {
     // Fixme : generator
     e->generate(et, nullptr);
 
-    unsigned nbGeneratedEvents=0;
-    unsigned requestedChunks=2;
+    unsigned nbGeneratedEvents = 0;
+    unsigned requestedChunks = 2;
 
-    for (size_t size=100; size<150; size++) {
-        h->chunkSize=size;
-        while (h->nbAllocatedChunk < requestedChunks && nbGeneratedEvents < 1000000) {
+    for (size_t size = 100; size < 150; size++) {
+        h->chunkSize = size;
+        while (h->nbAllocatedChunk < requestedChunks &&
+               nbGeneratedEvents < 1000000) {
             ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e))
-                                     << "current chunk size " << size;
+                << "current chunk size " << size;
             nbGeneratedEvents++;
         }
         ASSERT_EQ(h->nbAllocatedChunk, requestedChunks);
         requestedChunks++;
     }
-    unsigned nbReadEvents=0;
+    unsigned nbReadEvents = 0;
     auto itr = h->iterator();
     while (nbReadEvents < nbGeneratedEvents) {
         ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
@@ -197,7 +197,6 @@ TEST_F(EventsHistoryBaseTest, chunkSize) {
     }
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
     std::cout << "Nb events: " << nbReadEvents << std::endl;
-
 }
 
 } // namespace

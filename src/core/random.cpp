@@ -1,5 +1,5 @@
-#include <marto/random.h>
 #include <marto/eventsHistory.h>
+#include <marto/random.h>
 
 namespace marto {
 
@@ -7,24 +7,29 @@ class RandomTestStreamGenerator;
 
 class RandomTestStream : public RandomStream {
     friend RandomTestStreamGenerator;
+
   private:
     int base;
     int cur;
     int initCur;
+
   protected:
-    RandomTestStream(int base) : base(base), cur(0), initCur(0) {};
+    RandomTestStream(int base) : base(base), cur(0), initCur(0){};
+
   public:
-    virtual event_access_t load(EventsIStream &istream, EventsHistory *__marto_unused(hist)) {
+    virtual event_access_t load(EventsIStream &istream,
+                                EventsHistory *__marto_unused(hist)) {
         if (!(bool)(istream >> base)) {
             return EVENT_LOAD_ERROR;
         }
         if (!(bool)(istream >> initCur)) {
             return EVENT_LOAD_ERROR;
         }
-        cur=initCur;
+        cur = initCur;
         return EVENT_LOADED;
     };
-    virtual event_access_t store(EventsOStream &ostream, EventsHistory *__marto_unused(hist)) {
+    virtual event_access_t store(EventsOStream &ostream,
+                                 EventsHistory *__marto_unused(hist)) {
         if (!(bool)(ostream << base)) {
             return EVENT_STORE_ERROR;
         }
@@ -33,38 +38,34 @@ class RandomTestStream : public RandomStream {
         }
         return EVENT_STORED;
     };
-    virtual void setInitialStateFromCurrentState() {
-        initCur=cur;
-    };
-    virtual double U01() {
-        return (double)1/(double)(base + cur++);
-    };
+    virtual void setInitialStateFromCurrentState() { initCur = cur; };
+    virtual double U01() { return (double)1 / (double)(base + cur++); };
     virtual double Uab(double inf, double sup) {
         return (inf + (sup - inf) * U01());
     };
     virtual long Iab(long min, long max) {
-        return (long)(min + (base+cur)%(max + 1 - min));
+        return (long)(min + (base + cur) % (max + 1 - min));
     };
 };
 
 class RandomTestStreamGenerator : public RandomStreamGenerator {
     friend RandomTest;
+
   private:
     int base;
     int cur;
+
   protected:
-    RandomTestStreamGenerator(int base) : base(base), cur(0) {};
+    RandomTestStreamGenerator(int base) : base(base), cur(0){};
+
   public:
     virtual RandomStream *newRandomStream() {
         return new RandomTestStream(base + 1000 * cur++);
     };
-    virtual void deleteRandomStream(RandomStream *rs) {
-        delete rs;
-    };
+    virtual void deleteRandomStream(RandomStream *rs) { delete rs; };
 };
 
-RandomTest::RandomTest() : RandomFabric() {
-}
+RandomTest::RandomTest() : RandomFabric() {}
 
 RandomStreamGenerator *RandomTest::newRandomStreamGenerator() {
     return new RandomTestStreamGenerator(100000 * cur);
@@ -73,5 +74,4 @@ RandomStreamGenerator *RandomTest::newRandomStreamGenerator() {
 void RandomTest::deleteRandomStreamGenerator(RandomStreamGenerator *rsg) {
     delete rsg;
 };
-
 }

@@ -9,10 +9,10 @@
 #error "Do not include this file directly"
 #endif
 
-#include <marto/macros.h>
 #include <marto/except.h>
-#include <typeindex>
+#include <marto/macros.h>
 #include <string>
+#include <typeindex>
 
 namespace marto {
 
@@ -96,11 +96,10 @@ inline void FormalParameterValues::release(ParameterValues *actualValues) {
 
 template <typename T> void FormalParameterValues::checkType() {
     const std::type_info &typeinfoRequested = typeid(T);
-    if (std::type_index(typeinfoValue) !=
-        std::type_index(typeinfoRequested)) {
+    if (std::type_index(typeinfoValue) != std::type_index(typeinfoRequested)) {
         std::string s;
-        s = s + "In parameters: requested: " + typeinfoRequested.name()
-            + " / available: " + typeinfoValue.name();
+        s = s + "In parameters: requested: " + typeinfoRequested.name() +
+            " / available: " + typeinfoValue.name();
         throw TypeError(s);
     }
 }

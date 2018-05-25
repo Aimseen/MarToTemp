@@ -43,7 +43,7 @@ template <typename T> T *EventsOStream::write(const T &value) {
     }
     void *ptr = (void *)buf;
     if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-       throw HistoryOutOfBound("Not enough place for the current event");
+        throw HistoryOutOfBound("Not enough place for the current event");
     }
     T *newbuf = ((T *)ptr) + 1;
     bufsize -= sizeof(T);

@@ -41,12 +41,15 @@ class RandomLecuyerStreamGenerator;
  */
 class RandomLecuyer : public RandomFabric {
     friend RandomLecuyerStreamGenerator;
+
   protected:
     double nextSeed[6];
+
   protected:
     void LecuyerAdvanceStream();
+
   public:
-    virtual ~RandomLecuyer() {};
+    virtual ~RandomLecuyer(){};
     virtual RandomStreamGenerator *newRandomStreamGenerator();
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
