@@ -48,4 +48,10 @@ EventType *Configuration::getEventType(unsigned num) {
     assert(num < eventTypesVector.size());
     return eventTypesVector[num];
 }
+
+void Configuration::loadTransitionLibrary(std::string libname, std::string initCallback) {
+    auto boom=false;
+    assert(boom);
+}
+
 }

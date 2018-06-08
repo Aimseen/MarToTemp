@@ -57,6 +57,23 @@ class Configuration {
      * ExistingName exception is thrown.
      */
     EventType *registerEventType(EventType *eventType);
+    typedef void transitionInitCallback_t(Configuration*);
+    /** \brief load a user defined library of transitions
+     *
+     * libname must be given without the specific platform extension
+     * (.so, .dyndl, ...)
+     * initCallback must be defined in the library, and of type
+     * transitionInitCallback_t
+     */
+    void loadTransitionLibrary(std::string libname, std::string initCallback);
+    void loadTransitionLibrary(std::string libname) {
+        loadTransitionLibrary(libname, "initTransitionLibrary");
+    };
+    /** \brief load the default transitions library
+     */
+    void loadTransitionLibrary() {
+        loadTransitionLibrary("libmarto-transition");
+    };
 };
 }
 #endif
