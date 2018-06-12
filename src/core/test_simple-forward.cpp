@@ -12,13 +12,14 @@ class SimpleForwardBaseTest : public ::testing::Test {
     SimpleForwardBaseTest() {
         c = new Configuration();
         // ensure TransitionTest exists. Can return NULL if already registered.
-	c->loadTransitionLibrary();
+	    c->loadTransitionLibrary();
+        std::cerr <<  "Transitions library loaded" << std::endl;
         et = new EventType(c, "My super event", 2.0, "ArrivalReject");
         std::vector<int> v;
         v.push_back(0);
         et->registerParameter("to", new FormalConstantList<int>(1, v));
         e = new Event();
-        h = new TestEventsHistory(c);
+        h = new EventsHistory(c);
     }
 
     virtual ~SimpleForwardBaseTest() {
@@ -43,7 +44,7 @@ class SimpleForwardBaseTest : public ::testing::Test {
     Configuration *c;
     EventType *et;
     Event *e;
-    TestEventsHistory *h;
+    EventsHistory *h;
 };
 
 
@@ -67,31 +68,6 @@ TEST_F(SimpleForwardBaseTest, SimpleForward) {
     ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
     ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
-
-    // Now, we generate new events until a new chunk is required
-    unsigned nbGeneratedEvents = 11;
-    while (h->nbAllocatedChunk == 1 && nbGeneratedEvents < 1000000) {
-        ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
-        nbGeneratedEvents++;
-    }
-    ASSERT_NE(h->nbAllocatedChunk, 1);
-    unsigned nbReadEvents = 11;
-    while (nbReadEvents < nbGeneratedEvents) {
-        ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
-        ASSERT_EQ(e->type(), et);
-        nbReadEvents++;
-    }
-    ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
-    // And we try to load again ALL events
-    itr = h->iterator();
-    nbReadEvents = 0;
-    while (nbReadEvents < nbGeneratedEvents) {
-        ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
-        ASSERT_EQ(e->type(), et);
-        nbReadEvents++;
-    }
-    ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
-    std::cout << "Nb events: " << nbReadEvents << std::endl;
 }
 
 } // namespace

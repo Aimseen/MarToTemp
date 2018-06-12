@@ -58,7 +58,7 @@ test_parameters_SOURCES=test_parameters.cpp
 test_parameters_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
 test_parameters_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)
 
-test_simple_forward_SOURCES=test_parameters.cpp
+test_simple_forward_SOURCES=test_simple-forward.cpp
 test_simple_forward_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
 test_simple_forward_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)
 
