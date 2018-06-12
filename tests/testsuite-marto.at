@@ -17,3 +17,5 @@ AT_NTG_CLEANUP
 AT_NTG_TEST_PROG([test_history], [History test], [], [], [], [], [ignore], [ignore])
 
 AT_NTG_TEST_PROG([test_parameters], [Parameters test], [], [], [], [], [ignore], [ignore])
+
+AT_NTG_TEST_PROG([test_simple-forward], [Simple-forward test], [], [], [], [], [ignore], [ignore])
