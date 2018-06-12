@@ -40,6 +40,12 @@ class TypeError : public std::runtime_error {
   public:
     TypeError(std::string s) : std::runtime_error(s){};
 };
+
+/** Exception launched when a library cannot be loaded */
+class DLOpenError : public std::runtime_error {
+  public:
+    DLOpenError(std::string s) : std::runtime_error(s){};
+};
 }
 
 #endif

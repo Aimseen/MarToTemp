@@ -1,4 +1,5 @@
 #include <marto.h>
+#include <dlfcn.h>
 
 //#include <iostream>
 
@@ -50,8 +51,19 @@ EventType *Configuration::getEventType(unsigned num) {
 }
 
 void Configuration::loadTransitionLibrary(std::string libname, std::string initCallback) {
-    auto boom=false;
-    assert(boom);
+    void *libtr=dlopen(libname.c_str(), RTLD_NOW|RTLD_LOCAL);
+
+    if (libtr == nullptr) {
+        throw DLOpenError(std::string("Cannot load ")+libname);
+    }
+
+    void *initaddr=dlsym(libtr, initCallback.c_str());
+
+    if (libtr == nullptr) {
+        throw DLOpenError(std::string("Cannot find ")+initCallback+" in "+libname);
+    }
+    transitionInitCallback_t *initaddrtyped=(transitionInitCallback_t *)initaddr;
+    (*initaddrtyped)(this);
 }
 
 }
