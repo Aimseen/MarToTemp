@@ -1,0 +1,20 @@
+
+MarTo is using libtool to build programs and libraries.
+To run its tests, it uses autotest. And most tests are written
+as programs using the GoogleTest framework.
+
+* On Linux, with gcc
+** configuring to avoid optimization and adding more debug information
+
+   ../configure CPPFLAGS=-O0 -ggdb3 CXXFLAGS=-O0 --disable-doxygen-doc
+
+** running checks but avoiding some of them
+   Example : not rebuilding all programs (ie avoiding tests with the 'clean' keyword)
+
+   make -C build check TESTSUITEFLAGS='-k "!clean"'
+
+** running one GoogleTest under gdb, stopping on first failure
+
+   libtool --mode=execute gdb --args ./build/src/core/test_simple-forward --gtest_break_on_failure
+
+
