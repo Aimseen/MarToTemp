@@ -1,4 +1,3 @@
-
 MarTo is using libtool to build programs and libraries.
 To run its tests, it uses autotest. And most tests are written
 as programs using the GoogleTest framework.
@@ -20,12 +19,12 @@ as programs using the GoogleTest framework.
 * On OSX, using builtin development suite
 ** configuring to avoid optimization and adding more debug information
 
-   ../configure CXX=g++ CXXFLAGS="-Wall -ggdb3 -O0" --disable-doxygen-doc
+   ../configure CXX=g++ CXXFLAGS="-Wall -gdwarf-4 -O0" --disable-doxygen-doc
 
 ** running checks but avoiding some of them
 
    see text above
 
-** running one GoogleTest under gdb (in build directory)
+** running one GoogleTest under gdb (go first in build directory)
 
    DYLD_LIBRARY_PATH=./src/core/.libs ggdb src/core/.libs/test_simple-forward
