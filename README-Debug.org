@@ -17,4 +17,15 @@ as programs using the GoogleTest framework.
 
    libtool --mode=execute gdb --args ./build/src/core/test_simple-forward --gtest_break_on_failure
 
+* On OSX, using builtin development suite
+** configuring to avoid optimization and adding more debug information
 
+   ../configure CXX=g++ CXXFLAGS="-Wall -ggdb3 -O0" --disable-doxygen-doc
+
+** running checks but avoiding some of them
+
+   see text above
+
+** running one GoogleTest under gdb (in build directory)
+
+   DYLD_LIBRARY_PATH=./src/core/.libs ggdb src/core/.libs/test_simple-forward
