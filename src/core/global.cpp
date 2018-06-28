@@ -25,7 +25,9 @@ T *Configuration::_register(TM &map, string name, T *value,
 }
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    return _register<Transition>(transitionsMap, name, trans, []() {});
+    return _register<Transition>(transitionsMap, name, trans, [this, trans]() {
+            trans->setConfig(this);
+        });
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
@@ -51,7 +53,12 @@ EventType *Configuration::getEventType(unsigned num) {
 }
 
 void Configuration::loadTransitionLibrary(std::string libname, std::string initCallback) {
-    void *libtr=dlopen(libname.c_str(), RTLD_NOW|RTLD_LOCAL);
+    void *libtr=NULL;
+
+    libtr=dlopen(libname.c_str(), RTLD_NOW|RTLD_LOCAL);
+    if (libtr == nullptr) {
+        libtr=dlopen((libname + ".so").c_str(), RTLD_NOW|RTLD_LOCAL);
+    }
 
     if (libtr == nullptr) {
         throw DLOpenError(std::string("Cannot load ")+libname);
