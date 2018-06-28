@@ -25,7 +25,8 @@ class Configuration {
     transitionMap_t transitionsMap;            //< Transition by name
     eventTypeMap_t eventTypesMap;              //< EventType by name
     std::vector<EventType *> eventTypesVector; //< EventType by code
-
+    std::vector<int> queueCapacities;           // vector of queue capacities
+    
     /** \brief private template to factorize the two 'register' methods
      */
     template <typename T, typename Func,
@@ -74,6 +75,12 @@ class Configuration {
     void loadTransitionLibrary() {
         loadTransitionLibrary("libmarto-transition");
     };
+    int getCapacity(int queueNumber){
+        if(queueNumber<(int)queueCapacities.size())
+            return queueCapacities[queueNumber];
+        else
+            return 0;// TODO: cas d'erreur
+    }
 };
 }
 #endif

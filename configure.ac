@@ -119,6 +119,7 @@ AC_CONFIG_FILES([
 	gtest/Makefile
 	src/Makefile
 	src/core/Makefile
+	src/libtransition/Makefile
 	Makefile
 	tests/Makefile
 	tests/check-headers/Makefile
