@@ -25,8 +25,8 @@ class Configuration {
     transitionMap_t transitionsMap;            //< Transition by name
     eventTypeMap_t eventTypesMap;              //< EventType by name
     std::vector<EventType *> eventTypesVector; //< EventType by code
-    std::vector<int> queueCapacities;           // vector of queue capacities
-    
+    std::vector<int> queueCapacities;          // vector of queue capacities
+
     /** \brief private template to factorize the two 'register' methods
      */
     template <typename T, typename Func,
@@ -58,7 +58,7 @@ class Configuration {
      * ExistingName exception is thrown.
      */
     EventType *registerEventType(EventType *eventType);
-    typedef void transitionInitCallback_t(Configuration*);
+    typedef void transitionInitCallback_t(Configuration *);
     /** \brief load a user defined library of transitions
      *
      * libname must be given without the specific platform extension
@@ -75,11 +75,11 @@ class Configuration {
     void loadTransitionLibrary() {
         loadTransitionLibrary("libmarto-transition");
     };
-    int getCapacity(int queueNumber){
-        if(queueNumber<(int)queueCapacities.size())
+    int getCapacity(int queueNumber) {
+        if (queueNumber < (int)queueCapacities.size())
             return queueCapacities[queueNumber];
         else
-            return 0;// TODO: cas d'erreur
+            return 0; // TODO: cas d'erreur
     }
 };
 }

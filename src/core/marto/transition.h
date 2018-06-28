@@ -13,11 +13,11 @@ class Transition {
   protected:
     /** link to the configuration used when the transition is registrered */
     Configuration *config;
+
   private:
-    void setConfig(Configuration *config) {
-        this->config=config;
-    }
+    void setConfig(Configuration *config) { this->config = config; }
     friend Configuration;
+
   public:
     /** in: s, ev
     *  out: ? (FIXME)

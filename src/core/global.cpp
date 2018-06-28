@@ -1,5 +1,5 @@
-#include <marto.h>
 #include <dlfcn.h>
+#include <marto.h>
 
 //#include <iostream>
 
@@ -25,9 +25,8 @@ T *Configuration::_register(TM &map, string name, T *value,
 }
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    return _register<Transition>(transitionsMap, name, trans, [this, trans]() {
-            trans->setConfig(this);
-        });
+    return _register<Transition>(transitionsMap, name, trans,
+                                 [this, trans]() { trans->setConfig(this); });
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
@@ -52,25 +51,27 @@ EventType *Configuration::getEventType(unsigned num) {
     return eventTypesVector[num];
 }
 
-void Configuration::loadTransitionLibrary(std::string libname, std::string initCallback) {
-    void *libtr=NULL;
+void Configuration::loadTransitionLibrary(std::string libname,
+                                          std::string initCallback) {
+    void *libtr = NULL;
 
-    libtr=dlopen(libname.c_str(), RTLD_NOW|RTLD_LOCAL);
+    libtr = dlopen(libname.c_str(), RTLD_NOW | RTLD_LOCAL);
     if (libtr == nullptr) {
-        libtr=dlopen((libname + ".so").c_str(), RTLD_NOW|RTLD_LOCAL);
+        libtr = dlopen((libname + ".so").c_str(), RTLD_NOW | RTLD_LOCAL);
     }
 
     if (libtr == nullptr) {
-        throw DLOpenError(std::string("Cannot load ")+libname);
+        throw DLOpenError(std::string("Cannot load ") + libname);
     }
 
-    void *initaddr=dlsym(libtr, initCallback.c_str());
+    void *initaddr = dlsym(libtr, initCallback.c_str());
 
     if (libtr == nullptr) {
-        throw DLOpenError(std::string("Cannot find ")+initCallback+" in "+libname);
+        throw DLOpenError(std::string("Cannot find ") + initCallback + " in " +
+                          libname);
     }
-    transitionInitCallback_t *initaddrtyped=(transitionInitCallback_t *)initaddr;
+    transitionInitCallback_t *initaddrtyped =
+        (transitionInitCallback_t *)initaddr;
     (*initaddrtyped)(this);
 }
-
 }
