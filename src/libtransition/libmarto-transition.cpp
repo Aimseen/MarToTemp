@@ -52,10 +52,14 @@ class JSQ2 : public Transition {
     }
 };
 
-void initTransitionLibrary(Configuration *config) {
+};
+
+using namespace marto;
+extern "C" {
+    void initTransitionLibrary(Configuration *config) {
     ArrivalReject *arrivalReject = new ArrivalReject();
     JSQ2 *jsq2 = new JSQ2();
     config->registerTransition("JSQ2", jsq2);
     config->registerTransition("ArrivalReject", arrivalReject);
 }
-};
+}

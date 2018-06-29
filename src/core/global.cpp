@@ -1,4 +1,4 @@
-#include <dlfcn.h>
+#include <ltdl.h>
 #include <marto.h>
 
 //#include <iostream>
@@ -53,25 +53,47 @@ EventType *Configuration::getEventType(unsigned num) {
 
 void Configuration::loadTransitionLibrary(std::string libname,
                                           std::string initCallback) {
-    void *libtr = NULL;
+    int err=0;
+    static int initialized=0;
+    static lt_dladvise advise;
 
-    libtr = dlopen(libname.c_str(), RTLD_NOW | RTLD_LOCAL);
-    if (libtr == nullptr) {
-        libtr = dlopen((libname + ".so").c_str(), RTLD_NOW | RTLD_LOCAL);
+    if (! initialized) {
+	err=lt_dlinit();
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dlinit error: ")+std::to_string(err));
+	}
+	err=lt_dladdsearchdir(PKGLIBDIR);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladdsearchdir error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_init(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_init error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_ext(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_ext error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_local(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_local error: ")+lt_dlerror());
+	}
+	initialized=1;
     }
+    lt_dlhandle handle = 0;
+    handle = lt_dlopenadvise (libname.c_str(), advise);
+    //lt_dladvise_destroy(&advise);
 
-    if (libtr == nullptr) {
+    if (handle == 0) {
         throw DLOpenError(std::string("Cannot load ") + libname);
     }
 
-    void *initaddr = dlsym(libtr, initCallback.c_str());
+    transitionInitCallback_t *initaddr = (transitionInitCallback_t *)lt_dlsym(handle, initCallback.c_str());
 
-    if (libtr == nullptr) {
+    if (initaddr == nullptr) {
         throw DLOpenError(std::string("Cannot find ") + initCallback + " in " +
                           libname);
     }
-    transitionInitCallback_t *initaddrtyped =
-        (transitionInitCallback_t *)initaddr;
-    (*initaddrtyped)(this);
+    (*initaddr)(this);
 }
 }

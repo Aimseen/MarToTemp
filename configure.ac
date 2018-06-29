@@ -10,10 +10,16 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.9 tar-pax check-news color-tests paral
 AMX_SILENT_RULES([AM_DEFAULT_VERBOSITY=1])
 AC_CONFIG_HEADERS([config.h])
 ACX_NTG_INIT
+ACX_NTG_ADD_DEFAULT_GROUP([init])
 ACX_NTG_ADD_DEFAULT_GROUP([core])
 
 AM_PROG_AR
-LT_INIT
+LT_INIT([dlopen])
+
+# find the libltdl sources in the libltdl sub-directory
+LT_CONFIG_LTDL_DIR([libltdl])
+
+LTDL_INIT([recursive])
 
 AT_AM_INIT
 AT_AM_TESTSUITES([tests], [.:tests/scripts], [testsuite testsuite-installed])
@@ -63,7 +69,6 @@ AC_SUBST([AM_LDFLAGS])
 # FIXME: Replace `main' with a function in `-ldl':
 dnl AC_CHECK_LIB([dl], [main])
 
-
 # Checks for header files.
 AC_CHECK_HEADERS([])
 
@@ -89,6 +94,8 @@ dnl Define libs and progs created by this software
 dnl ----------------------------------------------------------------
 ACX_LIB_NEW_LIB([MARTOLIB], [-L\${libdir} -lmarto], [marto])
 ACX_LIB_ADD_PUBLIC_FLAGS([MARTOLIB], [-I\${includedir}])
+ACX_LIB_ADD_BUILD_FLAGS([MARTOLIB],
+	[\$(LTDLINCL)],[],[],[\$(LIBLTDL)])
 
 ACX_LIB_NEW_PRG([MARTOPROGS])
 

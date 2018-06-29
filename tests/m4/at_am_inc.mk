@@ -2,7 +2,7 @@
 _at_m4_join = $(if $(and $2,$3),$2$1$3,$2$3)
 
 define _at_m4_gen # $1: AM_name  $2: filename
-$1_TESTSUITEFLAGS ?= $$(AM_TESTSUITEFLAGS) $$(TESTSUITEFLAGS)
+$1_TESTSUITEFLAGS ?= $$(AM_TESTSUITEFLAGS) $$(AM_$1_TESTSUITEFLAGS) $$(TESTSUITEFLAGS)
 $1_ATPATH ?= $$(call _at_m4_join,:,$$(AM_ATPATH),$$(AUTOTEST_PATH))
 $1_MAIN ?= $2.at
 $$(srcdir)/$2: $$($1_MAIN) $$($1_DEPENDS) $$(srcdir)/package.m4

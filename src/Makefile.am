@@ -1,2 +1,2 @@
 
-SUBDIRS=core libtransition
+SUBDIRS=libtransition core

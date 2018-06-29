@@ -4,6 +4,14 @@ AT_INIT()
 AT_COPYRIGHT ([Copyright (c) 2017 Vincent Danjean <Vincent.Danjean@ens-lyon.org>])
 AT_COLOR_TESTS
 
+AT_NTG_BANNER([tests initialisation], [init])
+AT_NTG_SETUP([Checking required environment variables], [init])
+AT_NTG_BUILDING([
+	AT_CHECK([echo $LTDL_LIBRARY_PATH | grep -sq "$abs_top_builddir/src/libtransition"], 0)
+	AT_ENV_SHOW([LTDL_LIBRARY_PATH])
+])
+AT_NTG_CLEANUP
+
 # test only at compilation step
 AT_NTG_BUILDING([
 	m4_include([testsuite-basic.at])

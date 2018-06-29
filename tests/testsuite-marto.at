@@ -11,6 +11,7 @@ AT_NTG_TEST_PROG([test_core], [Main test], [], [], [], [], [ignore], [ignore])
 
 dnl Marto main test
 AT_NTG_SETUP([Manual test])
+AT_ENV_SHOW([LTDL_LIBRARY_PATH])
 AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
 AT_NTG_CLEANUP
 

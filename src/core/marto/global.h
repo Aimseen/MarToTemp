@@ -73,7 +73,7 @@ class Configuration {
     /** \brief load the default transitions library
      */
     void loadTransitionLibrary() {
-        loadTransitionLibrary("libmarto-transition");
+        loadTransitionLibrary("std_transitions");
     };
     int getCapacity(int queueNumber) {
         if (queueNumber < (int)queueCapacities.size())
