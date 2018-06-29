@@ -2,6 +2,6 @@
 
 set -e
 
-export LIBTOOLIZE="${LIBTOOLIZE:-libtoolize} --ltdl"
+#export LIBTOOLIZE_OPTIONS="--ltdl"
 autoreconf -vif
 

@@ -124,6 +124,7 @@ ACX_LIB_ADD_BUILD_FLAGS([MARTOPROGS],
 AC_CONFIG_FILES([
 	doc/Makefile
 	gtest/Makefile
+	libltdl/Makefile
 	src/Makefile
 	src/core/Makefile
 	src/libtransition/Makefile
