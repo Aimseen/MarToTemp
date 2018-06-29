@@ -15,8 +15,8 @@ AT_NTG_CLEANUP
 # test only at compilation step
 AT_NTG_BUILDING([
 	m4_include([testsuite-basic.at])
-	m4_include([testsuite-marto.at])
 ])
+m4_include([testsuite-marto.at])
 
 m4_include([testsuite-marto-core.at])
 

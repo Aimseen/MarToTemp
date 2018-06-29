@@ -1,7 +1,10 @@
 
-dnl ******************************************************
-dnl checking headers
-AT_NTG_CH_TEST_HEADERS([core], [tests/marto-headers])
+# test only at compilation step
+AT_NTG_BUILDING([
+	dnl ******************************************************
+	dnl checking headers
+	AT_NTG_CH_TEST_HEADERS([core], [tests/marto-headers])
+])
 
 AT_NTG_BANNER([marto - core MARTO library],
   [core],[marto libmarto],[src/core],[all])
@@ -9,9 +12,9 @@ AT_NTG_BANNER([marto - core MARTO library],
 dnl Marto main test using ATX_NTG
 AT_NTG_TEST_PROG([test_core], [Main test], [], [], [], [], [ignore], [ignore])
 
+AT_ENV_SHOW([LTDL_LIBRARY_PATH])
 dnl Marto main test
 AT_NTG_SETUP([Manual test])
-AT_ENV_SHOW([LTDL_LIBRARY_PATH])
 AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
 AT_NTG_CLEANUP
 
