@@ -1,6 +1,7 @@
 AT_NTG_TESTGROUPS="@AT_NTG_TESTGROUPS@"
 
 prefix="@prefix@"
+pkglibdir="@pkglibdir@"
 PACKAGE_TARNAME="@PACKAGE_TARNAME@"
 datarootdir="@datarootdir@"
 docdir="@docdir@"

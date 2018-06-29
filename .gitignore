@@ -4,6 +4,7 @@
 /config.h.in
 /config.h.in~
 /configure
+/libltdl/
 /m4/lt*
 /m4/libtool.m4
 

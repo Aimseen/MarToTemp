@@ -1,5 +1,5 @@
+#include <ltdl.h>
 #include <marto.h>
-#include <dlfcn.h>
 
 //#include <iostream>
 
@@ -25,7 +25,8 @@ T *Configuration::_register(TM &map, string name, T *value,
 }
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    return _register<Transition>(transitionsMap, name, trans, []() {});
+    return _register<Transition>(transitionsMap, name, trans,
+                                 [this, trans]() { trans->setConfig(this); });
 }
 
 EventType *Configuration::registerEventType(EventType *eventType) {
@@ -50,20 +51,49 @@ EventType *Configuration::getEventType(unsigned num) {
     return eventTypesVector[num];
 }
 
-void Configuration::loadTransitionLibrary(std::string libname, std::string initCallback) {
-    void *libtr=dlopen(libname.c_str(), RTLD_NOW|RTLD_LOCAL);
+void Configuration::loadTransitionLibrary(std::string libname,
+                                          std::string initCallback) {
+    int err=0;
+    static int initialized=0;
+    static lt_dladvise advise;
 
-    if (libtr == nullptr) {
-        throw DLOpenError(std::string("Cannot load ")+libname);
+    if (! initialized) {
+	err=lt_dlinit();
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dlinit error: ")+std::to_string(err));
+	}
+	err=lt_dladdsearchdir(PKGLIBDIR);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladdsearchdir error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_init(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_init error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_ext(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_ext error: ")+lt_dlerror());
+	}
+	err=lt_dladvise_local(&advise);
+	if (err != 0) {
+	    throw DLOpenError(std::string("lt_dladvise_local error: ")+lt_dlerror());
+	}
+	initialized=1;
+    }
+    lt_dlhandle handle = 0;
+    handle = lt_dlopenadvise (libname.c_str(), advise);
+    //lt_dladvise_destroy(&advise);
+
+    if (handle == 0) {
+        throw DLOpenError(std::string("Cannot load ") + libname);
     }
 
-    void *initaddr=dlsym(libtr, initCallback.c_str());
+    transitionInitCallback_t *initaddr = (transitionInitCallback_t *)lt_dlsym(handle, initCallback.c_str());
 
-    if (libtr == nullptr) {
-        throw DLOpenError(std::string("Cannot find ")+initCallback+" in "+libname);
+    if (initaddr == nullptr) {
+        throw DLOpenError(std::string("Cannot find ") + initCallback + " in " +
+                          libname);
     }
-    transitionInitCallback_t *initaddrtyped=(transitionInitCallback_t *)initaddr;
-    (*initaddrtyped)(this);
+    (*initaddr)(this);
 }
-
 }

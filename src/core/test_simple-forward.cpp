@@ -12,8 +12,8 @@ class SimpleForwardBaseTest : public ::testing::Test {
     SimpleForwardBaseTest() {
         c = new Configuration();
         // ensure TransitionTest exists. Can return NULL if already registered.
-	    c->loadTransitionLibrary();
-        std::cerr <<  "Transitions library loaded" << std::endl;
+        c->loadTransitionLibrary();
+        std::cerr << "Transitions library loaded" << std::endl;
         et = new EventType(c, "My super event", 2.0, "ArrivalReject");
         std::vector<int> v;
         v.push_back(0);
@@ -46,7 +46,6 @@ class SimpleForwardBaseTest : public ::testing::Test {
     Event *e;
     EventsHistory *h;
 };
-
 
 TEST_F(SimpleForwardBaseTest, SimpleForward) {
     auto itw = h->iterator();
