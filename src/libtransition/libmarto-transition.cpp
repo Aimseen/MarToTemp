@@ -1,9 +1,70 @@
 #include <iostream>
 #include <marto.h>
 #include <string>
+#include <list>
 
 namespace marto {
-class ArrivalReject : public Transition {
+
+namespace autoregister {
+namespace transitions {
+class TransitionFactory {
+public:
+    virtual marto::Transition* CreateTransition() = 0;
+};
+
+template <class TransitionClass>
+class TransitionFactoryImpl : public TransitionFactory {
+public:
+    virtual marto::Transition* CreateTransition() { return new TransitionClass ; }
+};
+class Registering {
+public:
+    static std::vector<std::pair<std::string, marto::Transition*>> transitions;
+    static int autoregister(std::string name, TransitionFactory* factory) {
+        auto transitionInfo=std::make_pair(name, factory->CreateTransition());
+        transitions.push_back(transitionInfo);
+        //std::cout << "Registering " << name << " at addresse " << factory << std::endl;
+        return 0;
+    }
+    static void initTransitionLibrary(Configuration *config) {
+        for (auto & transitionInfo : transitions) {
+            std::string &name = transitionInfo.first;
+            marto::Transition *transition = transitionInfo.second;
+            //std::cout << "Really registering " << name << " at addresse " << transition << std::endl;
+            config->registerTransition(name, transition);
+        }
+    }
+};
+std::vector<std::pair<std::string, Transition*>> Registering::transitions;
+class Registered {};
+};
+extern "C" {
+    void initTransitionLibrary(Configuration *config) {
+        marto::autoregister::transitions::Registering::initTransitionLibrary(config);
+}
+}
+};
+};
+
+#define class_transition(name, ns)                                      \
+    namespace ns {                                                      \
+class name;                                                             \
+    };                                                                  \
+    namespace marto::autoregister::transitions::instances {             \
+class name : public ::marto::autoregister::transitions::Registered {    \
+    static int dummy;                                                   \
+};                                                                      \
+    };                                                                  \
+    int marto::autoregister::transitions::instances::name::dummy \
+    = marto::autoregister::transitions::Registering::autoregister( \
+        #name, new   marto::autoregister::transitions::TransitionFactoryImpl<ns::name>() \
+        );                                                              \
+    class ns::name : public marto::Transition
+
+#define class_std_transition(name)              \
+    class_transition(name, marto::stdlib)
+
+class_std_transition(ArrivalReject) {
     Point *apply(Point *p, Event *ev) {
         auto *fromList =
             ev->getParameter("from"); // We only get vectors of values
@@ -24,7 +85,7 @@ class ArrivalReject : public Transition {
     }
 };
 
-class JSQ2 : public Transition {
+class_std_transition(JSQ2) {
     Point *apply(
         Point *p,
         Event *ev) { // Event ev contains transition specification (parameters)
@@ -51,15 +112,3 @@ class JSQ2 : public Transition {
         return p;
     }
 };
-
-};
-
-using namespace marto;
-extern "C" {
-    void initTransitionLibrary(Configuration *config) {
-    ArrivalReject *arrivalReject = new ArrivalReject();
-    JSQ2 *jsq2 = new JSQ2();
-    config->registerTransition("JSQ2", jsq2);
-    config->registerTransition("ArrivalReject", arrivalReject);
-}
-}
