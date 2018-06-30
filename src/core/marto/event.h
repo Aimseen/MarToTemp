@@ -19,8 +19,7 @@
 // convolution to keep operator<< in global namespace
 // See
 // https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
-using std::ostream;
-ostream &operator<<(ostream &out, const marto::EventType &ev);
+std::ostream &operator<<(std::ostream &out, const marto::EventType &ev);
 
 namespace marto {
 
@@ -111,7 +110,7 @@ class EventType {
     bool registerParameter(string name, FormalParameterValues *fp);
 
   private:
-    friend ostream & ::operator<<(ostream &out, const EventType &ev);
+    friend std::ostream & ::operator<<(std::ostream &out, const EventType &ev);
     // Name for this event type
     const string _name;
     Transition *transition;
