@@ -32,7 +32,8 @@ m4_version_prereq(2.70,[],[dnl
 
 # Checks for programs.
 AC_PROG_CXX
-AX_CXX_COMPILE_STDCXX_11
+AX_CXX_COMPILE_STDCXX([17])
+
 AC_PROG_CC_C99
 AC_PROG_INSTALL
 AC_PROG_LN_S
