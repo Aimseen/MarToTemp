@@ -11,4 +11,7 @@ std_transitions_la_LDFLAGS = $(TRANSITIONLIB_BUILD_LDFLAGS) \
 std_transitions_la_LIBADD = $(TRANSITIONLIB_BUILD_LIBS) -ldl
 
 std_transitions_la_SOURCES=\
-	libmarto-transition.cpp
+	arrivalReject.cpp \
+	jsq2.cpp \
+	std_transitions.cpp
+

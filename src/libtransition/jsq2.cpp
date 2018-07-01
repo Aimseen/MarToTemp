@@ -1,10 +1,6 @@
-#include <iostream>
-#include <marto.h>
-#include <string>
+#include "std_transitions.h"
 
-namespace marto {
-
-class JSQ2 : public Transition {
+class_std_transition(JSQ2) {
     Point *apply(
         Point *p,
         Event *ev) { // Event ev contains transition specification (parameters)
@@ -12,10 +8,10 @@ class JSQ2 : public Transition {
         // access to random generation and protect monotonicity
         // marto::ParameterValues<marto::Queue>
         auto *fromList =
-            ev->getParameters("from"); // We only get vectors of values
-                                       // as defined in the
-                                       // configuration file
-        auto *toList = ev->getParameters("to");
+            ev->getParameter("from"); // We only get vectors of values
+        // as defined in the
+        // configuration file
+        auto *toList = ev->getParameter("to");
 
         auto from = fromList->get<Queue>(0); // the only source queue
         auto to0 = toList->get<Queue>(0); // the first random destination queue
@@ -31,4 +27,3 @@ class JSQ2 : public Transition {
         return p;
     }
 };
-}
