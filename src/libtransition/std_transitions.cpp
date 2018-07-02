@@ -36,7 +36,8 @@ void Registering::initTransitionLibrary(Configuration *config) {
 #endif
         config->registerTransition(name, transition);
     }
-    // TODO : free the transitions vector
+    delete transitions;
+    transitions=nullptr;
 }
 
 extern "C" {
