@@ -2,29 +2,52 @@ MarTo is using libtool to build programs and libraries.
 To run its tests, it uses autotest. And most tests are written
 as programs using the GoogleTest framework.
 
-* On Linux, with gcc
-** configuring to avoid optimization and adding more debug information
+* Some tips to help debugging
+** At configuration time
+   Configuring to avoid optimization and adding more debug information
+   and avoiding to generate documentation
 
-   ../configure CPPFLAGS=-O0 -ggdb3 CXXFLAGS=-O0 --disable-doxygen-doc
+*** On Linux, with gcc
 
-** running checks but avoiding some of them
-   Example : not rebuilding all programs (ie avoiding tests with the 'clean' keyword)
+    ~../configure CPPFLAGS="-O0 -ggdb3" CXXFLAGS=-O0 --disable-doxygen-doc~
 
-   make -C build check TESTSUITEFLAGS='-k "!clean"'
+*** On Linux, with clang
 
-** running one GoogleTest under gdb, stopping on first failure
+    ~../configure CC=clang CXX=clang++ CPPFLAGS="-O0 -ggdb3" CXXFLAGS=-O0 --disable-doxygen-doc~
 
-   libtool --mode=execute gdb --args ./build/src/core/test_simple-forward --gtest_break_on_failure
+*** On OSX, using builtin development suite
 
-* On OSX, using builtin development suite
-** configuring to avoid optimization and adding more debug information
+    ~../configure CXX=g++ CXXFLAGS="-Wall -gdwarf-4 -O0" --disable-doxygen-doc~
 
-   ../configure CXX=g++ CXXFLAGS="-Wall -gdwarf-4 -O0" --disable-doxygen-doc
+** when running the testsuite
+   Some tests check that programs can be rebuilt. You can skip these
+   tests (they are marked with the 'clean' keyword) and only run the
+   ones that check features.
 
-** running checks but avoiding some of them
+   ~make -C build check TESTSUITEFLAGS='-k "!clean"'~
 
-   see text above
+** running manually test programs from the build directory
 
-** running one GoogleTest under gdb (go first in build directory)
+   You can use the 'run-example' script at the top of the build
+   directory. It will setup the required environment variables to
+   ensure the programs run correctly.
 
-   DYLD_LIBRARY_PATH=./src/core/.libs ggdb src/core/.libs/test_simple-forward
+   ~./run-example test_simple-forward~
+
+   ~run-example~ has options allowing to start the program under gdb or
+   valgrind.
+
+   You can also do it yourself directly. Do not forget to setup
+   correct environment variables and/or use libtool in order to
+   dynamically link with the correct shared libraries.
+
+   ~env LTDL_LIBRARY_PATH=src/libtransition bash ./libtool --mode=execute gdb --args src/core/test_simple-forward --gtest_break_on_failure~
+
+   As shown above, ~--gtest_break_on_failure~ option for GoogleTest
+   programs makes these programs abort on first failed test. It is
+   very useful under gdb.
+
+*** running one GoogleTest under gdb (go first in build directory)
+
+    You should use something as:
+    ~DYLD_LIBRARY_PATH=src/core/.libs LTDL_LIBRARY_PATH=src/libtransition ggdb src/core/.libs/test_simple-forward~
