@@ -8,7 +8,25 @@ SUBDIRS= \
 	tests \
 	doc
 
-EXTRA_FILES=NEWS
+noinst_SCRIPTS=run-example
+
+EXTRA_FILES=NEWS run-example.in
+
+edit = sed \
+	-e 's|@LIBTOOL[@]|$(LIBTOOL)|g' \
+	-e 's|@abs_top_builddir[@]|$(abs_top_builddir)|g' \
+	-e 's|@prefix[@]|$(prefix)|g'
+
+run-example: Makefile
+	rm -f $@ $@.tmp
+	srcdir=''; \
+	  test -f ./$@.in || srcdir=$(srcdir)/; \
+	  $(edit) $${srcdir}$@.in >$@.tmp
+	chmod +x $@.tmp
+	chmod a-w $@.tmp
+	mv $@.tmp $@
+
+run-example: run-example.in
 
 reindent:
 	true ## indent really breaks some C++ constructions :-(

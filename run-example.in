@@ -1,0 +1,130 @@
+#!/bin/bash
+
+set -e
+
+PROGNAME="$(basename "$0")"
+
+TEMP=`getopt --shell sh \
+        -o hgvqt:n --long help,libtool!,gdb,valgrind,tool:,verbose,quiet,dry-run \
+        -n "$PROGNAME" -- "$@"`
+
+eval set -- "$TEMP"
+
+V=1
+LDEBUG=3
+LDEBUG2=4
+LINFO=1
+log() {
+	local LEVEL="$1"
+	local MSG="$2"
+	if [ $LEVEL -le $V ]; then
+		echo 1>&2 "$PROGNAME: $MSG"
+	fi
+}
+logrun() {
+	local LEVEL="$1"
+	shift
+	log "$LEVEL" "$*"
+	$EXEC "$@"
+}
+
+usage() {
+	cat <<EOF
+usage: $PROGNAME [options..] [--] marto-program [args...]
+OPTIONS:
+    -h|--help:          this help
+    --[no-]libtool:     uses libtool to run the program (default: $default_libtool)
+    -g|--gdb:           run the program under gdb
+    --valgrind:         run the program under valgrind
+    -t|--tool TOOLNAME: run the program through the provided tool
+    -v|--verbose:       more information
+    -q|--quiet:         less information
+    -n|--dry-run:       do not really run the program (imply --verbose)
+
+This program runs MarTo examples in the build tree in the correct environment.
+
+EOF
+}
+
+abort() {
+	echo 1>&2 "$PROGNAME error: $1"
+	echo 1>&2
+	usage 1>&2
+	exit 1
+}
+
+have_tool=false
+tool_option=
+tool=
+set-tool() {
+	local 
+	if [ "$have_tool" != false ]; then
+		abort "'$tool_option' and '$1' cannot be used at the same time"
+	fi
+	have_tool=true
+	tool_option="$1"
+	tool="$2"
+	case "$tool" in
+	gdb) tool="gdb --args" ;;
+	esac
+}
+
+if @LIBTOOL@ --help 2>/dev/null | grep '^[\t ]*execute' >/dev/null ; then
+	default_libtool=true
+else
+	default_libtool=false
+fi 
+use_libtool=$default_libtool
+EXEC=
+while true ; do
+        case "$1" in
+        -h|--help) usage ; exit 0 ;;
+	--libtool) use_libtool=true ;;
+	--no-libtool) use_libtool=false ;;
+	--valgrind) set-tool "$1" valgrind ;;
+	-g|--gdb) set-tool "$1" gdb ;;
+	-t|--tool) set-tool "$1" "$2" ; shift ;;
+	-v|--verbose) V=$(( $V + 1 )) ;;
+	-q|--quiet) V=$(( $V - 1 )) ;;
+	-n|--dry-mode) EXEC=: ;;
+        --) shift ; break ;;
+        -*) abort "Unknown option '$1'" ;;
+        *) abort "Unknown argument '$1'"  ;;
+        esac
+        shift;
+done
+
+if [ $# = 0 ]; then
+	abort "no program to run specified"
+fi
+
+PROG="$1"
+shift
+if [ "$(which "$PROG")" = "" ]; then
+	log $LDEBUG "Program cannot be executed by shell"
+	case "$PROG" in
+	*/*)
+		PROG="$(basename "$PROG")"
+		log $LDEBUG "Removing dir path of the program, keeping '$PROG'"
+		;;
+	esac
+	for d in src/core src/libtransition tests/core ; do
+		file="@abs_top_builddir@/$d/$PROG"
+		log $LDEBUG2 "looking for '$file'"
+		if [ -x "$file" ]; then
+			PROG="$file"
+			log $LDEBUG "Found! keeping '$PROG' as program"
+			break
+		fi
+	done
+fi
+
+logrun $LINFO export LTDL_LIBRARY_PATH="@abs_top_builddir@/src/libtransition${LTDL_LIBRARY_PATH:+:${LTDL_LIBRARY_PATH}}"
+
+if [ $use_libtool = true ]; then
+	LT="@LIBTOOL@ --mode=execute --"
+else 
+	LT=""
+fi
+
+logrun $LINFO exec $LT $tool $PROG
