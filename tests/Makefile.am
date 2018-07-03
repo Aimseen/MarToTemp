@@ -11,8 +11,6 @@ clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 
 AT_TESTSUITES=testsuite testsuite-installed
 
-AM_testsuite_TESTSUITEFLAGS=LTDL_LIBRARY_PATH=$(abs_top_builddir)/src/libtransition:$(LTDL_LIBRARY_PATH)
-
 package_m4_INCLUDES= \
 	check-headers/check-headers.m4 \
 	m4/at_env.m4 \

@@ -6,9 +6,13 @@ AT_COLOR_TESTS
 
 AT_NTG_BANNER([tests initialisation], [init])
 AT_NTG_SETUP([Checking required environment variables], [init])
+AT_ENV_SHOW([LTDL_LIBRARY_PATH])
 AT_NTG_BUILDING([
-	AT_CHECK([echo $LTDL_LIBRARY_PATH | grep -sq "$abs_top_builddir/src/libtransition"], 0)
-	AT_ENV_SHOW([LTDL_LIBRARY_PATH])
+	AT_CHECK([$abs_top_builddir/run-example -h],[0],[stdout],[stderr])
+	AT_CHECK([$abs_top_builddir/run-example -g -g],[1],[stdout],[stderr])
+	AT_CHECK([$abs_top_builddir/run-example -n -g test_simple-forward],[0],[stdout],[stderr])
+	AT_CHECK([grep gdb stderr],[0],[stdout],[])
+	AT_CHECK([grep test_simple-forward stderr],[0],[stdout],[])
 ])
 AT_NTG_CLEANUP
 

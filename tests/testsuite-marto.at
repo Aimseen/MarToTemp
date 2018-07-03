@@ -15,11 +15,11 @@ AT_NTG_TEST_PROG([test_core], [Main test], [], [], [], [], [ignore], [ignore])
 AT_ENV_SHOW([LTDL_LIBRARY_PATH])
 dnl Marto main test
 AT_NTG_SETUP([Manual test])
-AT_CHECK([$abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
+AT_CHECK([$abs_top_builddir/run-example $abs_top_builddir/src/core/test_core],0,[ignore],[ignore])
 AT_NTG_CLEANUP
 
-AT_NTG_TEST_PROG([test_history], [History test], [], [], [], [], [ignore], [ignore])
+AT_NTG_TEST_PROG([test_history], [History test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
 
-AT_NTG_TEST_PROG([test_parameters], [Parameters test], [], [], [], [], [ignore], [ignore])
+AT_NTG_TEST_PROG([test_parameters], [Parameters test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
 
-AT_NTG_TEST_PROG([test_simple-forward], [Simple-forward test], [], [], [], [], [ignore], [ignore])
+AT_NTG_TEST_PROG([test_simple-forward], [Simple-forward test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
