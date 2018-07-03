@@ -4,11 +4,19 @@ set -e
 
 PROGNAME="$(basename "$0")"
 
-TEMP=`getopt --shell sh \
-        -o hgvqt:n --long help,libtool!,gdb,valgrind,tool:,verbose,quiet,dry-run \
-        -n "$PROGNAME" -- "$@"`
-
-eval set -- "$TEMP"
+RET=0
+getopt -T > /dev/null || RET=$?
+if [ $RET = 4 ]; then
+	# GNU getopt with long option support. Using it
+	TEMP=`getopt --shell sh \
+		-o hgvqt:n \
+		--long help,libtool!,gdb,valgrind,tool:,verbose,quiet,dry-run \
+		-n "$PROGNAME" -- "$@"`
+	eval set -- "$TEMP"
+	use_getopt=true
+else
+	use_getopt=false
+fi
 
 V=1
 LDEBUG=3
@@ -76,20 +84,27 @@ else
 fi 
 use_libtool=$default_libtool
 EXEC=
+gdb_tool="$(which ggdb || true)"
+gdb_tool="${gdb_tool:-gdb}"
 while true ; do
         case "$1" in
         -h|--help) usage ; exit 0 ;;
 	--libtool) use_libtool=true ;;
 	--no-libtool) use_libtool=false ;;
 	--valgrind) set-tool "$1" valgrind ;;
-	-g|--gdb) set-tool "$1" gdb ;;
+	-g|--gdb) set-tool "$1" $gdb_tool ;;
 	-t|--tool) set-tool "$1" "$2" ; shift ;;
 	-v|--verbose) V=$(( $V + 1 )) ;;
 	-q|--quiet) V=$(( $V - 1 )) ;;
 	-n|--dry-mode) EXEC=: ;;
         --) shift ; break ;;
         -*) abort "Unknown option '$1'" ;;
-        *) abort "Unknown argument '$1'"  ;;
+        *)
+		if [ $use_getopt = true ]; then
+			abort "Unknown argument '$1'"
+		else
+			break
+		fi;;
         esac
         shift;
 done

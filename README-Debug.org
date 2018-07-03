@@ -47,7 +47,3 @@ as programs using the GoogleTest framework.
    programs makes these programs abort on first failed test. It is
    very useful under gdb.
 
-*** running one GoogleTest under gdb (go first in build directory)
-
-    You should use something as:
-    ~DYLD_LIBRARY_PATH=src/core/.libs LTDL_LIBRARY_PATH=src/libtransition ggdb src/core/.libs/test_simple-forward~
