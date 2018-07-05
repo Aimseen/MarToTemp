@@ -10,7 +10,7 @@ SUBDIRS= \
 
 noinst_SCRIPTS=run-example
 
-EXTRA_FILES=NEWS run-example.in
+EXTRA_DIST=NEWS run-example.in
 
 edit = sed \
 	-e 's|@LIBTOOL[@]|$(LIBTOOL)|g' \
