@@ -11,6 +11,7 @@ SUBDIRS= \
 noinst_SCRIPTS=run-example
 
 EXTRA_DIST=NEWS run-example.in
+CLEANFILES=run-example
 
 edit = sed \
 	-e 's|@LIBTOOL[@]|$(LIBTOOL)|g' \
