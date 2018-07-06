@@ -35,7 +35,9 @@ as programs using the GoogleTest framework.
    ~./run-example test_simple-forward~
 
    ~run-example~ has options allowing to start the program under gdb or
-   valgrind.
+   valgrind, such as:
+
+   ~./run-example -g test_simple-forward --gtest_break_on_failure~
 
    You can also do it yourself directly. Do not forget to setup
    correct environment variables and/or use libtool in order to
