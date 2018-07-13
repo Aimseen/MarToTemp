@@ -46,6 +46,7 @@ class ParameterValues;
 /* queue.h */
 class QueueConfig;
 class Queue;
+template <typename QC> class TypedQueue;
 class StandardQueue;
 
 /* random.h */

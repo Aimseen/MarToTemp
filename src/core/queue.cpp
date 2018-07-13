@@ -2,17 +2,14 @@
 
 namespace marto {
 
-class StandardQueueState : public Queue {
+class StandardQueueState : public TypedQueue<StandardQueue> {
   protected:
     int value;
   private:
     friend StandardQueue;
-    StandardQueueState(QueueConfig* c) : Queue(c), value(0) {}
-    StandardQueue* c() {
-        return (StandardQueue*)config();
-    }
+    StandardQueueState(StandardQueue* c) : TypedQueue<StandardQueue>(c), value(0) {}
   public:
-    int capacity() { return c()->capacity(); }
+    int capacity() const { return conf()->capacity(); }
     virtual bool isEmpty() { return value == 0; }
     virtual bool isFull() { return value == capacity(); }
     virtual int addClient(int nb=1) {

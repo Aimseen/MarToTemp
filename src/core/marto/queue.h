@@ -21,6 +21,7 @@ typedef uint32_t queue_state_t;
 class QueueConfig {
   public:
     QueueConfig(void) {}
+    virtual ~QueueConfig(void) {}
     /** Get the queue id of the queue
      */
     queue_id_t id();
@@ -57,11 +58,33 @@ class QueueConfig {
  * Each queue can have different state (at different time and/or to store envelops)
  */
 class Queue {
-  private:
-    QueueConfig *_qconf;
   public:
-    Queue(QueueConfig *conf) : _qconf(conf) {}
-    QueueConfig *config() { return _qconf; }
+    Queue() {}
+    virtual ~Queue() {}
+    virtual QueueConfig *config() const = 0;
+    virtual bool isEmpty() = 0;
+    virtual bool isFull() = 0;
+    virtual int addClient(int nb=1) = 0; ///< return #clients really added (up to full)
+    virtual int removeClient(int nb=1) = 0; ///< return #client really removed (until empty)
+    virtual int compareTo(Queue*) = 0;
+};
+
+// is T derived from QueueConfig?
+template < typename T > // http://en.cppreference.com/w/cpp/header/type_traits
+struct is_QueueConfig : std::conditional< std::is_base_of<QueueConfig,T>::value,
+                                         std::true_type, std::false_type >::type {} ;
+template<class QC>
+class TypedQueue : public Queue{
+    // compile-time assertion: QC must be derived from QueueConfig
+    static_assert( is_QueueConfig<QC>::value, "QC must be derived from QueueConfig" ) ;
+  private:
+    QC * const _qconf;
+  protected:
+    virtual QC *conf() const { return _qconf; }
+  public:
+    TypedQueue(QC *conf) : Queue(), _qconf(conf) {}
+    virtual ~TypedQueue() {}
+    virtual QueueConfig *config() const { return static_cast<QueueConfig *>(conf()); }
     virtual bool isEmpty() = 0;
     virtual bool isFull() = 0;
     virtual int addClient(int nb=1) = 0; ///< return #clients really added (up to full)
@@ -71,10 +94,10 @@ class Queue {
 
 class StandardQueue : public QueueConfig {
 private:
-    int _capacity;
+    const int _capacity;
 public:
     StandardQueue(int capacity) : QueueConfig(), _capacity(capacity) {};
-    int capacity() { return _capacity; }
+    int capacity() const { return _capacity; }
 protected:
     virtual Queue* allocateQueue();
 };
