@@ -29,6 +29,14 @@ Transition *Configuration::registerTransition(string name, Transition *trans) {
                                  [this, trans]() { trans->setConfig(this); });
 }
 
+QueueConfig *Configuration::registerQueue(string name, QueueConfig *queue) {
+    return _register<QueueConfig>(queueConfigsMap, name, queue, [this, queue]() {
+            queue_id_t id = queueConfigsVector.size();
+            queueConfigsVector.push_back(queue);
+            queue->setConfig(this, id);
+        });
+}
+
 EventType *Configuration::registerEventType(EventType *eventType) {
     return _register<EventType>(
         eventTypesMap, eventType->name(), eventType, [this, &eventType]() {

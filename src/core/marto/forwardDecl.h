@@ -43,6 +43,11 @@ template <typename T> class FormalDistributionFixedList;
 template <typename T> class FormalDistributionVariadicList;
 class ParameterValues;
 
+/* queue.h */
+class QueueConfig;
+class Queue;
+class StandardQueue;
+
 /* random.h */
 class RandomStream;
 class RandomStreamGenerator;

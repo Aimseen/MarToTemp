@@ -23,7 +23,7 @@ class SetImpl {
 
 /** One point in the state space
 */
-class Point : public std::vector<int>, public SetImpl {
+class Point : public std::vector<Queue*>, public SetImpl {
   public:
     // Specialisation: a Point always gives a Point
     virtual Point *accept(Transition *t, Event *ev);

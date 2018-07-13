@@ -6,7 +6,7 @@ using namespace marto;
 class TransitionBidon : public Transition {
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
-            p->at(i)++;
+            p->at(i)->addClient();
         return p;
     }
 };
@@ -19,8 +19,13 @@ int main() {
 
     Point *p = new Point();
     p->resize(3);
+    for (int i = 0; i < 3; i++) {
+        QueueConfig *qconf = new StandardQueue(10);
+        config->registerQueue(std::string("q")+std::to_string(i), qconf);
+        p->at(i) = qconf->newQueue();
+    }
     for (int i = 0; i < 3; i++)
-        p->at(i) = i + 1;
+        p->at(i)->addClient(i + 1);
     EventType *et =
         new EventType(config, "My super event", 42.0, "TransitionBidon");
     Event *e = new Event();

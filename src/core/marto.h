@@ -9,6 +9,7 @@
 #include <marto/global.h>
 #include <marto/macros.h>
 #include <marto/parameters.h>
+#include <marto/queue.h>
 #include <marto/random.h>
 #include <marto/state.h>
 #include <marto/transition.h>

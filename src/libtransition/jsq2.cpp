@@ -13,16 +13,16 @@ class_std_transition(JSQ2) {
         // configuration file
         auto *toList = ev->getParameter("to");
 
-        auto from = fromList->get<Queue>(0); // the only source queue
-        auto to0 = toList->get<Queue>(0); // the first random destination queue
-        auto to1 = toList->get<Queue>(1); // second random destination queue
+        auto from = fromList->get<queue_id_t>(0); // the only source queue
+        auto to0 = toList->get<queue_id_t>(0); // the first random destination queue
+        auto to1 = toList->get<queue_id_t>(1); // second random destination queue
 
-        if (p->at(from) > 0) {
-            if (p->at(to0) < p->at(to1))
-                p->at(to0)++;
+        if (! p->at(from)->isEmpty()) {
+            if (p->at(to0)->compareTo(p->at(to1)) > 0)
+                p->at(to0)->addClient();
             else
-                p->at(to1)++;
-            p->at(from)--;
+                p->at(to1)->addClient();
+            p->at(from)->removeClient();
         }
         return p;
     }

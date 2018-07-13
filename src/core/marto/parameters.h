@@ -22,8 +22,6 @@ namespace marto {
 
 using std::string;
 
-typedef uint32_t Queue;
-
 /** Parameters coming from the model description
  *
  * \param l is the maximum number of actual parameters that can be extracted.

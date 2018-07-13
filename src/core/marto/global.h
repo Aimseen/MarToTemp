@@ -22,10 +22,12 @@ class Configuration {
   private:
     typedef std::map<std::string, Transition *> transitionMap_t;
     typedef std::map<std::string, EventType *> eventTypeMap_t;
-    transitionMap_t transitionsMap;            //< Transition by name
-    eventTypeMap_t eventTypesMap;              //< EventType by name
-    std::vector<EventType *> eventTypesVector; //< EventType by code
-    std::vector<int> queueCapacities;          // vector of queue capacities
+    typedef std::map<std::string, QueueConfig *> queueConfigMap_t;
+    transitionMap_t transitionsMap;                //< Transition by name
+    eventTypeMap_t eventTypesMap;                  //< EventType by name
+    queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
+    std::vector<EventType *> eventTypesVector;     //< EventType by code
+    std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
 
     /** \brief private template to factorize the two 'register' methods
      */
@@ -44,6 +46,13 @@ class Configuration {
      * registered
      */
     Transition *getTransition(std::string name);
+    /** \brief register the provided Queue
+     *
+     * \return the provided queue unless the name is already
+     * registered with another eventType. In the later case, a
+     * ExistingName exception is thrown.
+     */
+    QueueConfig *registerQueue(std::string name, QueueConfig *queue);
     /** \brief register the provided transition
      *
      * \return the transition itself unless the name is already
@@ -75,12 +84,6 @@ class Configuration {
     void loadTransitionLibrary() {
         loadTransitionLibrary("std_transitions");
     };
-    int getCapacity(int queueNumber) {
-        if (queueNumber < (int)queueCapacities.size())
-            return queueCapacities[queueNumber];
-        else
-            return 0; // TODO: cas d'erreur
-    }
 };
 }
 #endif

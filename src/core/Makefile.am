@@ -14,6 +14,7 @@ nobase_include_HEADERS=\
       marto/macros.h \
       marto/parameters.h \
       marto/parameters-impl.h \
+      marto/queue.h \
       marto/random.h \
       marto/randomLecuyer.h \
       marto/state.h \
@@ -40,6 +41,7 @@ libmarto_la_SOURCES=\
 	eventsHistory.cpp \
 	global.cpp \
 	parameters.cpp \
+	queue.cpp \
         RngStream.h \
 	random.cpp \
 	randomLecuyer.cpp
