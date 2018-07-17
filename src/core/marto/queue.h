@@ -42,7 +42,7 @@ class QueueConfig {
   protected:
     virtual Queue* allocateQueue() = 0;
   private:
-    queue_id_t _id; ///< code of this EventType as assigned by the configuration
+    queue_id_t _id; ///< queue id as assigned by the configuration
 
     /** link to the configuration used when the queue is registrered */
     Configuration *_config;
@@ -113,6 +113,14 @@ public:
 protected:
     virtual Queue* allocateQueue();
 };
+
+class OutsideQueue : public QueueConfig {
+public:
+    OutsideQueue() : QueueConfig() {};
+protected:
+    virtual Queue* allocateQueue();
+};
+
 }
 
 #endif

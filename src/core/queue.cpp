@@ -7,7 +7,7 @@ class StandardQueueState : public TypedQueue<StandardQueue> {
     int value;
   private:
     friend StandardQueue;
-    StandardQueueState(StandardQueue* c) : TypedQueue<StandardQueue>(c), value(0) {}
+    StandardQueueState(StandardQueue* c) : TypedQueue<StandardQueue>(c), value(0) {} //queue empty at creation by default
   public:
     int capacity() const { return conf()->capacity(); }
     virtual bool isEmpty() { return value == 0; }
@@ -39,4 +39,21 @@ Queue* StandardQueue::allocateQueue() {
     return new StandardQueueState(this);
 }
 
+class OutsideQueueState : public  TypedQueue<OutsideQueue> {
+  private:
+    OutsideQueueState(OutsideQueue* c) : TypedQueue<OutsideQueue>(c) {}
+  public:
+    virtual bool isEmpty() { return false; }
+    virtual bool isFull() { return false; }
+    virtual int addClient(int nb=1) {
+        return nb;
+    }
+    virtual int removeClient(int nb=1) {
+        return nb;
+    }
+    virtual int compareTo(Queue* q) {
+        throw std::invalid_argument("Trying to compare queue state with outside queue");
+    };
+
+};
 }
