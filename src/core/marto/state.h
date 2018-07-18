@@ -8,6 +8,7 @@
 #include <list>
 #include <marto/forwardDecl.h>
 #include <vector>
+#include <functional>
 
 namespace marto {
 
@@ -31,6 +32,18 @@ class Point : public std::vector<Queue*>, public SetImpl {
      * The queue states will have a default value
      */
     Point(Configuration *config);
+    /** Create a point (queue states) from registered queue
+     *
+     * The queue states will be initialized from the callback return value
+     */
+    typedef queue_state_t (initCallback_t)(queue_id_t id, QueueConfig *qc, Point *p, void* arg);
+    Point(Configuration *config, initCallback_t *callback, void* arg);
+    /** Create a point (queue states) from registered queue
+     *
+     * The queue states will be initialized from the lambda callback return value
+     */
+    typedef std::function< queue_state_t(queue_id_t id, QueueConfig *qc, Point *p) > initLambdaCallback_t;
+    Point(Configuration *config, const initLambdaCallback_t &lambdaCallback);
     /** Create a point (queue states) from registered queue
      *
      * The queue states will be initialized from the value
