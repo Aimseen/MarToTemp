@@ -13,5 +13,5 @@ AT_NTG_SETUP([clean directory tests/marto-installed], [clean])
 AT_NTG_CHECK_BUILD([clean])
 AT_NTG_CLEANUP
 
-AT_NTG_TEST_PROG([using-libmarto], [Basic program])
+AT_NTG_TEST_PROG([using-libmarto], [Basic program], [], [], [], [ grep -sq Success stdout ], [stdout])
 

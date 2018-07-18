@@ -13,7 +13,7 @@ using-libmarto: using-libmarto.o
 	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
 using-libmarto: LDLIBS=$(shell $(PKG_CONFIG) --libs marto)
 
-using-libmarto.o: $(srcdir)/using-libmarto.c++
+using-libmarto.o: using-libmarto.c++
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 using-libmarto.o: CPPFLAGS=$(shell $(PKG_CONFIG) --cflags marto)
 

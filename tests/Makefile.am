@@ -9,6 +9,11 @@ NOBUILD_SUBDIRS=marto-headers marto-installed core
 DIST_SUBDIRS=$(NOBUILD_SUBDIRS) $(SUBDIRS)
 clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 
+BUILT_SOURCES=marto-installed/using-libmarto.c++
+
+marto-installed/using-libmarto.c++: $(top_srcdir)/src/core/test_core.cpp
+	cp $< $@
+
 AT_TESTSUITES=testsuite testsuite-installed
 
 package_m4_INCLUDES= \
