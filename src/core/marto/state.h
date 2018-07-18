@@ -25,8 +25,10 @@ class SetImpl {
 
 /** One point in the state space
 */
-class Point : public std::vector<Queue*>, public SetImpl {
+class Point : protected std::vector<Queue*>, public SetImpl {
   public:
+    /** No default constructor, a Configuration must always be provided */
+    Point() = delete;
     /** Create a point (queue states) from registered queue
      *
      * The queue states will have a default value
@@ -51,6 +53,10 @@ class Point : public std::vector<Queue*>, public SetImpl {
     Point(Configuration *config, queue_state_t value);
     // Specialisation: a Point always gives a Point
     virtual Point *accept(Transition *t, Event *ev);
+    /** accessing the various queues */
+    Queue* at(queue_id_t id) const {
+        return std::vector<Queue*>::at(id);
+    }
 };
 
 /** Subset of the state space with a shape of hyperrectangle

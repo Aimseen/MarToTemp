@@ -8,7 +8,7 @@ Point::Point(Configuration * const config) {
     size_t i=0;
     for (auto qc = config->queueConfigsVector.begin();
          qc<config->queueConfigsVector.end(); qc++, i++) {
-        at(i) = (*qc)->newQueue();
+        std::vector<Queue*>::at(i) = (*qc)->newQueue();
     }
 }
 
@@ -36,7 +36,7 @@ Point::Point(Configuration * const config, const Point::initLambdaCallback_t &f)
     size_t i=0;
     for (auto qc = config->queueConfigsVector.begin();
          qc<config->queueConfigsVector.end(); qc++, i++) {
-        at(i) = (*qc)->newQueue(f(i, *qc, this));
+        std::vector<Queue*>::at(i) = (*qc)->newQueue(f(i, *qc, this));
     }
 }
 

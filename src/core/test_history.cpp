@@ -8,7 +8,7 @@ using namespace marto;
 class TransitionTest : public Transition {
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
-            p->at(i)++;
+            p->at(i)->addClient(1);
         return p;
     }
 };
