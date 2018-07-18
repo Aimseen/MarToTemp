@@ -10,7 +10,7 @@ if [ $RET = 4 ]; then
 	# GNU getopt with long option support. Using it
 	TEMP=`getopt --shell sh \
 		-o hgvqt:n \
-		--long help,libtool!,gdb,valgrind,tool:,verbose,quiet,dry-run \
+		--long help,libtool,no-libtool,gdb,valgrind,tool:,verbose,quiet,dry-run \
 		-n "$PROGNAME" -- "$@"`
 	eval set -- "$TEMP"
 	use_getopt=true
@@ -77,7 +77,26 @@ set-tool() {
 	esac
 }
 
-if @LIBTOOL@ --help 2>/dev/null | grep '^[\t ]*execute' >/dev/null ; then
+LIBTOOL="@LIBTOOL@"
+DIRSEARCH="./"
+DIRPATH="$(dirname "$0")/"
+while : ; do
+	case "$LIBTOOL" in
+	*" $DIRSEARCH"*)
+		LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
+		;;
+	*) break ;;
+	esac
+done
+case "$LIBTOOL" in
+/*)
+  ;;
+*)
+  LIBTOOL="$(dirname "$0")/$LIBTOOL"
+  ;;
+esac
+
+if $LIBTOOL --help 2>/dev/null | grep '^[\t ]*execute' >/dev/null ; then
 	default_libtool=true
 else
 	default_libtool=false
@@ -137,7 +156,7 @@ fi
 logrun $LINFO export LTDL_LIBRARY_PATH="@abs_top_builddir@/src/libtransition${LTDL_LIBRARY_PATH:+:${LTDL_LIBRARY_PATH}}"
 
 if [ $use_libtool = true ]; then
-	LT="@LIBTOOL@ --mode=execute --"
+	LT="$LIBTOOL --mode=execute --"
 else 
 	LT=""
 fi
