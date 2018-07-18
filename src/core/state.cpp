@@ -1,19 +1,27 @@
-#include <marto/state.h>
-#include <marto/transition.h>
+#include <marto.h>
 #include <vector>
 
 namespace marto {
 
+Point::Point(Configuration * const config) {
+    resize(config->queueConfigsVector.size());
+    size_t i=0;
+    for (auto qc = config->queueConfigsVector.begin();
+         qc<config->queueConfigsVector.end(); qc++, i++) {
+        at(i) = (*qc)->newQueue();
+    }
+}
+
 // Specialisation: a Point always gives a Point
-Point *marto::Point::accept(Transition *t, Event *ev) {
+Point *Point::accept(Transition *t, Event *ev) {
     return t->apply(this, ev);
 }
 
-SetImpl *marto::HyperRectangle::accept(Transition *t, Event *ev) {
+SetImpl *HyperRectangle::accept(Transition *t, Event *ev) {
     return t->apply(this, ev);
 }
 
-SetImpl *marto::Union::accept(Transition *t, Event *ev) {
+SetImpl *Union::accept(Transition *t, Event *ev) {
     return t->apply(this, ev);
 }
 }

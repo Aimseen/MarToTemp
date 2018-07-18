@@ -73,8 +73,20 @@ class Queue {
 template < typename T > // http://en.cppreference.com/w/cpp/header/type_traits
 struct is_QueueConfig : std::conditional< std::is_base_of<QueueConfig,T>::value,
                                          std::true_type, std::false_type >::type {} ;
+/** Queue specialized for QueueConfig
+ *
+ * Queue is an abstract class. Each instance should be linked to
+ * its QueueConfig object (also an abstract class).
+ *
+ * TypedQueue<QC> is derived from Queue with a QC pointer attribute.
+ * QC must be derivated from QueueConfig (checked at compile time)
+ *
+ * The conf() method returns an QC (QueueConfig derivated) object that
+ * avoid dynamic or even static cast when accessing to the relatec
+ * QueueConfig object.
+ */
 template<class QC>
-class TypedQueue : public Queue{
+class TypedQueue : public Queue {
     // compile-time assertion: QC must be derived from QueueConfig
     static_assert( is_QueueConfig<QC>::value, "QC must be derived from QueueConfig" ) ;
   private:

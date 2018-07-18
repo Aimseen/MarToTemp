@@ -21,18 +21,22 @@ int Transition::apply(Set *s, Event *ev) {
 // It has to be given explicitely for each concrete transition type
 // Point *marto::Transition::apply(Point *s, Event *ev) = 0;
 
-/** Apply transition to a set of states with
- * hyperrectangle structure;
+/** Apply transition to a set of states with hyperrectangle structure;
+ *
+ * By default, transition are considered as monotone
+ * This must be overriden (in the derivated Transition object type) if not.
  */
 SetImpl *Transition::apply(HyperRectangle *h, Event *ev) {
-    h->inf(apply(h->inf(), ev));
-    h->sup(apply(h->sup(), ev));
+    apply(h->inf(), ev);
+    apply(h->sup(), ev);
     return h;
 }
 
 SetImpl *Transition::apply(Union *u, Event *ev) {
     for (auto it = u->begin(); it != u->end(); it++)
         (*it) = apply(*it, ev);
+    // TODO: merge results
+    // Union of Union are union, point inside Union can be removed, etc.
     return u;
 }
 }

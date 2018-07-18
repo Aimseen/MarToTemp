@@ -18,6 +18,7 @@ class SetImpl {
     * corresponding to the SetImpl type
          */
   public:
+    virtual ~SetImpl() {}
     virtual SetImpl *accept(Transition *t, Event *ev) = 0;
 };
 
@@ -25,6 +26,8 @@ class SetImpl {
 */
 class Point : public std::vector<Queue*>, public SetImpl {
   public:
+    /** Create a point (queue states) from registered queue */
+    Point(Configuration *config);
     // Specialisation: a Point always gives a Point
     virtual Point *accept(Transition *t, Event *ev);
 };
@@ -32,21 +35,21 @@ class Point : public std::vector<Queue*>, public SetImpl {
 /** Subset of the state space with a shape of hyperrectangle
 */
 class HyperRectangle : public SetImpl {
-  public:
-    virtual SetImpl *accept(Transition *t, Event *ev);
-    marto::Point *inf() const { return inf_; };
-    marto::Point *inf(marto::Point *p) { // sets inf_ to Point p
-        inf_ = p;
-        return inf_;
-    };
-    marto::Point *sup() const { return sup_; };
-    marto::Point *sup(marto::Point *p) {
-        sup_ = p;
-        return sup_;
-    };
-
   private:
     marto::Point *inf_, *sup_;
+  public:
+    /** Create a HypepRectangle from two Points
+     *
+     * the ownership of the two points are transfered to the HyperRectangle
+     */
+    HyperRectangle(Point *p1, Point *p2) : inf_(p1), sup_(p2) {}
+    virtual ~HyperRectangle() {
+        delete(inf_); inf_=nullptr;
+        delete(sup_); sup_=nullptr;
+    }
+    virtual SetImpl *accept(Transition *t, Event *ev);
+    marto::Point *inf() { return inf_; };
+    marto::Point *sup() { return sup_; };
 };
 
 /** Union of subsets of the state space

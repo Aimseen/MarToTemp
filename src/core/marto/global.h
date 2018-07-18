@@ -28,6 +28,7 @@ class Configuration {
     queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
     std::vector<EventType *> eventTypesVector;     //< EventType by code
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
+    friend class Point; //< Point constructor iterates over queueConfigsVector. TODO: to encapsulate ?
 
     /** \brief private template to factorize the two 'register' methods
      */

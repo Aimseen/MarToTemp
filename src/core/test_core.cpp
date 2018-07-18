@@ -17,13 +17,11 @@ int main() {
     // Fill the hardcoded transition names
     config->registerTransition("TransitionBidon", new TransitionBidon());
 
-    Point *p = new Point();
-    p->resize(3);
     for (int i = 0; i < 3; i++) {
         QueueConfig *qconf = new StandardQueue(10);
         config->registerQueue(std::string("q")+std::to_string(i), qconf);
-        p->at(i) = qconf->newQueue();
     }
+    Point *p = new Point(config);
     for (int i = 0; i < 3; i++)
         p->at(i)->addClient(i + 1);
     EventType *et =
