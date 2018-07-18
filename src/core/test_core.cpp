@@ -21,7 +21,7 @@ int main() {
         QueueConfig *qconf = new StandardQueue(10);
         config->registerQueue(std::string("q")+std::to_string(i), qconf);
     }
-    Point *p = new Point(config);
+    Point *p = new Point(config, 0);
     for (int i = 0; i < 3; i++)
         p->at(i)->addClient(i + 1);
     EventType *et =

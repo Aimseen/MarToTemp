@@ -1,5 +1,4 @@
-#include <config.h>
-#include <marto/transition.h>
+#include <marto.h>
 #include <stdexcept>
 
 /** doc from transition.cpp */

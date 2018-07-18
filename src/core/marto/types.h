@@ -1,5 +1,5 @@
 /* -*-c++-*- C++ mode for emacs */
-/* Global types */
+/* Global basic types */
 #ifndef MARTO_TYPES_H
 #define MARTO_TYPES_H
 
@@ -24,6 +24,13 @@ typedef enum {
     EVENT_LOAD_ERROR,          ///< generic error while loading data
     EVENT_STORE_ERROR = EVENT_LOAD_ERROR, ///< generic error while storing data
 } event_access_t;
+
+/** unique queue identifier */
+typedef uint32_t queue_id_t;
+
+/** queue content */
+typedef int32_t queue_state_t;
+
 }
 #endif
 #endif

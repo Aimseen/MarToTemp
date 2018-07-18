@@ -12,6 +12,15 @@ Point::Point(Configuration * const config) {
     }
 }
 
+Point::Point(Configuration * const config, queue_state_t value) {
+    resize(config->queueConfigsVector.size());
+    size_t i=0;
+    for (auto qc = config->queueConfigsVector.begin();
+         qc<config->queueConfigsVector.end(); qc++, i++) {
+        at(i) = (*qc)->newQueue(value);
+    }
+}
+
 // Specialisation: a Point always gives a Point
 Point *Point::accept(Transition *t, Event *ev) {
     return t->apply(this, ev);

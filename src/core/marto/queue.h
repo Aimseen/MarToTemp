@@ -8,12 +8,6 @@
 
 namespace marto {
 
-/** unique queue identifier */
-typedef uint32_t queue_id_t;
-
-/** queue content */
-typedef uint32_t queue_state_t;
-
 /** Static parameters for Queues
  *
  * One object of this type will be created by the config
@@ -37,10 +31,16 @@ class QueueConfig {
      * TODO: should check that the queue config is registered
      */
     Queue* newQueue() {
+        assert(_config != nullptr);
         return allocateQueue();
+    }
+    Queue* newQueue(queue_state_t value) {
+        assert(_config != nullptr);
+        return allocateQueue(value);
     }
   protected:
     virtual Queue* allocateQueue() = 0;
+    virtual Queue* allocateQueue(queue_state_t value);
   private:
     queue_id_t _id; ///< queue id as assigned by the configuration
 
@@ -67,7 +67,16 @@ class Queue {
     virtual int addClient(int nb=1) = 0; ///< return #clients really added (up to full)
     virtual int removeClient(int nb=1) = 0; ///< return #client really removed (until empty)
     virtual int compareTo(Queue*) = 0;
+  protected:
+    friend QueueConfig;
+    virtual void setInitialState(queue_state_t value) = 0;
 };
+
+inline Queue* QueueConfig::allocateQueue(queue_state_t value) {
+    Queue* q=allocateQueue();
+    q->setInitialState(value);
+    return q;
+}
 
 // is T derived from QueueConfig?
 template < typename T > // http://en.cppreference.com/w/cpp/header/type_traits

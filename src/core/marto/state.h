@@ -26,8 +26,16 @@ class SetImpl {
 */
 class Point : public std::vector<Queue*>, public SetImpl {
   public:
-    /** Create a point (queue states) from registered queue */
+    /** Create a point (queue states) from registered queue
+     *
+     * The queue states will have a default value
+     */
     Point(Configuration *config);
+    /** Create a point (queue states) from registered queue
+     *
+     * The queue states will be initialized from the value
+     */
+    Point(Configuration *config, queue_state_t value);
     // Specialisation: a Point always gives a Point
     virtual Point *accept(Transition *t, Event *ev);
 };
