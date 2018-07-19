@@ -1,3 +1,4 @@
+#include "test_transition.h"
 #include "gtest/gtest.h"
 #include <marto.h>
 
@@ -11,10 +12,12 @@ class SimpleForwardBaseTest : public ::testing::Test {
   protected:
     SimpleForwardBaseTest() {
         c = new Configuration();
-        // ensure TransitionTest exists. Can return NULL if already registered.
         c->loadTransitionLibrary();
         std::cerr << "Transitions library loaded" << std::endl;
+        new TransitionTest(c, "TransitionTest");
         et = new EventType(c, "My super event", 2.0, "ArrivalReject");
+        new StandardQueue(c, "Q1", 10);
+        new StandardQueue(c, "Q2", 10);
         std::vector<int> v;
         v.push_back(0);
         et->registerParameter("to", new FormalConstantList<int>(1, v));
@@ -67,6 +70,18 @@ TEST_F(SimpleForwardBaseTest, SimpleForward) {
     ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
     ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
+
+    Point p1(c);
+    std::cout << "p1=" << p1 << std::endl;
+    for (auto s : p1.states()) {
+        ASSERT_EQ(s, 0);
+    }
+    // p1.at(0)->addClient(1);
+    Point p2(c, 1);
+    std::cout << "p2=" << p2 << std::endl;
+    for (auto s : p2.states()) {
+        ASSERT_EQ(s, 1);
+    }
 }
 
 } // namespace

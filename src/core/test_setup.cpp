@@ -27,13 +27,19 @@ TEST(Transitions, LibTransition) {
     /* loading the default library in c1 */
     c1->loadTransitionLibrary();
     /* Checking a transition is really here */
-    Transition *t = c1->getTransition("ArrivalReject");
-    ASSERT_NE(t, nullptr);
-    ASSERT_TRUE(t->name() == "ArrivalReject");
+    Transition *t1 = c1->getTransition("ArrivalReject");
+    ASSERT_NE(t1, nullptr);
+    ASSERT_TRUE(t1->name() == "ArrivalReject");
     /* Checking that we cannot load the same library twice... */
     ASSERT_THROW(c1->loadTransitionLibrary(), ExistingName);
     /* ...unless in another configuration */
     c2->loadTransitionLibrary();
+    /* Checking the transition is really here... */
+    Transition *t2 = c2->getTransition("ArrivalReject");
+    ASSERT_NE(t2, nullptr);
+    ASSERT_TRUE(t2->name() == "ArrivalReject");
+    /* ...but not the same as the one from the first config */
+    ASSERT_NE(t1, t2);
 }
 
 TEST(EventTypes, RegisterEventTypeWithUnknownTransition) {
