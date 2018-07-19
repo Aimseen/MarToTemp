@@ -80,7 +80,7 @@ EventType *Configuration::getEventType(unsigned num) {
 }
 
 void Configuration::loadTransitionLibrary(std::string libname,
-                                          std::string initCallback) {
+                                          loadLibraryCallback_t cb) {
     int err = 0;
     static int initialized = 0;
     static lt_dladvise advise;
@@ -121,13 +121,21 @@ void Configuration::loadTransitionLibrary(std::string libname,
         throw DLOpenError(std::string("Cannot load ") + libname);
     }
 
-    transitionInitCallback_t *initaddr =
-        (transitionInitCallback_t *)lt_dlsym(handle, initCallback.c_str());
+    cb(handle);
+}
 
-    if (initaddr == nullptr) {
-        throw DLOpenError(std::string("Cannot find ") + initCallback + " in " +
-                          libname);
-    }
-    (*initaddr)(this);
+void Configuration::loadTransitionLibrary(std::string libname,
+                                          std::string initCallback) {
+    loadTransitionLibrary(libname, [libname, initCallback,
+                                    this](lt_dlhandle handle) {
+        transitionInitCallback_t *initaddr =
+            (transitionInitCallback_t *)lt_dlsym(handle, initCallback.c_str());
+
+        if (initaddr == nullptr) {
+            throw DLOpenError(std::string("Cannot find ") + initCallback +
+                              " in " + libname);
+        }
+        (*initaddr)(this);
+    });
 }
 }

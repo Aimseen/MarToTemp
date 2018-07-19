@@ -6,6 +6,8 @@
 #ifdef __cplusplus
 
 #include <cassert>
+#include <functional>
+#include <ltdl.h>
 #include <map>
 #include <marto/forwardDecl.h>
 #include <string>
@@ -30,7 +32,7 @@ class Configuration {
     queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
     friend class Point; //< Point constructor iterates over queueConfigsVector.
-                        //TODO: to encapsulate ?
+                        // TODO: to encapsulate ?
 
     /** \brief private template to factorize the two 'register' methods
      */
@@ -86,12 +88,24 @@ class Configuration {
     friend class EventType;
 
   public:
+    typedef std::function<void(lt_dlhandle handle)> loadLibraryCallback_t;
+    /** \brief load a user defined library of transitions
+     *
+     * libname must be given without the specific platform extension
+     * (.so, .dyndl, ...)
+     *
+     * callback will be executed with the handle of the loaded library in
+     * parameter
+     */
+    void loadTransitionLibrary(std::string libname,
+                               loadLibraryCallback_t callback);
     typedef void transitionInitCallback_t(Configuration *);
     /** \brief load a user defined library of transitions
      *
      * libname must be given without the specific platform extension
      * (.so, .dyndl, ...)
-     * initCallback must be defined in the library, and of type
+     *
+     * The symbol initCallback must be defined in the library, and of type
      * transitionInitCallback_t
      */
     void loadTransitionLibrary(std::string libname, std::string initCallback);
@@ -111,7 +125,7 @@ class WithConfiguration {
 
   public:
     WithConfiguration(Configuration *c) : _config(c) { assert(c != nullptr); }
-    Configuration *config() { return _config; }
+    Configuration *config() const { return _config; }
 };
 }
 #endif
