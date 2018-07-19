@@ -85,6 +85,7 @@ class Queue {
   public:
     Queue() {}
     virtual ~Queue() {}
+    virtual queue_state_t state() const = 0;
     virtual QueueConfig *queueConfig() const = 0;
     virtual bool isEmpty() = 0;
     virtual bool isFull() = 0;

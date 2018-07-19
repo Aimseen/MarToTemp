@@ -21,6 +21,7 @@ class StandardQueueState : public TypedQueue<StandardQueue> {
 
   public:
     queue_state_t capacity() const { return conf()->capacity(); }
+    virtual queue_state_t state() const { return value; }
     virtual bool isEmpty() { return value == 0; }
     virtual bool isFull() { return value == capacity(); }
     virtual int addClient(int nb = 1) {
@@ -59,6 +60,7 @@ class OutsideQueueState : public TypedQueue<OutsideQueue> {
     OutsideQueueState(OutsideQueue *c) : TypedQueue<OutsideQueue>(c) {}
 
   public:
+    virtual queue_state_t state() const { return 0; } // FIXME: assert(false) ?
     virtual bool isEmpty() { return false; }
     virtual bool isFull() { return false; }
     virtual int addClient(int nb = 1) { return nb; }
