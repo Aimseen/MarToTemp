@@ -66,6 +66,14 @@ Transition *Configuration::getTransition(string name) {
     }
 }
 
+QueueConfig *Configuration::getQueueConfig(std::string name) {
+    try {
+        return queueConfigsMap.at(name);
+    } catch (const std::out_of_range &oor) {
+        throw UnknownName(name);
+    }
+}
+
 EventType *Configuration::getEventType(unsigned num) {
     assert(num < eventTypesVector.size());
     return eventTypesVector[num];

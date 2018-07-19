@@ -138,6 +138,10 @@ template <class QC> class TypedQueue : public Queue {
     virtual int compareTo(Queue *) = 0;
 };
 
+/** Queue configuration for standard queues
+ *  Name must be unique
+ *  TODO: autonaming function for long queue lists
+ */
 class StandardQueue : public QueueConfig {
   private:
     const int _capacity;
@@ -152,6 +156,10 @@ class StandardQueue : public QueueConfig {
     virtual Queue *allocateQueue(queue_state_t value);
 };
 
+/** OutsideQueue is a pseudo-queue that mimics the external world
+ * for arrivals, departures and "drop" events
+ * This special queue is unique and has no state
+ */
 class OutsideQueue : public StateLessQueueConfig {
   public:
     OutsideQueue(Configuration *c, const std::string &name)

@@ -4,7 +4,7 @@
 namespace {
 
 using namespace marto;
-
+/** dummy transition for testing transition registration */
 class TransitionTest : public Transition {
     default_transition_constructors;
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
@@ -66,6 +66,14 @@ TEST(EventTypes, RegisterEventTypeTwice) {
                  ExistingName);
     // but we can create an EventType with an other name and the same transition
     ASSERT_TRUE(new EventType(c, "My new super event", 42.0, "TransitionTest"));
+}
+
+TEST(Queues, CreateQueueConfigurations) {
+    auto c = new Configuration();
+    int capacity=10;
+    auto q=new StandardQueue(c,"Q1",capacity);
+    ASSERT_EQ(q,c->getQueueConfig("Q1"));
+    ASSERT_EQ(q->hasNoState(),false);
 }
 
 } // namespace

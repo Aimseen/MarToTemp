@@ -51,6 +51,13 @@ class Configuration {
      * registered
      */
     Transition *getTransition(std::string name);
+    /** \brief retrieve the queue configuration by its name
+     *
+     * \return the queueConfig
+     * generate an UnknownQueue exception if the queue name is not
+     * registered
+     */
+    QueueConfig *getQueueConfig(std::string name);
 
   private:
     /** \brief register the provided Queue
