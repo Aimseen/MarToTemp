@@ -13,11 +13,8 @@ class_std_transition(ArrivalReject) {
         auto to =
             toList->get<queue_id_t>(0); // the only random destination queue
 
-        if (!p->at(from)->isEmpty()) {
-            if (!p->at(to)->isFull()) {
-                p->at(to)->addClient();
-            }
-            p->at(from)->removeClient();
+        if (!p->at(to)->isFull()) {
+            p->at(to)->addClient();
         }
         return p;
     }
