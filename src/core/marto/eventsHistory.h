@@ -241,7 +241,8 @@ class EventsHistory : protected WithConfiguration {
      */
     void backward(uint32_t nbEvents);
 
-    // DELETED : the next stream is provided by the configuration (globalized service)
+    // DELETED : the next stream is provided by the configuration (globalized
+    // service)
     /* \brief generator for the current history
      *
      * This generator is starting at a new available stream
@@ -249,13 +250,14 @@ class EventsHistory : protected WithConfiguration {
      * chunk (to be able to regenerate the same events)
      */
     // Random *stream; // FIXME: attribute or method? provides a clone and
-                       // advances to next stream
+    // advances to next stream
 
   private:
     /// EventsIterator needs to access to firstChunk
     friend EventsIterator::EventsIterator(EventsHistory *hist);
     /// loadEventContent needs to access to the configuration
-    friend event_access_t EventsIterator::loadEventContent(EventsIStream &istream, Event *ev);
+    friend event_access_t
+    EventsIterator::loadEventContent(EventsIStream &istream, Event *ev);
     EventsChunk *firstChunk; ///< beginning of history
                              // uint32_t _nbEvents; // useful ?
   protected:

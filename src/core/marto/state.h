@@ -5,10 +5,10 @@
 
 #ifdef __cplusplus
 
+#include <functional>
 #include <list>
 #include <marto/forwardDecl.h>
 #include <vector>
-#include <functional>
 
 namespace marto {
 
@@ -25,7 +25,9 @@ class SetImpl {
 
 /** One point in the state space
 */
-class Point : protected std::vector<Queue*>, public SetImpl, protected WithConfiguration {
+class Point : protected std::vector<Queue *>,
+              public SetImpl,
+              protected WithConfiguration {
   public:
     /** No default constructor, a Configuration must always be provided */
     Point() = delete;
@@ -38,13 +40,17 @@ class Point : protected std::vector<Queue*>, public SetImpl, protected WithConfi
      *
      * The queue states will be initialized from the callback return value
      */
-    typedef queue_state_t (initCallback_t)(queue_id_t id, QueueConfig *qc, Point *p, void* arg);
-    Point(Configuration *config, initCallback_t *callback, void* arg);
+    typedef queue_state_t(initCallback_t)(queue_id_t id, QueueConfig *qc,
+                                          Point *p, void *arg);
+    Point(Configuration *config, initCallback_t *callback, void *arg);
     /** Create a point (queue states) from registered queue
      *
-     * The queue states will be initialized from the lambda callback return value
+     * The queue states will be initialized from the lambda callback return
+     * value
      */
-    typedef std::function< queue_state_t(queue_id_t id, QueueConfig *qc, Point *p) > initLambdaCallback_t;
+    typedef std::function<queue_state_t(queue_id_t id, QueueConfig *qc,
+                                        Point *p)>
+        initLambdaCallback_t;
     Point(Configuration *config, const initLambdaCallback_t &lambdaCallback);
     /** Create a point (queue states) from registered queue
      *
@@ -54,9 +60,7 @@ class Point : protected std::vector<Queue*>, public SetImpl, protected WithConfi
     // Specialisation: a Point always gives a Point
     virtual Point *accept(Transition *t, Event *ev);
     /** accessing the various queues */
-    Queue* at(queue_id_t id) const {
-        return std::vector<Queue*>::at(id);
-    }
+    Queue *at(queue_id_t id) const { return std::vector<Queue *>::at(id); }
 };
 
 /** Subset of the state space with a shape of hyperrectangle
@@ -64,6 +68,7 @@ class Point : protected std::vector<Queue*>, public SetImpl, protected WithConfi
 class HyperRectangle : public SetImpl {
   private:
     marto::Point *inf_, *sup_;
+
   public:
     /** Create a HypepRectangle from two Points
      *
@@ -71,8 +76,10 @@ class HyperRectangle : public SetImpl {
      */
     HyperRectangle(Point *p1, Point *p2) : inf_(p1), sup_(p2) {}
     virtual ~HyperRectangle() {
-        delete(inf_); inf_=nullptr;
-        delete(sup_); sup_=nullptr;
+        delete (inf_);
+        inf_ = nullptr;
+        delete (sup_);
+        sup_ = nullptr;
     }
     virtual SetImpl *accept(Transition *t, Event *ev);
     marto::Point *inf() { return inf_; };

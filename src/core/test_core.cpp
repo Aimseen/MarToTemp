@@ -19,7 +19,7 @@ int main() {
     new TransitionBidon(config, "TransitionBidon");
 
     for (int i = 0; i < 3; i++) {
-        new StandardQueue(config, std::string("q")+std::to_string(i), 10);
+        new StandardQueue(config, std::string("q") + std::to_string(i), 10);
     }
     Point *p = new Point(config, 0);
     for (int i = 0; i < 3; i++)

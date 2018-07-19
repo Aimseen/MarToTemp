@@ -16,7 +16,8 @@
 // convolution to keep operator<< in global namespace
 // See
 // https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
-std::ostream &operator<<(std::ostream &out, const marto::FormalParameterValues &ev);
+std::ostream &operator<<(std::ostream &out,
+                         const marto::FormalParameterValues &ev);
 
 namespace marto {
 

@@ -11,13 +11,11 @@
 
 #include <marto/global.h>
 #include <marto/macros.h>
-#include <marto/global.h>
 
 namespace marto {
 
-inline QueueConfig::QueueConfig(Configuration *c, const std::string &name) :
-    WithConfiguration(c)
-{
+inline QueueConfig::QueueConfig(Configuration *c, const std::string &name)
+    : WithConfiguration(c) {
     config()->registerQueue(name, this);
 }
 }

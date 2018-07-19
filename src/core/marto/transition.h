@@ -10,7 +10,9 @@
 namespace marto {
 
 class Transition : protected WithConfiguration {
-    friend Transition *Configuration::registerTransition(std::string name, Transition *);
+    friend Transition *Configuration::registerTransition(std::string name,
+                                                         Transition *);
+
   public:
     /** Transition constructor
      *
@@ -19,9 +21,8 @@ class Transition : protected WithConfiguration {
     Transition(Configuration *c, const std::string &name);
     virtual ~Transition() {}
 
-    /** Allow to easily inherit Transition constructor(s) */
-#define default_transition_constructors         \
-    using marto::Transition::Transition;
+/** Allow to easily inherit Transition constructor(s) */
+#define default_transition_constructors using marto::Transition::Transition;
 
     /** in: s, ev
     *  out: ? (FIXME)

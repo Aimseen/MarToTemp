@@ -5,12 +5,12 @@
 
 #ifdef __cplusplus
 
+#include <cassert>
 #include <map>
 #include <marto/forwardDecl.h>
 #include <string>
 #include <unistd.h>
 #include <vector>
-#include <cassert>
 
 namespace marto {
 
@@ -29,7 +29,8 @@ class Configuration {
     std::vector<EventType *> eventTypesVector;     //< EventType by code
     queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
-    friend class Point; //< Point constructor iterates over queueConfigsVector. TODO: to encapsulate ?
+    friend class Point; //< Point constructor iterates over queueConfigsVector.
+                        //TODO: to encapsulate ?
 
     /** \brief private template to factorize the two 'register' methods
      */
@@ -39,8 +40,9 @@ class Configuration {
     T *_register(TM &map, std::string name, T *value, Func lambdaIfRegister);
 
   public:
-    Configuration() : transitionsMap(), eventTypesMap(), eventTypesVector(),
-                      queueConfigsMap(), queueConfigsVector() {};
+    Configuration()
+        : transitionsMap(), eventTypesMap(), eventTypesVector(),
+          queueConfigsMap(), queueConfigsVector(){};
     EventType *getEventType(unsigned num);
     /** \brief retrieve the transition by its name
      *
@@ -49,6 +51,7 @@ class Configuration {
      * registered
      */
     Transition *getTransition(std::string name);
+
   private:
     /** \brief register the provided Queue
      *
@@ -74,6 +77,7 @@ class Configuration {
      */
     EventType *registerEventType(EventType *eventType);
     friend class EventType;
+
   public:
     typedef void transitionInitCallback_t(Configuration *);
     /** \brief load a user defined library of transitions
@@ -89,9 +93,7 @@ class Configuration {
     };
     /** \brief load the default transitions library
      */
-    void loadTransitionLibrary() {
-        loadTransitionLibrary("std_transitions");
-    };
+    void loadTransitionLibrary() { loadTransitionLibrary("std_transitions"); };
 };
 
 /** Partial class to inherit that offerts a link to a Configuration object
@@ -99,13 +101,11 @@ class Configuration {
 class WithConfiguration {
   private:
     Configuration *_config;
+
   public:
-    WithConfiguration(Configuration *c) : _config(c) {
-        assert(c != nullptr);
-    }
+    WithConfiguration(Configuration *c) : _config(c) { assert(c != nullptr); }
     Configuration *config() { return _config; }
 };
-
 }
 #endif
 #endif

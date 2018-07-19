@@ -23,7 +23,8 @@ namespace marto {
 
 EventType::EventType(Configuration *config, string idEvT, double evtRate,
                      string trName)
-    : WithConfiguration(config), _name(idEvT), transition(config->getTransition(trName)), rate(evtRate) {
+    : WithConfiguration(config), _name(idEvT),
+      transition(config->getTransition(trName)), rate(evtRate) {
     config->registerEventType(this);
     // FIXME: handle an internal state so that parameters cannot be modified
     // once an EventType was used by an Event
