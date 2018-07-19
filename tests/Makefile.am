@@ -10,6 +10,7 @@ DIST_SUBDIRS=$(NOBUILD_SUBDIRS) $(SUBDIRS)
 clean-recursive: SUBDIRS+=$(NOBUILD_SUBDIRS)
 
 BUILT_SOURCES=marto-installed/using-libmarto.c++
+DISTCLEANFILES += marto-installed/using-libmarto.c++
 
 marto-installed/using-libmarto.c++: $(top_srcdir)/src/core/test_core.cpp
 	cp $< $@
@@ -34,7 +35,7 @@ testsuite_installed_DEPENDS= \
 testsuite_installed_ATPATH=$(bindir):$(abs_top_builddir)
 installcheck-local: check-testsuite_installed
 
-EXTRA_DIST += marto-installed/using-libmarto.c++ scripts/timeout-missing
+EXTRA_DIST += scripts/timeout-missing
 
 # Support to get install paths at test time
 # (useful for the installcheck target)
