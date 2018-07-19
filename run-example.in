@@ -9,7 +9,7 @@ getopt -T > /dev/null || RET=$?
 if [ $RET = 4 ]; then
 	# GNU getopt with long option support. Using it
 	TEMP=`getopt --shell sh \
-		-o hgvqt:n \
+		-o +hgvqt:n \
 		--long help,libtool,no-libtool,gdb,valgrind,tool:,verbose,quiet,dry-run \
 		-n "$PROGNAME" -- "$@"`
 	eval set -- "$TEMP"
@@ -134,6 +134,7 @@ fi
 
 PROG="$1"
 shift
+
 if [ "$(which "$PROG")" = "" ]; then
 	log $LDEBUG "Program cannot be executed by shell"
 	case "$PROG" in
@@ -161,4 +162,4 @@ else
 	LT=""
 fi
 
-logrun $LINFO exec $LT $tool $PROG
+logrun $LINFO exec $LT $tool $PROG "$@"
