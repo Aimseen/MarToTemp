@@ -1,6 +1,7 @@
 
 PKG_CONFIG = @PKG_CONFIG@
 CC = @CXX@
+CXX = @CXX@
 srcdir = @srcdir@
 SHELL = @SHELL@
 top_builddir = @top_builddir@
