@@ -35,5 +35,4 @@ reindent:
 	true #	$(srcdir)/src/*/*.cpp $(srcdir)/src/*/*.h $(srcdir)/src/*/*/*.h
 	true #astyle $(srcdir)/src/*/*.cpp $(srcdir)/src/*/*.h $(srcdir)/src/*/*/*.h
 	clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4}" -i \
-		$(srcdir)/src/*/*.cpp $(srcdir)/src/*/*.h \
-		$(srcdir)/src/*/*/*.h
+		$$(find $(srcdir)/src -iname RngStream.h -prune -o \( -iname "*.h" -o -iname "*.cpp" \) -print)
