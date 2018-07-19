@@ -4,9 +4,9 @@
 /** doc from transition.cpp */
 namespace marto {
 
-Transition::Transition(Configuration *c, const std::string &name)
-    : WithConfiguration(c) {
-    config()->registerTransition(name, this);
+Transition::Transition(Configuration *c, const std::string &n)
+    : WithConfiguration(c), _name(n) {
+    config()->registerTransition(n, this);
 }
 
 SetImpl *Transition::apply(SetImpl *s, Event *ev) {

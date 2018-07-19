@@ -10,6 +10,8 @@
 namespace marto {
 
 class Transition : protected WithConfiguration {
+  private:
+    const std::string &_name;
     friend Transition *Configuration::registerTransition(std::string name,
                                                          Transition *);
 
@@ -62,6 +64,9 @@ class Transition : protected WithConfiguration {
      * default : applies transition to each component of the union
      */
     virtual SetImpl *apply(Union *u, Event *ev);
+
+    /** give the name of the transition */
+    const std::string &name() { return _name; }
 };
 }
 /* Pseudo code d'explication :
