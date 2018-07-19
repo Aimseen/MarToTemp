@@ -64,7 +64,7 @@ TEST(EventTypes, RegisterEventTypeTwice) {
     // we cannot create a new EventType with the same name
     ASSERT_THROW(new EventType(c, "My super event", 42.0, "TransitionTest"),
                  ExistingName);
-    // but we can create an EventType with an other name and the same transition
+    // but we can create an EventType with another name and the same transition
     ASSERT_TRUE(new EventType(c, "My new super event", 42.0, "TransitionTest"));
 }
 
@@ -74,6 +74,19 @@ TEST(Queues, CreateQueueConfigurations) {
     auto q=new StandardQueue(c,"Q1",capacity);
     ASSERT_EQ(q,c->getQueueConfig("Q1"));
     ASSERT_EQ(q->hasNoState(),false);
+    /* we cannot create another queue in the same config with the same name */
+    ASSERT_THROW(new StandardQueue(c,"Q1",capacity),ExistingName);
+    // but we can create a QueueConfig with another name and the same capacity
+    ASSERT_TRUE(new StandardQueue(c, "my new queue", capacity));
+    // and we can create a QueueConfig with another name and another capacity
+    ASSERT_TRUE(new StandardQueue(c, "Q3", 2*capacity+1));
+    /* we can create a dummy queue for the external world */
+    auto qout=new OutsideQueue(c,"Outside");
+    ASSERT_EQ(qout->hasNoState(),true);
+    /* we can create another dummy queue with another name */
+    auto qout2=new OutsideQueue(c,"Other Outside");
+    /* we cannot create another dummy queue with existing name */
+    ASSERT_THROW(new OutsideQueue(c,"Outside"),ExistingName);
 }
 
 } // namespace
