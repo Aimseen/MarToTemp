@@ -10,6 +10,11 @@
 #include <marto/forwardDecl.h>
 #include <vector>
 
+// convolution to keep operator<< in global namespace
+// See
+// https://stackoverflow.com/questions/38801608/friend-functions-and-namespaces
+std::ostream &operator<<(std::ostream &out, const marto::Point &p);
+
 namespace marto {
 
 /** Set implementation ; internal structure
@@ -66,6 +71,30 @@ class Point : protected std::vector<Queue *>,
     virtual Point *accept(Transition *t, Event *ev);
     /** accessing the various queues */
     Queue *at(queue_id_t id) const { return std::vector<Queue *>::at(id); }
+    std::vector<Queue *>::iterator begin() {
+        return std::vector<Queue *>::begin();
+    }
+    std::vector<Queue *>::iterator end() { return std::vector<Queue *>::end(); }
+    std::vector<Queue *>::const_iterator begin() const {
+        return std::vector<Queue *>::begin();
+    }
+    std::vector<Queue *>::const_iterator end() const {
+        return std::vector<Queue *>::end();
+    }
+    std::vector<Queue *>::const_iterator cbegin() const noexcept {
+        return std::vector<Queue *>::cbegin();
+    }
+    std::vector<Queue *>::const_iterator cend() const noexcept {
+        return std::vector<Queue *>::cend();
+    }
+    std::vector<queue_state_t> states() const {
+        std::vector<queue_state_t> v(0);
+        v.reserve(config()->queueConfigsVector.size());
+        for (const auto &q : (*this)) {
+            v.push_back(q->state());
+        }
+        return v;
+    }
 };
 
 /** Subset of the state space with a shape of hyperrectangle

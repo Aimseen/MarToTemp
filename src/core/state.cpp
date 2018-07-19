@@ -1,6 +1,23 @@
 #include <marto.h>
 #include <vector>
 
+using std::ostream;
+
+ostream &operator<<(ostream &out, const marto::Point &p) {
+    out << "Point(";
+    bool first = true;
+    for (const auto &q : p) {
+        if (first) {
+            first = false;
+        } else {
+            out << ", ";
+        }
+        out << q->state();
+    }
+    out << ")";
+    return out;
+}
+
 namespace marto {
 
 Point::Point(Configuration *const config) : WithConfiguration(config) {
