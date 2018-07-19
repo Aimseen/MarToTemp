@@ -24,7 +24,7 @@ nobase_include_HEADERS=\
 
 lib_LTLIBRARIES= libmarto.la
 
-check_PROGRAMS=test_core test_history test_parameters #test_transition
+check_PROGRAMS=test_core test_setup test_history test_parameters #test_transition
 check_PROGRAMS+=test_simple-forward
 
 libmarto_la_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) -D_GNU_SOURCE $(MARTOLIB_BUILD_CPPFLAGS) \
@@ -54,6 +54,10 @@ pkgconfig_DATA=marto.pc
 
 test_core_SOURCES=test_core.cpp
 test_core_LDADD=libmarto.la
+
+test_setup_SOURCES=test_setup.cpp
+test_setup_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
+test_setup_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)
 
 test_history_SOURCES=test_history.cpp
 test_history_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
