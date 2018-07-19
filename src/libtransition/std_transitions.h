@@ -9,19 +9,25 @@
 
 namespace marto::autoregister::transitions {
 class TransitionFactory {
+protected:
+    std::string name;
 public:
-    virtual Transition* CreateTransition() = 0;
+    TransitionFactory(std::string n) : name(n) {}
+    virtual Transition* createTransition(Configuration *config) = 0;
 };
 template <class TransitionClass>
 class TransitionFactoryImpl : public TransitionFactory {
 public:
-    virtual Transition* CreateTransition() { return new TransitionClass ; }
+    TransitionFactoryImpl(std::string n) : TransitionFactory(n) {}
+    virtual Transition* createTransition(Configuration *config) {
+        return new TransitionClass(config, name) ;
+    }
 };
 class Registering {
 private:
 public:
-    static std::vector<std::pair<std::string, marto::Transition*>> *transitions;
-    static int autoregister(std::string name, TransitionFactory* factory);
+    static std::vector<marto::autoregister::transitions::TransitionFactory*> *transitionFactories;
+    static int autoregister(TransitionFactory* factory);
     static void initTransitionLibrary(Configuration *config);
 };
 class Registered {};
@@ -30,16 +36,16 @@ class Registered {};
 
 #define class_transition(name, ns)                                      \
     namespace ns {                                                      \
-class name;                                                             \
+    class name;                                                         \
     };                                                                  \
     namespace marto::autoregister::transitions::instances {             \
-class name : public ::marto::autoregister::transitions::Registered {    \
-    static int dummy;                                                   \
-};                                                                      \
+    class name : public ::marto::autoregister::transitions::Registered {\
+        static int dummy;                                               \
     };                                                                  \
-    int marto::autoregister::transitions::instances::name::dummy \
-    = marto::autoregister::transitions::Registering::autoregister( \
-        #name, new   marto::autoregister::transitions::TransitionFactoryImpl<ns::name>() \
+    };                                                                  \
+    int marto::autoregister::transitions::instances::name::dummy        \
+    = marto::autoregister::transitions::Registering::autoregister(      \
+        new   marto::autoregister::transitions::TransitionFactoryImpl<ns::name>(#name) \
         );                                                              \
     class ns::name : public marto::Transition
 

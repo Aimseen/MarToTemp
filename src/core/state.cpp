@@ -3,7 +3,9 @@
 
 namespace marto {
 
-Point::Point(Configuration * const config) {
+Point::Point(Configuration * const config) :
+    WithConfiguration(config)
+{
     resize(config->queueConfigsVector.size());
     size_t i=0;
     for (auto qc = config->queueConfigsVector.begin();
@@ -30,7 +32,8 @@ Point::Point(Configuration * const config, Point::initCallback_t *f, void* arg) 
 {
 }
 
-Point::Point(Configuration * const config, const Point::initLambdaCallback_t &f)
+Point::Point(Configuration * const config, const Point::initLambdaCallback_t &f) :
+    WithConfiguration(config)
 {
     resize(config->queueConfigsVector.size());
     size_t i=0;

@@ -1,5 +1,4 @@
-#include <marto/eventsHistory.h>
-#include <marto/macros.h>
+#include <marto.h>
 #include <marto/randomLecuyer.h>
 /* We include the .c because we need the static constants it contains */
 extern "C" {

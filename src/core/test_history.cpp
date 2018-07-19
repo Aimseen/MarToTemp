@@ -6,6 +6,7 @@ namespace {
 using namespace marto;
 
 class TransitionTest : public Transition {
+    default_transition_constructors;
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
             p->at(i)->addClient(1);
@@ -35,8 +36,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
   protected:
     EventsHistoryBaseTest() {
         c = new Configuration();
-        // ensure TransitionTest exists. Can return NULL if already registered.
-        c->registerTransition("TransitionTest", new TransitionTest());
+        new TransitionTest(c, "TransitionTest");
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
         std::vector<int> v;
         v.push_back(5);
@@ -73,15 +73,14 @@ class EventsHistoryBaseTest : public ::testing::Test {
 
 TEST(Configuration, RegisterTransitionTwice) {
     auto c = new Configuration();
-    Transition *tr = new TransitionTest();
-    ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
-    ASSERT_EQ(tr, c->registerTransition("TransitionTestDupName", tr));
+    Transition *tr = new TransitionTest(c, "TransitionTestDupName");
+    ASSERT_NE(tr, nullptr);
+    ASSERT_THROW(new TransitionTest(c, "TransitionTestDupName"), ExistingName);
 }
 
 TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
     auto c = new Configuration();
-    // ensure TransitionTest exists. Can return NULL if already registered.
-    c->registerTransition("TransitionTest", new TransitionTest());
+    new TransitionTest(c, "TransitionTest");
     try {
         // we should generate a UnknownName exception
         new EventType(c, "My super event", 42.0, "UnknownTransitionForTest");
@@ -102,8 +101,7 @@ TEST(Configuration, RegisterEventTypeWithUnknownTransition) {
 
 TEST(Configuration, RegisterEventTypeTwice) {
     auto c = new Configuration();
-    // ensure TransitionTest exists. Can return NULL if already registered.
-    c->registerTransition("TransitionTest", new TransitionTest());
+    new TransitionTest(c, "TransitionTest");
     ASSERT_TRUE(new EventType(c, "My super event", 42.0, "TransitionTest"));
     // we cannot create a new EventType with the same name
     ASSERT_THROW(new EventType(c, "My super event", 42.0, "TransitionTest"),

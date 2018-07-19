@@ -224,7 +224,7 @@ class EventsOStream : public EventsStreamBase {
 
 /** \brief Class to manage an events history
  */
-class EventsHistory {
+class EventsHistory : protected WithConfiguration {
   public:
     /** \brief Initialize a new history of events */
     EventsHistory(Configuration *conf);
@@ -252,14 +252,12 @@ class EventsHistory {
                        // advances to next stream
 
   private:
-    /// EventsIterator need to access to firstChunk
+    /// EventsIterator needs to access to firstChunk
     friend EventsIterator::EventsIterator(EventsHistory *hist);
-    Configuration *configuration;
+    /// loadEventContent needs to access to the configuration
+    friend event_access_t EventsIterator::loadEventContent(EventsIStream &istream, Event *ev);
     EventsChunk *firstChunk; ///< beginning of history
                              // uint32_t _nbEvents; // useful ?
-  public:
-    Configuration *getConfig() { return configuration; };
-
   protected:
     /** \brief Allocate Memory for a chunk
      * \param size must be filled with the size of the allocated buffer if not

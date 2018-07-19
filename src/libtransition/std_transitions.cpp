@@ -3,7 +3,7 @@
 //#define DEBUG_REGISTER
 
 #ifdef DEBUG_REGISTER
-#include <iostream>
+#  include <iostream>
 #endif
 
 namespace marto::autoregister::transitions {
@@ -11,15 +11,15 @@ namespace marto::autoregister::transitions {
 /* using a pointer to a vector to avoid to rely on the linker
  * to correctly schedule the various constructors
  */
-std::vector<std::pair<std::string, Transition*>> *Registering::transitions = nullptr;
+std::vector<TransitionFactory*> *Registering::transitionFactories = nullptr;
 
-int Registering::autoregister(std::string name, TransitionFactory* factory) {
-    if (transitions == nullptr) {
-        transitions = new std::vector<std::pair<std::string, Transition*>>;
+int Registering::autoregister(TransitionFactory* factory) {
+    if (transitionFactories == nullptr) {
+        transitionFactories = new std::vector<TransitionFactory*>;
     }
-    transitions->emplace_back(name, factory->CreateTransition());
+    transitionFactories->emplace_back(factory);
 #ifdef DEBUG_REGISTER
-    std::cout << "Registering " << name << " at addresse " << factory << " in " << &transitions << std::endl;
+    std::cout << "Registering " << name << " at addresse " << factory << " in " << &transitionFactories << std::endl;
 #endif
     return 0;
 }
@@ -28,16 +28,13 @@ void Registering::initTransitionLibrary(Configuration *config) {
 #ifdef DEBUG_REGISTER
     std::cout << "Delegated registration" << " from " << &transitions << std::endl;
 #endif
-    for (auto & transitionInfo : *transitions) {
-        std::string &name = transitionInfo.first;
-        marto::Transition *transition = transitionInfo.second;
+    for (auto factory : *transitionFactories) {
+        marto::Transition *transition=factory->createTransition(config);
 #ifdef DEBUG_REGISTER
-        std::cout << "Really registering " << name << " at addresse " << transition << std::endl;
+        std::cout << "Really registering " << transition->name() << " at addresse " << transition << std::endl;
 #endif
-        config->registerTransition(name, transition);
+        assert(transition != nullptr);
     }
-    delete transitions;
-    transitions=nullptr;
 }
 
 extern "C" {

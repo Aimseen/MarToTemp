@@ -1,7 +1,11 @@
 #include <ltdl.h>
 #include <marto.h>
 
-//#include <iostream>
+//#define DEBUG_REGISTER
+
+#ifdef DEBUG_REGISTER
+#  include <iostream>
+#endif
 
 namespace marto {
 
@@ -12,28 +16,35 @@ T *Configuration::_register(TM &map, string name, T *value,
     auto res = map.insert(TMV(name, value));
     if (res.second) {
         // the insertion occurs
+#ifdef DEBUG_REGISTER
+        std::cerr << "Registering " << name << std::endl;
+#endif
         lambdaIfRegister();
         return value;
     }
     // the insertion did not occurs, the key already exists
     T *previous = (res.first)->second;
     if (previous == value) {
-        // std::cerr << "Returnning old value for " << name << std::endl;
+#ifdef DEBUG_REGISTER
+        std::cerr << "Returnning old value for " << name << std::endl;
+#endif
         return value;
     }
+#ifdef DEBUG_REGISTER
+    std::cerr << "Duplicate for " << name << std::endl;
+#endif
     throw ExistingName(name);
 }
 
 Transition *Configuration::registerTransition(string name, Transition *trans) {
-    return _register<Transition>(transitionsMap, name, trans,
-                                 [this, trans]() { trans->setConfig(this); });
+    return _register<Transition>(transitionsMap, name, trans, [](){});
 }
 
 QueueConfig *Configuration::registerQueue(string name, QueueConfig *queue) {
     return _register<QueueConfig>(queueConfigsMap, name, queue, [this, queue]() {
             queue_id_t id = queueConfigsVector.size();
             queueConfigsVector.push_back(queue);
-            queue->setConfig(this, id);
+            queue->setId(id);
         });
 }
 

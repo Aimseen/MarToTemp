@@ -15,6 +15,7 @@ nobase_include_HEADERS=\
       marto/parameters.h \
       marto/parameters-impl.h \
       marto/queue.h \
+      marto/queue-impl.h \
       marto/random.h \
       marto/randomLecuyer.h \
       marto/state.h \

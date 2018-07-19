@@ -151,7 +151,7 @@ event_access_t EventsIterator::loadEventContent(EventsIStream &istream,
     if (istream >> code) { // eventype is encoded in the first integer of the
         // event buffer.
         EventsHistory *hist = curChunk->history;
-        EventType *type = hist->getConfig()->getEventType(code);
+        EventType *type = hist->config()->getEventType(code);
         if (ev->setType(type)) {
             return type->load(istream, ev, hist);
         }
@@ -162,7 +162,7 @@ event_access_t EventsIterator::loadEventContent(EventsIStream &istream,
 // EventsHistory
 
 EventsHistory::EventsHistory(Configuration *conf)
-    : configuration(conf), firstChunk(nullptr) {}
+    : WithConfiguration(conf), firstChunk(nullptr) {}
 
 EventsIterator *EventsHistory::iterator() {
     if (firstChunk == nullptr) {

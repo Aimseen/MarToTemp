@@ -19,5 +19,6 @@
 #include <marto/event-impl.h>
 #include <marto/eventsHistory-impl.h>
 #include <marto/parameters-impl.h>
+#include <marto/queue-impl.h>
 
 #endif

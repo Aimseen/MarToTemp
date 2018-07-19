@@ -1,7 +1,7 @@
 /* -*-c++-*- C++ mode for emacs */
 /* Queues management */
-#ifndef MARTO_QUEUES_H
-#define MARTO_QUEUES_H
+#ifndef MARTO_QUEUE_H
+#define MARTO_QUEUE_H
 
 #include <marto/forwardDecl.h>
 #include <marto/global.h>
@@ -12,9 +12,9 @@ namespace marto {
  *
  * One object of this type will be created by the config
  */
-class QueueConfig {
+class QueueConfig : protected WithConfiguration {
   public:
-    QueueConfig(void) {}
+    QueueConfig(Configuration *c, const std::string &name);
     virtual ~QueueConfig(void) {}
     /** Get the queue id of the queue
      */
@@ -31,11 +31,9 @@ class QueueConfig {
      * TODO: should check that the queue config is registered
      */
     Queue* newQueue() {
-        assert(_config != nullptr);
         return allocateQueue();
     }
     Queue* newQueue(queue_state_t value) {
-        assert(_config != nullptr);
         return allocateQueue(value);
     }
   protected:
@@ -44,13 +42,9 @@ class QueueConfig {
   private:
     queue_id_t _id; ///< queue id as assigned by the configuration
 
-    /** link to the configuration used when the queue is registrered */
-    Configuration *_config;
     friend QueueConfig *Configuration::registerQueue(std::string, QueueConfig *);
     /** used by the Configuration to assign a id */
-    void setConfig(Configuration *config, queue_id_t id) { _config = config; _id = id; }
-  protected:
-    Configuration *config(void) { return _config; }
+    void setId(queue_id_t id) { _id = id; }
 };
 
 /** State of a queue
@@ -61,7 +55,7 @@ class Queue {
   public:
     Queue() {}
     virtual ~Queue() {}
-    virtual QueueConfig *config() const = 0;
+    virtual QueueConfig *queueConfig() const = 0;
     virtual bool isEmpty() = 0;
     virtual bool isFull() = 0;
     virtual int addClient(int nb=1) = 0; ///< return #clients really added (up to full)
@@ -105,7 +99,7 @@ class TypedQueue : public Queue {
   public:
     TypedQueue(QC *conf) : Queue(), _qconf(conf) {}
     virtual ~TypedQueue() {}
-    virtual QueueConfig *config() const { return static_cast<QueueConfig *>(conf()); }
+    virtual QueueConfig *queueConfig() const { return static_cast<QueueConfig *>(conf()); }
     virtual bool isEmpty() = 0;
     virtual bool isFull() = 0;
     virtual int addClient(int nb=1) = 0; ///< return #clients really added (up to full)
@@ -117,7 +111,7 @@ class StandardQueue : public QueueConfig {
 private:
     const int _capacity;
 public:
-    StandardQueue(int capacity) : QueueConfig(), _capacity(capacity) {};
+    StandardQueue(Configuration *c, const std::string &name, int capacity) : QueueConfig(c, name), _capacity(capacity) {};
     int capacity() const { return _capacity; }
 protected:
     virtual Queue* allocateQueue();
@@ -125,11 +119,17 @@ protected:
 
 class OutsideQueue : public QueueConfig {
 public:
-    OutsideQueue() : QueueConfig() {};
+    OutsideQueue(Configuration *c, const std::string &name) : QueueConfig(c, name) {};
 protected:
     virtual Queue* allocateQueue();
 };
 
 }
+
+#ifndef MARTO_H
+// In case of direct inclusion (instead of using <marto.h>),
+// we try to include the implementation, hoping to avoid include loops
+#include <marto/queue-impl.h>
+#endif
 
 #endif

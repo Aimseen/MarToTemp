@@ -9,16 +9,20 @@
 
 namespace marto {
 
-class Transition {
-  protected:
-    /** link to the configuration used when the transition is registrered */
-    Configuration *config;
-
-  private:
-    void setConfig(Configuration *config) { this->config = config; }
-    friend Configuration;
-
+class Transition : protected WithConfiguration {
+    friend Transition *Configuration::registerTransition(std::string name, Transition *);
   public:
+    /** Transition constructor
+     *
+     * The transition will be registered into the configuration
+     */
+    Transition(Configuration *c, const std::string &name);
+    virtual ~Transition() {}
+
+    /** Allow to easily inherit Transition constructor(s) */
+#define default_transition_constructors         \
+    using marto::Transition::Transition;
+
     /** in: s, ev
     *  out: ? (FIXME)
     * Apply transition to state in Set s

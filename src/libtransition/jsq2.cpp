@@ -1,6 +1,7 @@
 #include "std_transitions.h"
 
 class_std_transition(JSQ2) {
+    default_transition_constructors;
     Point *apply(
         Point *p,
         Event *ev) { // Event ev contains transition specification (parameters)

@@ -4,6 +4,7 @@
 using namespace marto;
 
 class TransitionBidon : public Transition {
+    default_transition_constructors;
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
             p->at(i)->addClient();
@@ -15,11 +16,10 @@ class TransitionBidon : public Transition {
 int main() {
     Configuration *config = new Configuration();
     // Fill the hardcoded transition names
-    config->registerTransition("TransitionBidon", new TransitionBidon());
+    new TransitionBidon(config, "TransitionBidon");
 
     for (int i = 0; i < 3; i++) {
-        QueueConfig *qconf = new StandardQueue(10);
-        config->registerQueue(std::string("q")+std::to_string(i), qconf);
+        new StandardQueue(config, std::string("q")+std::to_string(i), 10);
     }
     Point *p = new Point(config, 0);
     for (int i = 0; i < 3; i++)

@@ -1,6 +1,7 @@
 #include "std_transitions.h"
 
 class_std_transition(ArrivalReject) {
+    default_transition_constructors;
     Point *apply(Point *p, Event *ev) {
         auto *fromList =
             ev->getParameter("from"); // We only get vectors of values

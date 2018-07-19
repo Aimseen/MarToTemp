@@ -6,6 +6,7 @@ namespace {
 using namespace marto;
 
 class TransitionTest : public Transition {
+    default_transition_constructors;
     Point *apply(Point *p, __attribute__((unused)) Event *ev) {
         for (int i = 0; i < 3; i++)
             p->at(i)->addClient(1);
@@ -23,8 +24,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
   protected:
     EventsHistoryBaseTest() {
         c = new Configuration();
-        // ensure TransitionTest exists. Can return NULL if already registered.
-        c->registerTransition("TransitionTest", new TransitionTest());
+        new TransitionTest(c, "TransitionTest");
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
         std::vector<int> v;
         v.push_back(5);
@@ -61,7 +61,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
 
 TEST(Event, RegisterConstantParameters) {
     auto c = new Configuration();
-    c->registerTransition("TransitionTest", new TransitionTest());
+    new TransitionTest(c, "TransitionTest");
     EventType *et1 = new EventType(c, "Ev type", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
     std::vector<int> v2 = {15, 16, 17};
@@ -95,7 +95,7 @@ TEST(Event, RegisterConstantParameters) {
 
 TEST(Event, GenerateEventsWithConstantParameters) {
     auto c = new Configuration();
-    c->registerTransition("TransitionTest", new TransitionTest());
+    new TransitionTest(c, "TransitionTest");
     EventType *et1 = new EventType(c, "My super event", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
     et1->registerParameter("to", new FormalConstantList<int>(2, v1));
@@ -149,7 +149,7 @@ TEST(Event, GenerateEventsWithConstantParameters) {
 
 TEST(Event, StoreAndLoadEventsWithConstantParameters) {
     auto c = new Configuration();
-    c->registerTransition("TransitionTest", new TransitionTest());
+    new TransitionTest(c, "TransitionTest");
     EventType *et1 = new EventType(c, "Event Type 1", 42.0, "TransitionTest");
     std::vector<int> v1 = {5, 6};
     et1->registerParameter("to", new FormalConstantList<int>(2, v1));

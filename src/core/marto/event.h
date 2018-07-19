@@ -84,7 +84,7 @@ class Event {
     inline EventType *setType(EventType *type);
 };
 
-class EventType {
+class EventType : protected WithConfiguration {
     friend class Event;
     friend class EventsIterator;
 

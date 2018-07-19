@@ -25,7 +25,7 @@ class SetImpl {
 
 /** One point in the state space
 */
-class Point : protected std::vector<Queue*>, public SetImpl {
+class Point : protected std::vector<Queue*>, public SetImpl, protected WithConfiguration {
   public:
     /** No default constructor, a Configuration must always be provided */
     Point() = delete;

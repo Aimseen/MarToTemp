@@ -4,6 +4,12 @@
 /** doc from transition.cpp */
 namespace marto {
 
+Transition::Transition(Configuration *c, const std::string &name) :
+    WithConfiguration(c)
+{
+    config()->registerTransition(name, this);
+}
+
 SetImpl *Transition::apply(SetImpl *s, Event *ev) {
     return s->accept(this, ev);
 }

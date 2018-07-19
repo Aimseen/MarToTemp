@@ -10,6 +10,7 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <cassert>
 
 namespace marto {
 
@@ -25,8 +26,8 @@ class Configuration {
     typedef std::map<std::string, QueueConfig *> queueConfigMap_t;
     transitionMap_t transitionsMap;                //< Transition by name
     eventTypeMap_t eventTypesMap;                  //< EventType by name
-    queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
     std::vector<EventType *> eventTypesVector;     //< EventType by code
+    queueConfigMap_t queueConfigsMap;              //< QueueConfig by name
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
     friend class Point; //< Point constructor iterates over queueConfigsVector. TODO: to encapsulate ?
 
@@ -38,7 +39,8 @@ class Configuration {
     T *_register(TM &map, std::string name, T *value, Func lambdaIfRegister);
 
   public:
-    Configuration() : transitionsMap(), eventTypesMap(), eventTypesVector(){};
+    Configuration() : transitionsMap(), eventTypesMap(), eventTypesVector(),
+                      queueConfigsMap(), queueConfigsVector() {};
     EventType *getEventType(unsigned num);
     /** \brief retrieve the transition by its name
      *
@@ -47,6 +49,7 @@ class Configuration {
      * registered
      */
     Transition *getTransition(std::string name);
+  private:
     /** \brief register the provided Queue
      *
      * \return the provided queue unless the name is already
@@ -54,6 +57,7 @@ class Configuration {
      * ExistingName exception is thrown.
      */
     QueueConfig *registerQueue(std::string name, QueueConfig *queue);
+    friend class QueueConfig;
     /** \brief register the provided transition
      *
      * \return the transition itself unless the name is already
@@ -61,6 +65,7 @@ class Configuration {
      * ExistingName exception is thrown.
      */
     Transition *registerTransition(std::string name, Transition *trans);
+    friend class Transition;
     /** \brief register the provided EventType
      *
      * \return the provided eventType unless the name is already
@@ -68,6 +73,8 @@ class Configuration {
      * ExistingName exception is thrown.
      */
     EventType *registerEventType(EventType *eventType);
+    friend class EventType;
+  public:
     typedef void transitionInitCallback_t(Configuration *);
     /** \brief load a user defined library of transitions
      *
@@ -86,6 +93,19 @@ class Configuration {
         loadTransitionLibrary("std_transitions");
     };
 };
+
+/** Partial class to inherit that offerts a link to a Configuration object
+ */
+class WithConfiguration {
+  private:
+    Configuration *_config;
+  public:
+    WithConfiguration(Configuration *c) : _config(c) {
+        assert(c != nullptr);
+    }
+    Configuration *config() { return _config; }
+};
+
 }
 #endif
 #endif

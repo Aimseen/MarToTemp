@@ -1,5 +1,4 @@
-#include <marto/eventsHistory.h>
-#include <marto/random.h>
+#include <marto.h>
 
 namespace marto {
 
