@@ -46,7 +46,7 @@ inline EventType *Event::setType(EventType *type) {
     size_t psize = parameters.size();
     size_t fpsize = type->formalParameters.size();
     if (marto_unlikely(psize < fpsize)) {
-        parameters.resize(fpsize);
+        parameters.reserve(fpsize);
         for (size_t i = psize; i < fpsize; i++) {
             parameters[i] = new ParameterValues();
         }
