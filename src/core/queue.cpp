@@ -11,6 +11,14 @@ class StandardQueueState : public TypedQueue<StandardQueue> {
     StandardQueueState(StandardQueue *c)
         : TypedQueue<StandardQueue>(c), value(0) {
     } // queue empty at creation by default
+    StandardQueueState(StandardQueue *c, queue_state_t v)
+        : TypedQueue<StandardQueue>(c), value(0) {
+        if (v < 0 || v > capacity()) {
+            throw std::out_of_range("queue state");
+        }
+        value = v;
+    }
+
   public:
     queue_state_t capacity() const { return conf()->capacity(); }
     virtual bool isEmpty() { return value == 0; }
@@ -38,20 +46,16 @@ class StandardQueueState : public TypedQueue<StandardQueue> {
             (StandardQueueState *)q; // TODO correctly check cast
         return value - other->value;
     };
-
-  protected:
-    virtual void setInitialState(queue_state_t v) {
-        if (v < 0 || v > capacity()) {
-            throw std::out_of_range("queue state");
-        }
-        value = v;
-    }
 };
 
 Queue *StandardQueue::allocateQueue() { return new StandardQueueState(this); }
+Queue *StandardQueue::allocateQueue(queue_state_t v) {
+    return new StandardQueueState(this, v);
+}
 
 class OutsideQueueState : public TypedQueue<OutsideQueue> {
   private:
+    friend OutsideQueue;
     OutsideQueueState(OutsideQueue *c) : TypedQueue<OutsideQueue>(c) {}
 
   public:
@@ -63,8 +67,7 @@ class OutsideQueueState : public TypedQueue<OutsideQueue> {
         throw std::invalid_argument(
             "Trying to compare queue state with outside queue");
     };
-
-  protected:
-    virtual void setInitialState(queue_state_t __marto_unused(v)) {}
 };
+
+Queue *OutsideQueue::allocateQueue() { return new OutsideQueueState(this); }
 }

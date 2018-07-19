@@ -18,6 +18,8 @@ inline QueueConfig::QueueConfig(Configuration *c, const std::string &name)
     : WithConfiguration(c) {
     config()->registerQueue(name, this);
 }
+
+inline StateLessQueueConfig::~StateLessQueueConfig() { delete queueState; }
 }
 
 #endif

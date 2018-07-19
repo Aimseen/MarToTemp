@@ -43,14 +43,19 @@ class Point : protected std::vector<Queue *>,
     typedef queue_state_t(initCallback_t)(queue_id_t id, QueueConfig *qc,
                                           Point *p, void *arg);
     Point(Configuration *config, initCallback_t *callback, void *arg);
+    /** callback type to help to initialize queues when creating a Point
+     *
+     * The computed queue_state_t will be given to the QueueConfig
+     * newQueue (hence also allocate) method.
+     */
+    typedef std::function<queue_state_t(queue_id_t id, QueueConfig *qc,
+                                        Point *p)>
+        initLambdaCallback_t;
     /** Create a point (queue states) from registered queue
      *
      * The queue states will be initialized from the lambda callback return
      * value
      */
-    typedef std::function<queue_state_t(queue_id_t id, QueueConfig *qc,
-                                        Point *p)>
-        initLambdaCallback_t;
     Point(Configuration *config, const initLambdaCallback_t &lambdaCallback);
     /** Create a point (queue states) from registered queue
      *
