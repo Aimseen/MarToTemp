@@ -15,6 +15,7 @@ pdf-local: $(DX_DOCDIR)/MarTo.pdf
 $(DX_DOCDIR)/MarTo.pdf: $(DX_DOCDIR)/latex/MarTo.pdf
 
 $(DX_DOCDIR)/latex/MarTo.pdf: $(DX_DOCDIR)/latex/GNUmakefile
+	ls -l $(DX_DOCDIR)/latex/GNUmakefile || $(MAKE) $(DX_DOCDIR)/latex/GNUmakefile
 	$(MAKE) -C $(DX_DOCDIR)/latex pdf-copy
 
 $(DX_DOCDIR)/latex/GNUmakefile: $(DX_DOCDIR)/latex Makefile.am
