@@ -141,9 +141,25 @@ class Union : public SetImpl {
 */
 class Set {
   public:
+    /** Create a set of state that will evolve
+     *
+     * Note: the provided SetImpl will have its ownership transfered
+     * to this object. Ie, it will be deleted if required by a
+     * transition (so it must be properly allocated).
+     */
+    Set(SetImpl *s) : _realset(s) { assert(s!=nullptr); }
     SetImpl *realset(void) { return _realset; }; // read
-    void realset(SetImpl *s) { _realset = s; };  // write
   private:
+    /** the apply(Set *s, Event *ev) method in Transition will
+     * change the set if required. It will handle deletion if need be.
+     */
+    friend class Transition;
+    /** update the set, should be used only by Transition::apply
+     */
+    void realset(SetImpl *s) {
+        assert(s!=nullptr) ;
+        _realset = s;
+    };  // write
     SetImpl *_realset;
 };
 }

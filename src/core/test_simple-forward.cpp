@@ -76,12 +76,15 @@ TEST_F(SimpleForwardBaseTest, SimpleForward) {
     for (auto s : p1.states()) {
         ASSERT_EQ(s, 0);
     }
+    ASSERT_EQ(p1.states().size(), 2); //< 2 queues created
     // p1.at(0)->addClient(1);
-    Point p2(c, 1);
+    Point p2(c, 8);
     std::cout << "p2=" << p2 << std::endl;
     for (auto s : p2.states()) {
-        ASSERT_EQ(s, 1);
+        ASSERT_EQ(s, 8);
     }
+    ASSERT_EQ(p2.states().size(), 2); //< 2 queues created
+    
 }
 
 } // namespace
