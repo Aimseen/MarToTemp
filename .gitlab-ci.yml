@@ -13,9 +13,11 @@ pages:
   - mkdir build
   - ( cd build && ../configure )
   - make -C build
+  - rm -rfv public || true
+  - mv build/doc/doxygen-doc/html public
   artifacts:
     paths:
-    - build/doc/doxygen-doc/html
+    - public
   only:
   - master
   
