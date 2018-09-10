@@ -81,13 +81,21 @@ LIBTOOL="@LIBTOOL@"
 DIRSEARCH="./"
 DIRPATH="$(dirname "$0")/"
 while : ; do
-	case "$LIBTOOL" in
-	*" $DIRSEARCH"*)
-		LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
-		;;
-	*) break ;;
+	case "$DIRPATH" in
+	./*) DIRPATH="${DIRPATH/$DIRSEARCH/}" ;;
+	*) break;;
 	esac
 done
+if [ "$DIRPATH" != "" ]; then
+	while : ; do
+		case "$LIBTOOL" in
+		*" $DIRSEARCH"*)
+			LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
+			;;
+		*) break ;;
+		esac
+	done
+fi
 case "$LIBTOOL" in
 /*)
   ;;
