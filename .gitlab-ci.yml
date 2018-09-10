@@ -11,7 +11,7 @@ pages:
   - for p in autoreconf autoconf automake aclocal; do $p --version | head -1 ; done
   - ./bootstrap
   - mkdir build
-  - cd build && ../configure
+  - ( cd build && ../configure )
   - make -C build
   artifacts:
     paths:
