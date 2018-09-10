@@ -18,7 +18,7 @@ class QueueConfig : protected WithConfiguration {
     virtual ~QueueConfig(void) {}
     /** Get the queue id of the queue
      */
-    queue_id_t id();
+    queue_id_t id() {return _id;};
     /** Tell if the queue is special or classic
 
        Special queues:
