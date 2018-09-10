@@ -55,6 +55,7 @@ EventType *Configuration::registerEventType(EventType *eventType) {
             Event::code_t code = eventTypesVector.size();
             eventTypesVector.push_back(eventType);
             eventType->setCode(code);
+            this->ratesSum += eventType->rate;
         });
 }
 
@@ -77,6 +78,18 @@ QueueConfig *Configuration::getQueueConfig(std::string name) {
 EventType *Configuration::getEventType(unsigned num) {
     assert(num < eventTypesVector.size());
     return eventTypesVector[num];
+}
+
+EventType *Configuration::getRandomEventType(Random *g) {
+    double r=g->Uab(0.0, ratesSum);
+    double partialRatesSum=0.0;
+    for (auto et : eventTypesVector) {
+        partialRatesSum += et->rate;
+        if (partialRatesSum >= r) {
+            return et;
+        }
+    }
+    assert(partialRatesSum < r && false);
 }
 
 void Configuration::loadTransitionLibrary(std::string libname,

@@ -115,6 +115,7 @@ class EventType : protected WithConfiguration {
     const string _name;
     Transition *transition;
     double rate;
+    friend EventType *Configuration::getRandomEventType(Random *);
     // Numbered formal parameters
     std::vector<FormalParameterValues *> formalParameters;
     // Association from names to formal parameter number
