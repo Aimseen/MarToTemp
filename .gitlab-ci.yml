@@ -8,7 +8,7 @@ image: vdanjean/autotools
 pages:
   script:
   - env | sort
-  - for p in autoreconf autoconf automake aclocal libtool; do $p --version | head -1 ; done
+  - for p in autoreconf autoconf automake aclocal; do $p --version | head -1 ; done
   - ./bootstrap
   - mkdir build
   - cd build && ../configure
