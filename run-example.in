@@ -80,14 +80,11 @@ set-tool() {
 LIBTOOL="@LIBTOOL@"
 DIRSEARCH="./"
 DIRPATH="$(dirname "$0")/"
-while : ; do
-	case "$LIBTOOL" in
-	*" $DIRSEARCH"*)
-		LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
-		;;
-	*) break ;;
-	esac
-done
+case "$LIBTOOL" in
+*" $DIRSEARCH"*)
+	LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
+	;;
+esac
 case "$LIBTOOL" in
 /*)
   ;;
@@ -103,7 +100,7 @@ else
 fi 
 use_libtool=$default_libtool
 EXEC=
-gdb_tool="$(which ggdb || true)"
+gdb_tool="$(which lldb || true)"
 gdb_tool="${gdb_tool:-gdb}"
 while true ; do
         case "$1" in
@@ -153,6 +150,17 @@ if [ "$(which "$PROG")" = "" ]; then
 		fi
 	done
 fi
+
+case $OSTYPE in
+	darwin*)
+		case $tool in
+		*lldb)
+			binary=$(dirname $PROG)/.libs/$(basename $PROG)
+		 	logrun $LINFO install_name_tool -change /usr/local/lib/libmarto.0.dylib @executable_path/libmarto.0.dylib $binary
+			;;
+		esac
+	;;
+esac
 
 logrun $LINFO export LTDL_LIBRARY_PATH="@abs_top_builddir@/src/libtransition${LTDL_LIBRARY_PATH:+:${LTDL_LIBRARY_PATH}}"
 
