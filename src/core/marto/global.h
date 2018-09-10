@@ -41,11 +41,23 @@ class Configuration {
               typename TMV = typename std::map<std::string, T *>::value_type>
     T *_register(TM &map, std::string name, T *value, Func lambdaIfRegister);
 
+    /** \brief sum of rates of all registered eventTypes
+     */
+    double ratesSum;
+
   public:
     Configuration()
         : transitionsMap(), eventTypesMap(), eventTypesVector(),
-          queueConfigsMap(), queueConfigsVector(){};
+          queueConfigsMap(), queueConfigsVector(), ratesSum(0.0) {};
+    /** \brief retrieve the eventType by its number
+     */
     EventType *getEventType(unsigned num);
+    /** \brief give an eventType randomly chosen
+     *
+     * rate of eventType are taken into account
+     */
+
+    EventType *getRandomEventType(Random *g);
     /** \brief retrieve the transition by its name
      *
      * \return the transition

@@ -80,11 +80,22 @@ set-tool() {
 LIBTOOL="@LIBTOOL@"
 DIRSEARCH="./"
 DIRPATH="$(dirname "$0")/"
-case "$LIBTOOL" in
-*" $DIRSEARCH"*)
-	LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
-	;;
-esac
+while : ; do
+	case "$DIRPATH" in
+	./*) DIRPATH="${DIRPATH/$DIRSEARCH/}" ;;
+	*) break;;
+	esac
+done
+if [ "$DIRPATH" != "" ]; then
+	while : ; do
+		case "$LIBTOOL" in
+		*" $DIRSEARCH"*)
+			LIBTOOL="${LIBTOOL/$DIRSEARCH/$DIRPATH}"
+			;;
+		*) break ;;
+		esac
+	done
+fi
 case "$LIBTOOL" in
 /*)
   ;;
