@@ -19,21 +19,21 @@ int Registering::autoregister(TransitionFactory *factory) {
     }
     transitionFactories->emplace_back(factory);
 #ifdef DEBUG_REGISTER
-    std::cout << "Registering " << name << " at addresse " << factory << " in "
-              << &transitionFactories << std::endl;
+    std::cerr << "Registering factory at addresse " << factory << " in "
+              << (&transitionFactories) << std::endl;
 #endif
     return 0;
 }
 
 void Registering::initTransitionLibrary(Configuration *config) {
 #ifdef DEBUG_REGISTER
-    std::cout << "Delegated registration"
-              << " from " << &transitions << std::endl;
+    std::cerr << "Delegated registration"
+              << " from " << (&transitionFactories) << std::endl;
 #endif
     for (auto factory : *transitionFactories) {
         marto::Transition *transition = factory->createTransition(config);
 #ifdef DEBUG_REGISTER
-        std::cout << "Really registering " << transition->name()
+        std::cerr << "Really registering " << transition->name()
                   << " at addresse " << transition << std::endl;
 #endif
         assert(transition != nullptr);
@@ -43,7 +43,7 @@ void Registering::initTransitionLibrary(Configuration *config) {
 extern "C" {
 void initTransitionLibrary(Configuration *config) {
 #ifdef DEBUG_REGISTER
-    std::cout << "Main registration" << std::endl;
+    std::cerr << "Main registration" << std::endl;
 #endif
     Registering::initTransitionLibrary(config);
 }
