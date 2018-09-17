@@ -12,6 +12,7 @@ std_transitions_la_LIBADD = $(TRANSITIONLIB_BUILD_LIBS) -ldl
 
 std_transitions_la_SOURCES=\
 	arrivalReject.cpp \
+	departure.cpp \
 	jsq2.cpp \
 	std_transitions.cpp \
 	std_transitions.h
