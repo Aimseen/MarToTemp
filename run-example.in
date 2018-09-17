@@ -176,12 +176,8 @@ fi
 
 case $UNAME_OSTYPE in
 	Darwin)
-		case $tool in
-		*lldb)
-			binary=$(dirname $PROG)/.libs/$(basename $PROG)
-			logrun $LINFO install_name_tool -change @libdir@/libmarto.0.dylib @executable_path/libmarto.0.dylib $binary
-			;;
-		esac
+		binary=$(dirname $PROG)/.libs/$(basename $PROG)
+		logrun $LINFO install_name_tool -change @libdir@/libmarto.0.dylib @executable_path/libmarto.0.dylib $binary
 	;;
 esac
 
