@@ -182,6 +182,7 @@ case $UNAME_OSTYPE in
 esac
 
 logrun $LINFO export LTDL_LIBRARY_PATH="@abs_top_builddir@/src/libtransition${LTDL_LIBRARY_PATH:+:${LTDL_LIBRARY_PATH}}"
+logrun $LINFO export MARTO_LIBRARY_PATH="@abs_top_builddir@/src/libtransition"
 
 if [ $use_libtool = true ]; then
 	LT="$LIBTOOL --mode=execute --"

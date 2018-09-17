@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <ltdl.h>
 #include <marto.h>
 
@@ -103,6 +104,17 @@ void Configuration::loadTransitionLibrary(std::string libname,
         if (err != 0) {
             throw DLOpenError(std::string("lt_dlinit error: ") +
                               std::to_string(err));
+        }
+        char *marto_library_path=getenv("MARTO_LIBRARY_PATH");
+        if (marto_library_path) {
+            // TODO: improve to accept list of directories
+            // Taking care of the separator (';' on windows, ':' elsewhere...)
+            // find a library ?
+            err = lt_dladdsearchdir(marto_library_path);
+            if (err != 0) {
+                throw DLOpenError(std::string("lt_dladdsearchdir error: ") +
+                                  lt_dlerror());
+            }
         }
         err = lt_dladdsearchdir(PKGLIBDIR);
         if (err != 0) {
