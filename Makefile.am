@@ -16,6 +16,7 @@ CLEANFILES=run-example
 edit = sed \
 	-e 's|@LIBTOOL[@]|$(LIBTOOL)|g' \
 	-e 's|@abs_top_builddir[@]|$(abs_top_builddir)|g' \
+	-e 's|@libdir[@]|$(libdir)|g' \
 	-e 's|@prefix[@]|$(prefix)|g'
 
 run-example: Makefile

@@ -77,6 +77,8 @@ set-tool() {
 	esac
 }
 
+UNAME_OSTYPE="$(uname -s)"
+
 LIBTOOL="@LIBTOOL@"
 DIRSEARCH="./"
 DIRPATH="$(dirname "$0")/"
@@ -111,8 +113,18 @@ else
 fi 
 use_libtool=$default_libtool
 EXEC=
-gdb_tool="$(which lldb || true)"
-gdb_tool="${gdb_tool:-gdb}"
+case "$UNAME_OSTYPE" in
+Darwin)
+	debugger_prgs="lldb gdb" ;;
+*)
+	debugger_prgs="gdb lldb" ;;
+esac
+for prog in $debugger_prgs ; do
+	gdb_tool="$(which $prog || true)"
+	if [ -n "$gdb_tool" ]; then
+		break
+	fi
+done
 while true ; do
         case "$1" in
         -h|--help) usage ; exit 0 ;;
@@ -162,12 +174,12 @@ if [ "$(which "$PROG")" = "" ]; then
 	done
 fi
 
-case $OSTYPE in
-	darwin*)
+case $UNAME_OSTYPE in
+	Darwin)
 		case $tool in
 		*lldb)
 			binary=$(dirname $PROG)/.libs/$(basename $PROG)
-		 	logrun $LINFO install_name_tool -change /usr/local/lib/libmarto.0.dylib @executable_path/libmarto.0.dylib $binary
+			logrun $LINFO install_name_tool -change @libdir@/libmarto.0.dylib @executable_path/libmarto.0.dylib $binary
 			;;
 		esac
 	;;
