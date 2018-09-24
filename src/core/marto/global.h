@@ -34,7 +34,7 @@ class Configuration {
     friend class Point; //< Point constructor iterates over queueConfigsVector.
                         // TODO: to encapsulate ?
     RandomFabric *randomFabric;
-    
+
     /** \brief private template to factorize the two 'register' methods
      */
     template <typename T, typename Func,
@@ -109,11 +109,11 @@ class Configuration {
      *  Only one thread can use it at any time
      */
     Random *newRandom();
+
   public:
     /** \brief to be used only for test. No direct access should be required */
-    Random *newDebugRandom() {
-        return newRandom();
-    }
+    Random *newDebugRandom() { return newRandom(); }
+
   public:
     typedef std::function<void(lt_dlhandle handle)> loadLibraryCallback_t;
     /** \brief load a user defined library of transitions

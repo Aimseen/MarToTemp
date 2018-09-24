@@ -89,7 +89,8 @@ class RandomStreamGenerator {
 /** \brief abstract class that must be provided to the config
  *
  * \note: this object can used in parallel by different threads
- * \note: this object should be implemented as a singleton (service common to all threads to get their local RandomStreamGenerator
+ * \note: this object should be implemented as a singleton (service common to
+ * all threads to get their local RandomStreamGenerator
  */
 class RandomFabric {
     /** \brief forbid copy of this kind of objects */
@@ -106,17 +107,19 @@ class RandomFabric {
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) = 0;
 };
 
-/** \brief multi-purpose object used for the generation of random values in the current substream 
- * and the spawn of new generators on a new substream
+/** \brief multi-purpose object used for the generation of random values in the
+ * current substream and the spawn of new generators on a new substream
  *
- * This class is for use inside MarTo itself, not for users in their simulations.
- * Random values are made available to users through the use of variadic (or not) lists of values
- * implemented by ParameterValues.
- * This way, random values provided to the users are properly saved and regenerated when replaying.
+ * This class is for use inside MarTo itself, not for users in their
+ * simulations. Random values are made available to users through the use of
+ * variadic (or not) lists of values implemented by ParameterValues. This way,
+ * random values provided to the users are properly saved and regenerated when
+ * replaying.
  *
- * Objects of this class are not thread safe : they will be instantiated into a local objet by each
- * thread when simulating replaying. Other threads working on the same chunk should have their own
- * local copies based on the state saved at the beginning of the chunk.
+ * Objects of this class are not thread safe : they will be instantiated into a
+ * local objet by each thread when simulating replaying. Other threads working
+ * on the same chunk should have their own local copies based on the state saved
+ * at the beginning of the chunk.
  */
 class Random : public RandomStream, RandomStreamGenerator {
     /** \brief forbid copy of this kind of objects */

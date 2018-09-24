@@ -11,7 +11,7 @@
 
 namespace marto {
 
-Configuration::Configuration() : Configuration(new RandomLecuyer()) { }
+Configuration::Configuration() : Configuration(new RandomLecuyer()) {}
 
 template <typename T, typename Func, typename TM, typename TMV>
 T *Configuration::_register(TM &map, string name, T *value,
