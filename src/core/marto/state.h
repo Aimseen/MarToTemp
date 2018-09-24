@@ -18,18 +18,18 @@ std::ostream &operator<<(std::ostream &out, const marto::Point &p);
 namespace marto {
 
 /** Set implementation ; internal structure
-*/
+ */
 class SetImpl {
     /** used to call the transition:apply function
-    * corresponding to the SetImpl type
-         */
+     * corresponding to the SetImpl type
+     */
   public:
     virtual ~SetImpl() {}
     virtual SetImpl *accept(Transition *t, Event *ev) = 0;
 };
 
 /** One point in the state space
-*/
+ */
 class Point : protected std::vector<Queue *>,
               public SetImpl,
               protected WithConfiguration {
@@ -98,7 +98,7 @@ class Point : protected std::vector<Queue *>,
 };
 
 /** Subset of the state space with a shape of hyperrectangle
-*/
+ */
 class HyperRectangle : public SetImpl {
   private:
     marto::Point *inf_, *sup_;
@@ -121,7 +121,7 @@ class HyperRectangle : public SetImpl {
 };
 
 /** Union of subsets of the state space
-*/
+ */
 class Union : public SetImpl {
   public:
     virtual SetImpl *accept(Transition *t, Event *ev);
@@ -138,7 +138,7 @@ class Union : public SetImpl {
 };
 
 /** Class that is a bridge to the actual set implementation
-*/
+ */
 class Set {
   public:
     /** Create a set of state that will evolve
@@ -147,7 +147,7 @@ class Set {
      * to this object. Ie, it will be deleted if required by a
      * transition (so it must be properly allocated).
      */
-    Set(SetImpl *s) : _realset(s) { assert(s!=nullptr); }
+    Set(SetImpl *s) : _realset(s) { assert(s != nullptr); }
     SetImpl *realset(void) { return _realset; }; // read
   private:
     /** the apply(Set *s, Event *ev) method in Transition will
@@ -157,12 +157,12 @@ class Set {
     /** update the set, should be used only by Transition::apply
      */
     void realset(SetImpl *s) {
-        assert(s!=nullptr) ;
+        assert(s != nullptr);
         _realset = s;
-    };  // write
+    }; // write
     SetImpl *_realset;
 };
-}
+} // namespace marto
 
 #endif
 

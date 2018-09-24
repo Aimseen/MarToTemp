@@ -18,7 +18,7 @@ class QueueConfig : protected WithConfiguration {
     virtual ~QueueConfig(void) {}
     /** Get the queue id of the queue
      */
-    queue_id_t id() {return _id;};
+    queue_id_t id() { return _id; };
     /** Tell if the queue is special or classic
 
        Special queues:
@@ -27,9 +27,9 @@ class QueueConfig : protected WithConfiguration {
      */
     virtual bool hasNoState() { return false; }
     /** return a new queue state
-    *
-    * TODO: should check that the queue config is registered
-    */
+     *
+     * TODO: should check that the queue config is registered
+     */
     virtual Queue *newQueue() { return allocateQueue(); }
     virtual Queue *newQueue(queue_state_t value) {
         return allocateQueue(value);
@@ -169,7 +169,7 @@ class OutsideQueue : public StateLessQueueConfig {
   protected:
     virtual Queue *allocateQueue();
 };
-}
+} // namespace marto
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),

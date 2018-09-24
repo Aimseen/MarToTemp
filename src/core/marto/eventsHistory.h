@@ -279,7 +279,7 @@ class EventsHistory : protected WithConfiguration {
     }
     friend class EventsChunk;
 };
-}
+} // namespace marto
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),

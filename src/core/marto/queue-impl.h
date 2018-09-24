@@ -20,7 +20,7 @@ inline QueueConfig::QueueConfig(Configuration *c, const std::string &name)
 }
 
 inline StateLessQueueConfig::~StateLessQueueConfig() { delete queueState; }
-}
+} // namespace marto
 
 #endif
 #endif

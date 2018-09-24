@@ -17,7 +17,7 @@ namespace marto {
         assert(0);                                                             \
         abort();                                                               \
     } while (0);
-}
+} // namespace marto
 
 #include <climits>
 template <typename T> T next_power2(T value) {

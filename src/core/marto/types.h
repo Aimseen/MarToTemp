@@ -30,6 +30,6 @@ typedef uint32_t queue_id_t;
 
 /** queue content */
 typedef int32_t queue_state_t;
-}
+} // namespace marto
 #endif
 #endif

@@ -12,4 +12,4 @@ ParameterValues::ParameterValues(size_t bufSize) : bufferSize(bufSize) {
     assert(buffer != nullptr);
     reset();
 }
-}
+} // namespace marto

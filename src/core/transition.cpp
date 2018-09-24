@@ -43,4 +43,4 @@ SetImpl *Transition::apply(Union *u, Event *ev) {
     // Union of Union are union, point inside Union can be removed, etc.
     return u;
 }
-}
+} // namespace marto

@@ -72,4 +72,4 @@ class OutsideQueueState : public TypedQueue<OutsideQueue> {
 };
 
 Queue *OutsideQueue::allocateQueue() { return new OutsideQueueState(this); }
-}
+} // namespace marto

@@ -46,7 +46,7 @@ class DLOpenError : public std::runtime_error {
   public:
     DLOpenError(std::string s) : std::runtime_error(s){};
 };
-}
+} // namespace marto
 
 #endif
 

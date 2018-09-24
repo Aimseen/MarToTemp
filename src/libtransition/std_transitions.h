@@ -33,7 +33,7 @@ class Registering {
     static void initTransitionLibrary(Configuration *config);
 };
 class Registered {};
-};
+}; // namespace marto::autoregister::transitions
 
 #define class_transition(name, ns)                                             \
     namespace ns {                                                             \

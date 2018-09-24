@@ -27,11 +27,11 @@ class Transition : protected WithConfiguration {
 #define default_transition_constructors using marto::Transition::Transition;
 
     /** in: s, ev
-    *  out: ? (FIXME)
-    * Apply transition to state in Set s
-    * May change the type of the state contained in Set s, from
-    * HyperRectangle to Union for instance
-    */
+     *  out: ? (FIXME)
+     * Apply transition to state in Set s
+     * May change the type of the state contained in Set s, from
+     * HyperRectangle to Union for instance
+     */
     int apply(Set *s, Event *ev);
 
     /** Technical apply method
@@ -68,7 +68,7 @@ class Transition : protected WithConfiguration {
     /** give the name of the transition */
     const std::string &name() { return _name; }
 };
-}
+} // namespace marto
 /* Pseudo code d'explication :
    - ma poltique :
    class MaPolitique : Transition {

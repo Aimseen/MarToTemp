@@ -21,7 +21,7 @@ template <typename T> T *Allocator<T>::allocate() {
 }
 
 template <typename T> void Allocator<T>::free(T *o) { push(o); }
-}
+} // namespace marto
 
 #endif
 #endif

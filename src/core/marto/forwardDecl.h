@@ -68,6 +68,6 @@ class Set;
 
 /* transition.h */
 class Transition;
-}
+} // namespace marto
 #endif
 #endif

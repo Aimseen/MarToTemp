@@ -53,6 +53,6 @@ class RandomLecuyer : public RandomFabric {
     virtual RandomStreamGenerator *newRandomStreamGenerator();
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
-}
+} // namespace marto
 
 #endif
