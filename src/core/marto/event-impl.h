@@ -53,7 +53,7 @@ inline EventType *Event::setType(EventType *type) {
     }
     return type;
 }
-}
+} // namespace marto
 
 #endif
 #endif

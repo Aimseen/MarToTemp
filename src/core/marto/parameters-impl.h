@@ -121,7 +121,7 @@ void FormalConstantList<T>::getEffective(
     size_t index, ParameterValues *__marto_unused(actualValues), void *pvalue) {
     *(T *)pvalue = values->get<T>(index);
 }
-}
+} // namespace marto
 
 #endif
 #endif

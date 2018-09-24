@@ -16,20 +16,22 @@ namespace marto {
 
 /* forward declaration for friend */
 class RandomDeterministicStreamGenerator;
-/** \brief test class that whose streams will return sequences provided at initialisation time
+/** \brief test class that whose streams will return sequences provided at
+ * initialisation time
  */
 class RandomDeterministic : public RandomFabric {
     friend RandomDeterministicStreamGenerator;
+
   private:
-    std::vector<std::vector<double>*> *streams;
+    std::vector<std::vector<double> *> *streams;
 
   public:
     ~RandomDeterministic(){};
-    RandomDeterministic(std::vector<std::vector<double>*> *s) : streams(s) {};
+    RandomDeterministic(std::vector<std::vector<double> *> *s) : streams(s){};
     virtual RandomStreamGenerator *newRandomStreamGenerator();
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
 
-}
+} // namespace marto
 
 #endif

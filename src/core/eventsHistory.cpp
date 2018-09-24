@@ -100,7 +100,7 @@ event_access_t EventsIterator::storeNextEvent(Event *ev) {
         try {
             EventsOStream ostream(buffer,
                                   curChunk->bufferEnd - buffer // available size
-                                  );
+            );
 
             event_access_t access = storeEventContent(ostream, ev);
             if (access != EVENT_STORED) {
@@ -183,4 +183,4 @@ void EventsHistory::backward(uint32_t nbEvents) {
     }
     firstChunk = chunk;
 }
-}
+} // namespace marto

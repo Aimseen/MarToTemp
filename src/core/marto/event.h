@@ -153,7 +153,7 @@ class EventType : protected WithConfiguration {
      */
     string name() const { return _name; }
 };
-}
+} // namespace marto
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),

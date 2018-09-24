@@ -147,6 +147,6 @@ class Random : public RandomStream, RandomStreamGenerator {
     RandomStream *crs;
     RandomStreamGenerator *rsg;
 };
-}
+} // namespace marto
 
 #endif

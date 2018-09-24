@@ -14,7 +14,7 @@ template <typename T> class Allocator : public stack<T *> {
     T *allocate();
     void free(T *o);
 };
-}
+} // namespace marto
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),

@@ -70,7 +70,7 @@ inline event_access_t EventsOStream::finalize() {
     *eventSizePtr = size;
     return EVENT_STORED;
 }
-}
+} // namespace marto
 
 #endif
 #endif

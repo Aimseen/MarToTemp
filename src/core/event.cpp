@@ -99,4 +99,4 @@ ParameterValues *Event::getParameter(string name) {
 }
 
 void Event::apply(Point *p) { type()->transition->apply(p, this); }
-}
+} // namespace marto

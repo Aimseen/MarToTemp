@@ -60,7 +60,7 @@ class FormalParameterValues {
     size_t sizeofValues() { return sizeofValue; };
 
     /** \brief called when a new event is generated
-    */
+     */
     void generate(ParameterValues *actualValues, Random *g);
 
     /** \brief called to load a PV from history
@@ -335,7 +335,7 @@ class ParameterValues {
     size_t nbValues;           ///< # values currently stored in the buffer
     void *pinfo; ///< generic pointer to be used by the FormalParameterValue
 };
-}
+} // namespace marto
 
 #ifndef MARTO_H
 // In case of direct inclusion (instead of using <marto.h>),

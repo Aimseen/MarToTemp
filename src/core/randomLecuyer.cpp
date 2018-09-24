@@ -150,4 +150,4 @@ RandomStreamGenerator *RandomLecuyer::newRandomStreamGenerator() {
 void RandomLecuyer::deleteRandomStreamGenerator(RandomStreamGenerator *rsg) {
     delete rsg;
 }
-};
+}; // namespace marto

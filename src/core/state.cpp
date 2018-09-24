@@ -57,4 +57,4 @@ SetImpl *HyperRectangle::accept(Transition *t, Event *ev) {
 }
 
 SetImpl *Union::accept(Transition *t, Event *ev) { return t->apply(this, ev); }
-}
+} // namespace marto

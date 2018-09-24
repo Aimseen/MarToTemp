@@ -48,7 +48,7 @@ class Configuration {
   public:
     Configuration()
         : transitionsMap(), eventTypesMap(), eventTypesVector(),
-          queueConfigsMap(), queueConfigsVector(), ratesSum(0.0) {};
+          queueConfigsMap(), queueConfigsVector(), ratesSum(0.0){};
     /** \brief retrieve the eventType by its number
      */
     EventType *getEventType(unsigned num);
@@ -139,6 +139,6 @@ class WithConfiguration {
     WithConfiguration(Configuration *c) : _config(c) { assert(c != nullptr); }
     Configuration *config() const { return _config; }
 };
-}
+} // namespace marto
 #endif
 #endif

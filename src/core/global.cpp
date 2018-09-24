@@ -82,8 +82,8 @@ EventType *Configuration::getEventType(unsigned num) {
 }
 
 EventType *Configuration::getRandomEventType(Random *g) {
-    double r=g->Uab(0.0, ratesSum);
-    double partialRatesSum=0.0;
+    double r = g->Uab(0.0, ratesSum);
+    double partialRatesSum = 0.0;
     for (auto et : eventTypesVector) {
         partialRatesSum += et->rate;
         if (partialRatesSum >= r) {
@@ -105,7 +105,7 @@ void Configuration::loadTransitionLibrary(std::string libname,
             throw DLOpenError(std::string("lt_dlinit error: ") +
                               std::to_string(err));
         }
-        char *marto_library_path=getenv("MARTO_LIBRARY_PATH");
+        char *marto_library_path = getenv("MARTO_LIBRARY_PATH");
         if (marto_library_path) {
             // TODO: improve to accept list of directories
             // Taking care of the separator (';' on windows, ':' elsewhere...)
@@ -163,4 +163,4 @@ void Configuration::loadTransitionLibrary(std::string libname,
         (*initaddr)(this);
     });
 }
-}
+} // namespace marto

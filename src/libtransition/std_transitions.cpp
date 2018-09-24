@@ -48,4 +48,4 @@ void initTransitionLibrary(Configuration *config) {
     Registering::initTransitionLibrary(config);
 }
 }
-};
+}; // namespace marto::autoregister::transitions
