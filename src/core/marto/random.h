@@ -120,6 +120,7 @@ class Random : public RandomStream, RandomStreamGenerator {
     Random(const Random &) = delete;
     /** \brief forbid assignment of this kind of objects */
     Random &operator=(const Random &) = delete;
+    friend marto::Configuration;
     /** \brief constructor */
     Random(RandomStreamGenerator *v_rsg)
         : RandomStream(), RandomStreamGenerator(), rsg(v_rsg) {
@@ -138,6 +139,9 @@ class Random : public RandomStream, RandomStreamGenerator {
     };
     virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) {
         return crs->store(ostream, hist);
+    };
+    virtual void setInitialStateFromCurrentState() {
+        return crs->setInitialStateFromCurrentState();
     };
     virtual double U01() { return crs->U01(); };
     virtual double Uab(double inf, double sup) { return crs->Uab(inf, sup); };

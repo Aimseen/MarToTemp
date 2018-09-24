@@ -24,4 +24,6 @@ AT_NTG_TEST_PROG([test_history], [History test], [], [$abs_top_builddir/run-exam
 
 AT_NTG_TEST_PROG([test_parameters], [Parameters test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
 
+AT_NTG_TEST_PROG([test_random], [Random test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
+
 AT_NTG_TEST_PROG([test_simple-forward], [Simple-forward test], [], [$abs_top_builddir/run-example], [], [], [ignore], [ignore])
