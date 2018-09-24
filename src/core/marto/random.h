@@ -6,32 +6,10 @@
  * Random number generation library for MarTo
  *
 \***********************************************************************/
-/* Notes relatives au générateur de Lecuyer
-
-Etat courant de PSI3 :
-- pas de IncreasedPrec
-- pas de SetAntithetic
-- pas de AdvanceState
-
-Questions :
-- Get/WriteState ne travaille que sur Cg (WriteStateFull, verbeux travaille sur
-les 3)
-- AdvanceState : semble être un déplacement dans le stream, non utilisé par
-PSI3, utile ?
-- ResetStartStream utilisé par psi. Restaure Cg et Bg à partir de Ig, MAIS
-Get/WriteState ne travaille que sur Cg
-- SetSeed : restaure la graine donnée dans Cg, Bg et Ig -> plutôt utiliser ça,
-non ?
-- ResetNextSubStream : apparemment pour passer au substream suivant mais non
-utilisé dans psi
-- Le constructeur semble créer un générateur sur le stream suivant
-
+/*
 Objective :
 - Each chunk is associated with a different stream
-- Each variadic parameter is associated with a different substream
-
-
-
+- Each variadic parameter is associated with a different stream
 */
 #ifndef MARTO_RANDOM_H
 #define MARTO_RANDOM_H
@@ -47,8 +25,6 @@ namespace marto {
  *
  * Default methods are provided to transform the (0,1) interval
  * into other kind of intervals. They can be used or reimplemented.
- *
- * \note: only one thread can use this object
  */
 class RandomStream {
     /** \brief forbid copy of this kind of objects */
@@ -67,11 +43,20 @@ class RandomStream {
                                 EventsHistory *hist) = 0;
     virtual event_access_t store(EventsOStream &ostream,
                                  EventsHistory *hist) = 0;
+    /** \brief define the current state as the initial one
+     *
+     * If the store() method is latter called, the current (at the
+     * time of the setInitialStateFromCurrentState call) state will be
+     * saved, not the future (at the time of store call) state.
+     */
     virtual void setInitialStateFromCurrentState() = 0;
+    /** \brief uniform random value in [0,1) */
     virtual double U01() = 0;
+    /** \brief uniform random value in [inf,sup) */
     virtual double Uab(double inf, double sup) {
         return (inf + (sup - inf) * U01());
     };
+    /** \brief uniform random integer value in [min,max] */
     virtual long Iab(long min, long max) { return (long)Uab(min, max + 1); };
 };
 
@@ -118,19 +103,6 @@ class RandomFabric {
     virtual ~RandomFabric(){};
     virtual RandomStreamGenerator *newRandomStreamGenerator() = 0;
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) = 0;
-};
-
-/** \brief test class that whose streams will return sequential 'random' numbers
- */
-class RandomTest : public RandomFabric {
-  private:
-    int cur;
-
-  public:
-    ~RandomTest(){};
-    RandomTest();
-    virtual RandomStreamGenerator *newRandomStreamGenerator();
-    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
 
 // The comment below seems wrong : we decided to give ParameterValues as the
