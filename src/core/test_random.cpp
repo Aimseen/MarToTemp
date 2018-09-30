@@ -8,22 +8,99 @@ namespace {
 
 using namespace marto;
 
-TEST(RandomDeterministic, CreateGenerator) {
+/** Checking that RandomDeterministic gives us back the provided values */
+TEST(RandomDeterministic, GetContent) {
 
-    std::vector<double> s0{1, 2, 3, 4};
-    std::vector<double> s1{10, 11, 12, 13, 14};
-    std::vector<std::vector<double> *> streams{&s0, &s1};
+    std::vector<double> s0 { 1, 2, 3, 4 };
+    std::vector<double> s1 { 10, 11, 12, 13, 14};
+    std::vector<double> s2 { 0.1, 1.1, 1.2, 1.3, 1.4};
+    std::vector<std::vector<double> *> streams { &s0, &s1, &s2 };
 
-    RandomFabric *rf = new RandomDeterministic(&streams);
+    RandomFabric *rf=new RandomDeterministic(&streams);
     ASSERT_TRUE(rf);
-    Configuration *c = new Configuration(rf);
+    Configuration *c=new Configuration(rf);
     ASSERT_TRUE(c);
-    Random *r = c->newDebugRandom();
+    Random *r=c->newDebugRandom();
     ASSERT_TRUE(r);
+    for (std::vector<double> * stream: streams) {
+        RandomStream *rs;
+        if (stream == &s0) {
+            rs=r;
+        } else {
+            rs=r->newRandomStream();
+        }
+        for (double vinit: *stream) {
+            double v=rs->Uab(0, 100);
+            ASSERT_EQ(vinit, v);
+        }
+        ASSERT_THROW(rs->Uab(0, 100), std::out_of_range);
+    }
+    ASSERT_THROW(r->newRandomStream(), std::out_of_range);
 }
 
-/** Common base for tests (in the google framework)
+/** Checking that RandomDeterministic generates an exception if provided values are wrong */
+TEST(RandomDeterministic, CheckBounds) {
+
+    std::vector<double> s0 { 1, 0.5, 0, -0.00001, 0.999999, 1, 1.1, 10.99999999, 11, 13, 0, 1, 2, 3, 4, 5 };
+    std::vector<std::vector<double> *> streams { &s0 };
+
+    RandomFabric *rf=new RandomDeterministic(&streams);
+    ASSERT_TRUE(rf);
+    Configuration *c=new Configuration(rf);
+    ASSERT_TRUE(c);
+    Random *r=c->newDebugRandom();
+    ASSERT_TRUE(r);
+
+    ASSERT_THROW(r->U01(), std::out_of_range);
+    ASSERT_EQ(0.5, r->U01());
+    ASSERT_EQ(0, r->U01());
+    ASSERT_THROW(r->U01(), std::out_of_range);
+    ASSERT_THROW(r->Uab(1, 11), std::out_of_range);
+    ASSERT_EQ(1, r->Uab(1, 11));
+    ASSERT_EQ(1.1, r->Uab(1, 11));
+    ASSERT_EQ(10.99999999, r->Uab(1, 11));
+    ASSERT_THROW(r->Uab(1, 11), std::out_of_range);
+    ASSERT_THROW(r->Uab(1, 11), std::out_of_range);
+    ASSERT_THROW(r->Iab(1, 3), std::out_of_range);
+    ASSERT_EQ(1, r->Iab(1, 3));
+    ASSERT_EQ(2, r->Iab(1, 3));
+    ASSERT_EQ(3, r->Iab(1, 3));
+    ASSERT_THROW(r->Iab(1, 3), std::out_of_range);
+    ASSERT_EQ(5, r->Iab(5, 5));
+
+    ASSERT_THROW(r->U01(), std::out_of_range);
+}
+
+/** Checking that getRandomEventType gives us the expected result
  */
+TEST(RandomTest, getRandomEventType) {
+
+    std::vector<double> s0 { 0.2, 0.5, 1.1, 1.4, 1.499999, 0};
+    std::vector<std::vector<double> *> streams { &s0 };
+
+    RandomFabric *rf=new RandomDeterministic(&streams);
+    ASSERT_TRUE(rf);
+    Configuration *c=new Configuration(rf);
+    ASSERT_TRUE(c);
+    Random *r=c->newDebugRandom();
+    ASSERT_TRUE(r);
+
+    c->loadTransitionLibrary();
+    std::cerr << "Transitions library loaded" << std::endl;
+    new TransitionTest(c, "TransitionTest");
+
+    EventType *eta, *etb;
+    eta = new EventType(c, "Arrival MM1", 0.5, "ArrivalReject");
+    etb = new EventType(c, "Departure MM1", 1, "Departure");
+
+    for (double value: s0) {
+        EventType *etexpected = (value <= 0.5)?eta:etb;
+        EventType *etgot = c->getRandomEventType(r);
+        ASSERT_EQ(etexpected, etgot);
+    }
+}
+
+#if 0
 class RandomBaseTest : public ::testing::Test {
   protected:
     RandomBaseTest() {
@@ -73,23 +150,6 @@ class RandomBaseTest : public ::testing::Test {
     EventsHistory *h;
 };
 
-TEST_F(RandomBaseTest, GetEvents) {
-
-    Point p1(c);
-    std::cout << "p1=" << p1 << std::endl;
-    for (auto s : p1.states()) {
-        ASSERT_EQ(s, 0);
-    }
-    ASSERT_EQ(p1.states().size(), 2); //< 2 queues created
-    // p1.at(0)->addClient(1);
-    Point p2(c, 8);
-    std::cout << "p2=" << p2 << std::endl;
-    for (auto s : p2.states()) {
-        ASSERT_EQ(s, 8);
-    }
-    ASSERT_EQ(p2.states().size(), 2); //< 2 queues created
-}
-
 TEST_F(RandomBaseTest, SimpleForwardMM1) {
     auto itw = h->iterator();
     ASSERT_TRUE(itw);
@@ -115,7 +175,7 @@ TEST_F(RandomBaseTest, SimpleForwardMM1) {
     // reading history and updating state
     auto itr = h->iterator();
     while (true) {
-        std::cout << state_pt << std::endl;
+        // std::cout << state_pt << std::endl;
         e->apply(state_pt);
         if (itr->loadNextEvent(e) == UNDEFINED_EVENT)
             break; // end of history
@@ -124,4 +184,5 @@ TEST_F(RandomBaseTest, SimpleForwardMM1) {
         ASSERT_EQ(s, 0);
     }
 }
+#endif
 } // namespace
