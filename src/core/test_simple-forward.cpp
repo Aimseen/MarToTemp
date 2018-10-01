@@ -74,6 +74,7 @@ TEST_F(SimpleForwardBaseTest, StateTest) {
     ASSERT_EQ(p2.states().size(), 2); //< 2 queues created
 }
 
+/* Testing M/M/1 trajectory with hard-coded history  */
 TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
     auto itw = h->iterator();
     ASSERT_TRUE(itw);
