@@ -33,6 +33,7 @@ class Configuration {
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
     friend class Point; //< Point constructor iterates over queueConfigsVector.
                         // TODO: to encapsulate ?
+    RandomFabric *randomFabric;
 
     /** \brief private template to factorize the two 'register' methods
      */
@@ -46,9 +47,13 @@ class Configuration {
     double ratesSum;
 
   public:
-    Configuration()
+    /** \brief constructor with an explicit RandomFabric */
+    Configuration(RandomFabric *r)
         : transitionsMap(), eventTypesMap(), eventTypesVector(),
-          queueConfigsMap(), queueConfigsVector(), ratesSum(0.0){};
+          queueConfigsMap(), queueConfigsVector(), randomFabric(r),
+          ratesSum(0.0){};
+    /** \brief constructor with our RandomFabric (based on Lecuyer) */
+    Configuration();
     /** \brief retrieve the eventType by its number
      */
     EventType *getEventType(unsigned num);
@@ -98,6 +103,16 @@ class Configuration {
      */
     EventType *registerEventType(EventType *eventType);
     friend class EventType;
+
+    /** \brief generate a new Random object to be associated with a chunk
+     *
+     *  Only one thread can use it at any time
+     */
+    Random *newRandom();
+
+  public:
+    /** \brief to be used only for test. No direct access should be required */
+    Random *newDebugRandom() { return newRandom(); }
 
   public:
     typedef std::function<void(lt_dlhandle handle)> loadLibraryCallback_t;

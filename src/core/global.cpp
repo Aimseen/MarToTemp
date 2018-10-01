@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <ltdl.h>
 #include <marto.h>
+#include <marto/randomLecuyer.h>
 
 //#define DEBUG_REGISTER
 
@@ -9,6 +10,8 @@
 #endif
 
 namespace marto {
+
+Configuration::Configuration() : Configuration(new RandomLecuyer()) {}
 
 template <typename T, typename Func, typename TM, typename TMV>
 T *Configuration::_register(TM &map, string name, T *value,
@@ -91,6 +94,10 @@ EventType *Configuration::getRandomEventType(Random *g) {
         }
     }
     assert(partialRatesSum < r && false);
+}
+
+Random *Configuration::newRandom() {
+    return new Random(randomFabric->newRandomStreamGenerator());
 }
 
 void Configuration::loadTransitionLibrary(std::string libname,

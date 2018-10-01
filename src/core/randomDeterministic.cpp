@@ -14,8 +14,7 @@ class RandomDeterministicStream : public RandomStream {
     size_t init_pos;
 
   protected:
-    RandomDeterministicStream(RandomDeterministicStreamGenerator *s, size_t sid)
-        : sgen(s), stream_id(sid), next_pos(0), init_pos(0){};
+    RandomDeterministicStream(RandomDeterministicStreamGenerator *s, size_t sid);
 
   public:
     virtual event_access_t load(EventsIStream &istream,
@@ -41,6 +40,8 @@ class RandomDeterministicStream : public RandomStream {
     };
     virtual void setInitialStateFromCurrentState() { init_pos = next_pos; };
     virtual double U01();
+    virtual double Uab(double inf, double sup);
+    virtual long Iab(long min, long max);
 };
 
 class RandomDeterministicStreamGenerator : public RandomStreamGenerator {
@@ -63,8 +64,38 @@ class RandomDeterministicStreamGenerator : public RandomStreamGenerator {
     virtual void deleteRandomStream(RandomStream *rs) { delete rs; };
 };
 
+RandomDeterministicStream::RandomDeterministicStream(RandomDeterministicStreamGenerator *s, size_t sid)
+    : sgen(s), stream_id(sid), next_pos(0), init_pos(0){
+    sgen->stream(stream_id);
+};
+
 double RandomDeterministicStream::U01() {
-    return sgen->stream(stream_id)->at(next_pos++);
+    double value=sgen->stream(stream_id)->at(next_pos++);
+    if (!(value < 1 && value >= 0)) {
+        throw std::out_of_range(((std::string)__FUNCTION__) + ": invalid programmed random value: "
+                                + std::to_string(value) + " is not in [0;1)");
+    }
+    return value;
+};
+
+double RandomDeterministicStream::Uab(double inf, double sup) {
+    double value=sgen->stream(stream_id)->at(next_pos++);
+    if (!(value < sup && value >= inf)) {
+        throw std::out_of_range(((std::string)__FUNCTION__) + ": invalid programmed random value: "
+                                + std::to_string(value) + " is not in [" + std::to_string(inf) + ";"
+                                + std::to_string(sup) + ")");
+    }
+    return value;
+};
+
+long RandomDeterministicStream::Iab(long min, long max) {
+    long value=sgen->stream(stream_id)->at(next_pos++);
+    if (!(value <= max && value >= min)) {
+        throw std::out_of_range(((std::string)__FUNCTION__) + ": invalid programmed random value "
+                                + std::to_string(value) + " is not in [" + std::to_string(min) + ";"
+                                + std::to_string(max) + "]");
+    }
+    return value;
 };
 
 RandomStreamGenerator *RandomDeterministic::newRandomStreamGenerator() {
