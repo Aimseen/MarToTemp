@@ -145,8 +145,46 @@ class EventsStreamBase {
 
   public:
     /** \brief conversion in bool for while loops */
-    explicit operator bool() { return !eof(); };
-    bool eof() { return eofbit; };
+    explicit operator bool() const { return !eof(); };
+    bool eof() const { return eofbit; };
+
+  public:
+    template <typename T> class CompactInt;
+};
+
+/** \brief Helper class to store integral types compactly
+ *
+ * A constructor from and an explicit cast operator to the targeted
+ * type are provided.
+ *
+ * When saved in history, bits of the value are saved 7 by 7 in bytes.
+ * The MSB of the byte indicate if this is the last byte or not.
+ * If the type is signed, the 6th bit of the first byte is a sign bit.
+ * In case the value is negative, then all bits to be saved are reversed.
+ *
+ * Examples:
+ * * 0 => 00000000
+ * * 1 => 00000001
+ * * (unsigned)63 => 00111111
+ * * (int)63 => 00111111
+ * * (unsigned)64 => 01000000
+ * * (int)64 => 10000000 00000001
+ * *  => one more byte is required as there is a sign bit in the first byte
+ * * (int)-1 => 010000000
+ * * (int)-2 => 010000001
+ */
+template <typename T> class EventsStreamBase::CompactInt {
+  private:
+    T val;
+
+  public:
+    CompactInt() : val(0){};
+    CompactInt(T value) : val(value) {
+        static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+    };
+    explicit operator T() { return val; }
+    void read(EventsIStream &istream);
+    void write(EventsOStream &ostream) const;
 };
 
 /** \brief Class to read one event from history */
@@ -158,7 +196,7 @@ class EventsIStream : public EventsStreamBase {
      */
     EventsIStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
         eventsize_t evsize;
-        *this >> evsize;
+        read(evsize);
         eventsize = evsize;
         if (marto_unlikely(eventsize == 0)) {
             /* Event not yet fully written (finalized not called)
@@ -175,20 +213,44 @@ class EventsIStream : public EventsStreamBase {
         bufsize = eventsize - (buf - buffer);
     };
     friend event_access_t EventsIterator::loadNextEvent(Event *ev);
-
-    template <typename T> void external_func_for_compiler(T &var);
+    template <typename T>
+    friend void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream);
 
     template <typename T> void read(T &var);
 
+    /* convolution as partial template specialization is not allowed for
+     * function Idea taken from
+     * https://stackoverflow.com/questions/8061456/c-function-template-partial-specialization/21218271
+     */
+    template <bool is_integral, typename T>
+    inline typename std::enable_if<is_integral, void>::type readvar(T &var) {
+        CompactInt<T> cval;
+        cval.read(*this);
+        var = (T)cval;
+    }
+    template <bool is_integral, typename T>
+    inline typename std::enable_if<!is_integral, void>::type readvar(T &var) {
+        read(var);
+    }
+
   public:
     /** \brief classical >> input stream operator
+     *
+     * Integral types are compacted
      */
     template <typename T> EventsIStream &operator>>(T &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
-        read(var);
+        readvar<std::is_integral<T>::value>(var);
         return *this;
     }
-    /** \brief conversion in bool for while loops */
+
+    /** \brief >> input stream operator that will compact the value
+     */
+    template <typename T> EventsIStream &operator>>(CompactInt<T> &var) {
+        static_assert(std::is_integral<T>::value, "T must be integral");
+        var.read(*this);
+        return *this;
+    }
 };
 
 /** \brief Class to write the content of one event in a buffer
@@ -204,15 +266,33 @@ class EventsOStream : public EventsStreamBase {
         eventSizePtr = write((eventsize_t)0);
     };
     friend event_access_t EventsIterator::storeNextEvent(Event *ev);
+    template <typename T>
+    friend void
+    EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const;
 
     template <typename T> T *write(const T &value);
+
+    /* convolution as partial template specialization is not allowed for
+     * function Idea taken from
+     * https://stackoverflow.com/questions/8061456/c-function-template-partial-specialization/21218271
+     */
+    template <bool is_integral, typename T>
+    inline typename std::enable_if<is_integral, void>::type
+    writevar(const T &var) {
+        *this << (CompactInt<T>)var;
+    }
+    template <bool is_integral, typename T>
+    inline typename std::enable_if<!is_integral, void>::type
+    writevar(const T &var) {
+        write(var);
+    }
 
   public:
     /** \brief classical << output stream operator
      */
     template <typename T> EventsOStream &operator<<(const T &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
-        write(var);
+        writevar<std::is_integral<T>::value>(var);
         return *this;
     }
     /** \brief called when a store is interrupted */
@@ -220,6 +300,13 @@ class EventsOStream : public EventsStreamBase {
     /** \brief finalize the write of the event in the history
      */
     event_access_t finalize();
+
+  public:
+    template <typename T> EventsOStream &operator<<(const CompactInt<T> &var) {
+        static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+        var.write(*this);
+        return *this;
+    }
 };
 
 /** \brief Class to manage an events history

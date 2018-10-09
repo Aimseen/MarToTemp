@@ -141,7 +141,8 @@ TEST_F(EventsHistoryBaseTest, chunkSize) {
         while (h->nbAllocatedChunk < requestedChunks &&
                nbGeneratedEvents < 1000000) {
             ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e))
-                << "current chunk size " << size;
+                << "current chunk size " << size
+                << " nbGeneratedEvents=" << nbGeneratedEvents;
             nbGeneratedEvents++;
         }
         ASSERT_EQ(h->nbAllocatedChunk, requestedChunks);
@@ -156,6 +157,94 @@ TEST_F(EventsHistoryBaseTest, chunkSize) {
     }
     ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
     std::cout << "Nb events: " << nbReadEvents << std::endl;
+}
+
+class TestEventType : public EventType {
+  public:
+    TestEventType(Configuration *config, string eventName, double evtRate,
+                  string trName)
+        : EventType(config, eventName, evtRate, trName){};
+
+  protected:
+    template <typename T> void _load(EventsIStream &istream) {
+        T val;
+        size_t nbits = sizeof(T) * 8 - (std::is_signed<T>::value ? 1 : 0);
+        if (std::is_signed<T>::value) {
+            for (size_t i = 0; i <= nbits; i++) {
+                istream >> val;
+                ASSERT_EQ(val, ((T)-1) * ((T)1 << i));
+            }
+        }
+        for (size_t i = 0; i < nbits; i++) {
+            istream >> val;
+            ASSERT_EQ(val, (T)1 << i);
+        }
+    }
+    template <typename T> void _store(EventsOStream &ostream) {
+        T val;
+        size_t nbits = sizeof(T) * 8 - (std::is_signed<T>::value ? 1 : 0);
+        if (std::is_signed<T>::value) {
+            for (size_t i = 0; i <= nbits; i++) {
+                val = ((T)-1) * ((T)1 << i);
+                ostream << val;
+            }
+        }
+        for (size_t i = 0; i < nbits; i++) {
+            val = (T)1 << i;
+            ASSERT_TRUE(ostream << val);
+        }
+    }
+    virtual event_access_t load(EventsIStream &istream, Event *event,
+                                EventsHistory *hist) {
+        _load<int8_t>(istream);
+        _load<uint8_t>(istream);
+        _load<int16_t>(istream);
+        _load<uint16_t>(istream);
+        _load<int32_t>(istream);
+        _load<uint32_t>(istream);
+        _load<int64_t>(istream);
+        _load<uint64_t>(istream);
+        return EventType::load(istream, event, hist);
+    }
+    virtual event_access_t store(EventsOStream &ostream, Event *event,
+                                 EventsHistory *hist) {
+        _store<int8_t>(ostream);
+        _store<uint8_t>(ostream);
+        _store<int16_t>(ostream);
+        _store<uint16_t>(ostream);
+        _store<int32_t>(ostream);
+        _store<uint32_t>(ostream);
+        _store<int64_t>(ostream);
+        _store<uint64_t>(ostream);
+        return EventType::store(ostream, event, hist);
+    }
+};
+
+// Tests when storing different values
+TEST_F(EventsHistoryBaseTest, values) {
+    EventType *testet =
+        new TestEventType(c, "My test event", 42.0, "TransitionTest");
+    std::vector<int> v;
+    v.push_back(5);
+    v.push_back(6);
+    testet->registerParameter("to", new FormalConstantList<int>(2, v));
+
+    // Fixme : generator
+    e->generate(testet, nullptr);
+
+    auto itw = h->iterator();
+    h->chunkSize = 1024 + 256 + 64 + 8 + 2; // 1024+512+256+128+64+32+16+8;
+    ASSERT_TRUE(itw);
+    ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+    ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+
+    auto itr = h->iterator();
+    ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
+    ASSERT_EQ(e->type(), testet);
+    ASSERT_EQ(EVENT_LOADED, itr->loadNextEvent(e));
+    ASSERT_EQ(e->type(), testet);
+
+    ASSERT_EQ(UNDEFINED_EVENT, itr->loadNextEvent(e));
 }
 
 } // namespace

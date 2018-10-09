@@ -11,7 +11,73 @@
 
 #include <marto/except.h>
 
+#ifdef DEBUG_COMPACTINT
+#include <iostream>
+#endif
+
 namespace marto {
+
+template <typename T>
+void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream) {
+    uint8_t sval;
+    typename std::make_unsigned<T>::type uval;
+    int neg = 0;
+    size_t bits;
+    istream.read(sval);
+    if (std::is_signed<T>::value) {
+        uval = sval & 63;
+        if (sval & 64) {
+            neg = 1;
+        }
+        bits = 6;
+    } else {
+        uval = sval & 127;
+        bits = 7;
+    }
+    while (sval & 128) {
+        istream.read(sval);
+        uval |= ((typeof(uval))(sval & 127)) << bits;
+        bits += 7;
+    }
+    if (neg) {
+        val = ~uval;
+    } else {
+        val = uval;
+    }
+#ifdef DEBUG_COMPACTINT
+    std::cerr << "decompacting " << (long long)(T)val << std::endl;
+#endif
+}
+
+template <typename T>
+void EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const {
+#ifdef DEBUG_COMPACTINT
+    std::cerr << "compacting " << (long long)(T)val << std::endl;
+#endif
+    typename std::make_unsigned<T>::type uval;
+    uint8_t sval;
+    if (std::is_signed<T>::value) {
+        if (val < 0) {
+            uval = ~val;
+            sval = 64 | (uval & 63);
+        } else {
+            uval = val;
+            sval = uval & 63;
+        }
+        uval >>= 6;
+    } else {
+        sval = val & 127;
+        uval = val >> 7;
+    }
+    do {
+        if (uval) {
+            sval |= 128;
+        }
+        ostream.write(sval);
+        sval = uval & 127;
+        uval >>= 7;
+    } while (sval || uval);
+}
 
 template <typename T> void EventsIStream::read(T &var) {
     if (marto_unlikely(bufsize == 0)) {
