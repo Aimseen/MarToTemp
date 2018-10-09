@@ -11,26 +11,26 @@ using namespace marto;
 /** Checking that RandomDeterministic gives us back the provided values */
 TEST(RandomDeterministic, GetContent) {
 
-    std::vector<double> s0 { 1, 2, 3, 4 };
-    std::vector<double> s1 { 10, 11, 12, 13, 14};
-    std::vector<double> s2 { 0.1, 1.1, 1.2, 1.3, 1.4};
-    std::vector<std::vector<double> *> streams { &s0, &s1, &s2 };
+    std::vector<double> s0{1, 2, 3, 4};
+    std::vector<double> s1{10, 11, 12, 13, 14};
+    std::vector<double> s2{0.1, 1.1, 1.2, 1.3, 1.4};
+    std::vector<std::vector<double> *> streams{&s0, &s1, &s2};
 
-    RandomFabric *rf=new RandomDeterministic(&streams);
+    RandomFabric *rf = new RandomDeterministic(&streams);
     ASSERT_TRUE(rf);
-    Configuration *c=new Configuration(rf);
+    Configuration *c = new Configuration(rf);
     ASSERT_TRUE(c);
-    Random *r=c->newDebugRandom();
+    Random *r = c->newDebugRandom();
     ASSERT_TRUE(r);
-    for (std::vector<double> * stream: streams) {
+    for (std::vector<double> *stream : streams) {
         RandomStream *rs;
         if (stream == &s0) {
-            rs=r;
+            rs = r;
         } else {
-            rs=r->newRandomStream();
+            rs = r->newRandomStream();
         }
-        for (double vinit: *stream) {
-            double v=rs->Uab(0, 100);
+        for (double vinit : *stream) {
+            double v = rs->Uab(0, 100);
             ASSERT_EQ(vinit, v);
         }
         ASSERT_THROW(rs->Uab(0, 100), std::out_of_range);
@@ -38,17 +38,19 @@ TEST(RandomDeterministic, GetContent) {
     ASSERT_THROW(r->newRandomStream(), std::out_of_range);
 }
 
-/** Checking that RandomDeterministic generates an exception if provided values are wrong */
+/** Checking that RandomDeterministic generates an exception if provided values
+ * are wrong */
 TEST(RandomDeterministic, CheckBounds) {
 
-    std::vector<double> s0 { 1, 0.5, 0, -0.00001, 0.999999, 1, 1.1, 10.99999999, 11, 13, 0, 1, 2, 3, 4, 5 };
-    std::vector<std::vector<double> *> streams { &s0 };
+    std::vector<double> s0{1,  0.5, 0, -0.00001, 0.999999, 1, 1.1, 10.99999999,
+                           11, 13,  0, 1,        2,        3, 4,   5};
+    std::vector<std::vector<double> *> streams{&s0};
 
-    RandomFabric *rf=new RandomDeterministic(&streams);
+    RandomFabric *rf = new RandomDeterministic(&streams);
     ASSERT_TRUE(rf);
-    Configuration *c=new Configuration(rf);
+    Configuration *c = new Configuration(rf);
     ASSERT_TRUE(c);
-    Random *r=c->newDebugRandom();
+    Random *r = c->newDebugRandom();
     ASSERT_TRUE(r);
 
     ASSERT_THROW(r->U01(), std::out_of_range);
@@ -75,14 +77,14 @@ TEST(RandomDeterministic, CheckBounds) {
  */
 TEST(RandomTest, getRandomEventType) {
 
-    std::vector<double> s0 { 0.2, 0.5, 1.1, 1.4, 1.499999, 0};
-    std::vector<std::vector<double> *> streams { &s0 };
+    std::vector<double> s0{0.2, 0.5, 1.1, 1.4, 1.499999, 0};
+    std::vector<std::vector<double> *> streams{&s0};
 
-    RandomFabric *rf=new RandomDeterministic(&streams);
+    RandomFabric *rf = new RandomDeterministic(&streams);
     ASSERT_TRUE(rf);
-    Configuration *c=new Configuration(rf);
+    Configuration *c = new Configuration(rf);
     ASSERT_TRUE(c);
-    Random *r=c->newDebugRandom();
+    Random *r = c->newDebugRandom();
     ASSERT_TRUE(r);
 
     c->loadTransitionLibrary();
@@ -93,8 +95,8 @@ TEST(RandomTest, getRandomEventType) {
     eta = new EventType(c, "Arrival MM1", 0.5, "ArrivalReject");
     etb = new EventType(c, "Departure MM1", 1, "Departure");
 
-    for (double value: s0) {
-        EventType *etexpected = (value <= 0.5)?eta:etb;
+    for (double value : s0) {
+        EventType *etexpected = (value <= 0.5) ? eta : etb;
         EventType *etgot = c->getRandomEventType(r);
         ASSERT_EQ(etexpected, etgot);
     }
@@ -104,7 +106,9 @@ TEST(RandomTest, getRandomEventType) {
 class RandomBaseTest : public ::testing::Test {
   protected:
     RandomBaseTest() {
-        c = new Configuration();
+        std::vector<double> s0 { 1, 0.5, 0, -0.00001, 0.999999, 1, 1.1, 10.99999999, 11, 13, 0, 1, 2, 3, 4, 5 };
+        std::vector<std::vector<double> *> streams { &s0 };
+        c = new Configuration(new RandomDeterministic(&streams));
         c->loadTransitionLibrary();
         std::cerr << "Transitions library loaded" << std::endl;
         new TransitionTest(c, "TransitionTest");
