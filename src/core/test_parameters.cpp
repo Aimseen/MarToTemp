@@ -163,17 +163,17 @@ TEST(Event, StoreAndLoadEventsWithConstantParameters) {
     Event *e = new Event();
     // Fixme: add a randomGenerator
     e->generate(et1, nullptr);
-    ASSERT_EQ(it->storeNextEvent(e), EVENT_STORED);
+    ASSERT_EQ(it->storeNextEvent(e), HISTORY_DATA_STORED);
     e->generate(et1, nullptr);
-    ASSERT_EQ(it->storeNextEvent(e), EVENT_STORED);
+    ASSERT_EQ(it->storeNextEvent(e), HISTORY_DATA_STORED);
     e->generate(et2, nullptr);
-    ASSERT_EQ(it->storeNextEvent(e), EVENT_STORED);
+    ASSERT_EQ(it->storeNextEvent(e), HISTORY_DATA_STORED);
     e->generate(et1, nullptr);
-    ASSERT_EQ(it->storeNextEvent(e), EVENT_STORED);
+    ASSERT_EQ(it->storeNextEvent(e), HISTORY_DATA_STORED);
 
     it = h->iterator();
     e->generate(et1, nullptr);
-    ASSERT_EQ(it->storeNextEvent(e), EVENT_STORE_ERROR);
+    ASSERT_EQ(it->storeNextEvent(e), HISTORY_DATA_STORE_ERROR);
 
     it->loadNextEvent(e);
     ASSERT_TRUE(e->getParameter("to") != nullptr);
@@ -184,7 +184,7 @@ TEST(Event, StoreAndLoadEventsWithConstantParameters) {
     ASSERT_THROW(p->get<int>(2), std::out_of_range)
         << "Accessing a non-existant parameter value!";
 
-    ASSERT_EQ(it->loadNextEvent(e), EVENT_LOADED);
+    ASSERT_EQ(it->loadNextEvent(e), HISTORY_DATA_LOADED);
     ASSERT_TRUE(e->getParameter("to") != nullptr);
     ASSERT_EQ(e->getParameter("from"), nullptr);
     p = e->getParameter("to");
@@ -193,7 +193,7 @@ TEST(Event, StoreAndLoadEventsWithConstantParameters) {
     ASSERT_THROW(p->get<int>(2), std::out_of_range)
         << "Accessing a non-existant parameter value!";
 
-    ASSERT_EQ(it->loadNextEvent(e), EVENT_LOADED);
+    ASSERT_EQ(it->loadNextEvent(e), HISTORY_DATA_LOADED);
     ASSERT_EQ(e->getParameter("to"), nullptr);
     ASSERT_TRUE(e->getParameter("from") != nullptr);
     p = e->getParameter("from");

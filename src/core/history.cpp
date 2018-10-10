@@ -61,91 +61,122 @@ EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {
     return chunk;
 };
 
-event_access_t EventsIterator::loadNextEvent(Event *ev) {
+history_access_t EventsIterator::loadNextEvent(Event *ev) {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk()) == nullptr)) {
-            return END_OF_HISTORY;
+            return HISTORY_END_HISTORY;
         }
     }
     if (marto_unlikely(eventNumber >= curChunk->nbEvents)) {
-        return UNDEFINED_EVENT;
+        return HISTORY_END_DATA;
     }
     char *buffer = position;
-    EventsIStream istream(buffer, curChunk->bufferEnd - buffer);
+    HistoryIStream istream(buffer, curChunk->bufferEnd - buffer);
     auto evRead = loadEventContent(istream, ev);
 
-    if (evRead == EVENT_LOADED) {
-        position += istream.eventSize();
+    if (evRead == HISTORY_DATA_LOADED) {
+        position += istream.objectSize();
         eventNumber++;
     }
 
     return evRead;
 }
 
-event_access_t EventsIterator::storeNextEvent(Event *ev) {
+history_access_t EventsIterator::readyToStore() {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk()) == nullptr)) {
-            return END_OF_HISTORY;
+            return HISTORY_END_HISTORY;
         }
     }
+    /* We must be at the end of a chunk */
+    if (eventNumber != curChunk->nbEvents) {
+        return HISTORY_DATA_STORE_ERROR;
+    }
+    return HISTORY_END_DATA;
+}
+
+history_access_t EventsIterator::generateNextEvent(Event *ev) {
+    if (readyToStore() != HISTORY_END_DATA) {
+        return HISTORY_DATA_STORE_ERROR;
+    }
+    // TODO
+}
+
+history_access_t EventsIterator::getNextEvent(Event *ev) {
+    history_access_t ret;
+    ret = loadNextEvent(ev);
+    if (ret == HISTORY_END_DATA) {
+        ret = generateNextEvent(ev);
+    }
+    return ret;
+}
+
+history_access_t EventsIterator::storeNextEvent(Event *ev) {
+    bool new_chunk = false;
     do {
         /* We must be at the end of a chunk */
-        if (eventNumber != curChunk->nbEvents) {
-            return EVENT_STORE_ERROR;
+        if (readyToStore() != HISTORY_END_DATA) {
+            return HISTORY_DATA_STORE_ERROR;
         }
 
         char *buffer = position;
 
         try {
-            EventsOStream ostream(buffer,
-                                  curChunk->bufferEnd - buffer // available size
+            HistoryOStream ostream(
+                buffer,
+                curChunk->bufferEnd - buffer // available size
             );
 
-            event_access_t access = storeEventContent(ostream, ev);
-            if (access != EVENT_STORED) {
+            history_access_t access = storeEventContent(ostream, ev);
+            if (access != HISTORY_DATA_STORED) {
                 ostream.abort();
             } else {
                 access =
                     ostream.finalize(); // used to store the event size in chunk
-                if (access != EVENT_STORED) {
+                if (access != HISTORY_DATA_STORED) {
                     ostream.abort();
                 } else {
-                    position += ostream.eventSize();
+                    position += ostream.objectSize();
                     eventNumber++;
                     curChunk->nbEvents++;
                 }
             }
             return access;
         } catch (HistoryOutOfBound const &h) {
+            if (marto_unlikely(new_chunk)) {
+                // event too big to be stored in one chunk
+                return HISTORY_OBJECT_TOO_BIG;
+            }
             if (marto_unlikely(setNewChunk(curChunk->allocateNextChunk()) ==
                                nullptr)) {
-                return END_OF_HISTORY;
+                return HISTORY_END_HISTORY;
             }
+            new_chunk = true;
         }
     } while (true); // start over after creating new chunk
 }
 
-event_access_t EventsIterator::storeEventContent(EventsOStream &ostream,
-                                                 Event *ev) {
+history_access_t EventsIterator::storeEventContent(HistoryOStream &ostream,
+                                                   Event *ev) {
     assert(ev != nullptr);
     if (marto_unlikely(!ev->valid())) {
-        return EVENT_STORE_UNDEFINED_ERROR;
+        return HISTORY_STORE_INVALID_EVENT;
     }
     EventType *type = ev->type();
     if (ostream << type->code()) {
         return type->store(ostream, ev, curChunk->history);
     }
-    return EVENT_STORE_ERROR;
+    return HISTORY_DATA_STORE_ERROR;
 }
 
 /*  an eventType is stored compactly as an integer
    (example of event type : arrival in queue 1)
    it is read from a table built from user config file
  */
-event_access_t EventsIterator::loadEventContent(EventsIStream &istream,
-                                                Event *ev) {
+history_access_t EventsIterator::loadEventContent(HistoryIStream &istream,
+                                                  Event *ev) {
     Event::code_t code;
     assert(ev != nullptr);
     ev->clear();
@@ -157,7 +188,7 @@ event_access_t EventsIterator::loadEventContent(EventsIStream &istream,
             return type->load(istream, ev, hist);
         }
     }
-    return EVENT_LOAD_CODE_ERROR;
+    return HISTORY_DATA_LOAD_ERROR;
 }
 
 // EventsHistory

@@ -14,16 +14,15 @@
 namespace marto {
 
 typedef enum {
-    EVENT_LOADED = 0,      ///< the event has been correctly loaded
-    EVENT_STORED = 0,      ///< the event has been correctly stored
-    END_OF_HISTORY,        ///< the end of history is reached
-    UNDEFINED_EVENT,       ///< trying to load an event not yet generated
-    EVENT_LOAD_CODE_ERROR, ///< error with the code of the event
-    EVENT_STORE_UNDEFINED_ERROR =
-        EVENT_LOAD_CODE_ERROR, ///< trying to store an invalid/undefined event
-    EVENT_LOAD_ERROR,          ///< generic error while loading data
-    EVENT_STORE_ERROR = EVENT_LOAD_ERROR, ///< generic error while storing data
-} event_access_t;
+    HISTORY_DATA_LOADED = 0, ///< the data has been correctly loaded
+    HISTORY_DATA_STORED = 0, ///< the data has been correctly stored
+    HISTORY_END_DATA,        ///< no more objects into the history for now
+    HISTORY_END_HISTORY,     ///< the end of history is reached
+    HISTORY_OBJECT_TOO_BIG, ///< the object cannot be stored into an empty chunk
+    HISTORY_STORE_INVALID_EVENT, ///< trying to store an invalid event
+    HISTORY_DATA_LOAD_ERROR,     ///< generic error while loading data
+    HISTORY_DATA_STORE_ERROR,    ///< generic error while storing data
+} history_access_t;
 
 /** unique queue identifier */
 typedef uint32_t queue_id_t;

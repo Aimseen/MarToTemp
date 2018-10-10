@@ -18,7 +18,7 @@
 namespace marto {
 
 template <typename T>
-void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream) {
+void HistoryStreamBase::CompactInt<T>::read(HistoryIStream &istream) {
     uint8_t sval;
     typename std::make_unsigned<T>::type uval;
     int neg = 0;
@@ -50,7 +50,7 @@ void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream) {
 }
 
 template <typename T>
-void EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const {
+void HistoryStreamBase::CompactInt<T>::write(HistoryOStream &ostream) const {
 #ifdef DEBUG_COMPACTINT
     std::cerr << "compacting " << (long long)(T)val << std::endl;
 #endif
@@ -79,7 +79,7 @@ void EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const {
     } while (sval || uval);
 }
 
-template <typename T> void EventsIStream::read(T &var) {
+template <typename T> void HistoryIStream::read(T &var) {
     if (marto_unlikely(bufsize == 0)) {
         eofbit = 1;
         return;
@@ -103,31 +103,31 @@ template <typename T> void EventsIStream::read(T &var) {
     var = *(T *)ptr;
 }
 
-template <typename T> T *EventsOStream::write(const T &value) {
+template <typename T> T *HistoryOStream::write(const T &value) {
     if (marto_unlikely(eof())) {
         return nullptr;
     }
     void *ptr = (void *)buf;
     if (!std::align(alignof(T), sizeof(T), ptr, bufsize)) {
-        throw HistoryOutOfBound("Not enough place for the current event");
+        throw HistoryOutOfBound("Not enough place for the current object");
     }
     T *newbuf = ((T *)ptr) + 1;
     bufsize -= sizeof(T);
-    eventsize += (char *)newbuf - (char *)buf;
+    objectsize += (char *)newbuf - (char *)buf;
     buf = (char *)newbuf;
     *(T *)ptr = value;
     return (T *)ptr;
 }
 
-inline event_access_t EventsOStream::finalize() {
+inline history_access_t HistoryOStream::finalize() {
     if (eof()) {
-        return EVENT_STORE_ERROR;
+        return HISTORY_DATA_STORE_ERROR;
     }
-    assert(eventsize <= (eventsize_t)(-1));
-    eventsize_t size = eventSize();
-    assert(*eventSizePtr == 0 || *eventSizePtr == size);
-    *eventSizePtr = size;
-    return EVENT_STORED;
+    assert(objectsize <= (objectsize_t)(-1));
+    objectsize_t size = objectSize();
+    assert(*objectSizePtr == 0 || *objectSizePtr == size);
+    *objectSizePtr = size;
+    return HISTORY_DATA_STORED;
 }
 } // namespace marto
 

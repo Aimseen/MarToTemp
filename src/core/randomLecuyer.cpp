@@ -68,24 +68,24 @@ class RandomLecuyerStream : public RandomStream, protected LecuyerState {
     };
 
   public:
-    virtual event_access_t load(EventsIStream &istream,
-                                EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t load(HistoryIStream &istream,
+                                  EventsHistory *__marto_unused(hist)) {
         for (unsigned i = 0; i < 6; ++i) {
             if (!(bool)(istream >> g->Bg[i])) {
-                return EVENT_LOAD_ERROR;
+                return HISTORY_DATA_LOAD_ERROR;
             }
         }
         RngStream_ResetStartSubstream(g);
-        return EVENT_LOADED;
+        return HISTORY_DATA_LOADED;
     };
-    virtual event_access_t store(EventsOStream &ostream,
-                                 EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t store(HistoryOStream &ostream,
+                                   EventsHistory *__marto_unused(hist)) {
         for (unsigned i = 0; i < 6; ++i) {
             if (!(bool)(ostream << g->Bg[i])) {
-                return EVENT_STORE_ERROR;
+                return HISTORY_DATA_STORE_ERROR;
             }
         }
-        return EVENT_STORED;
+        return HISTORY_DATA_STORED;
     };
     virtual void setInitialStateFromCurrentState() {
         for (unsigned i = 0; i < 6; ++i) {
@@ -113,23 +113,23 @@ class RandomLecuyerStreamGenerator : public RandomStreamGenerator,
         return rs;
     };
     virtual void deleteRandomStream(RandomStream *rs) { delete rs; };
-    virtual event_access_t load(EventsIStream &istream,
-                                EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t load(HistoryIStream &istream,
+                                  EventsHistory *__marto_unused(hist)) {
         for (unsigned i = 0; i < 6; ++i) {
             if (!(bool)(istream >> g->Bg[i])) {
-                return EVENT_LOAD_ERROR;
+                return HISTORY_DATA_LOAD_ERROR;
             }
         }
-        return EVENT_LOADED;
+        return HISTORY_DATA_LOADED;
     };
-    virtual event_access_t store(EventsOStream &ostream,
-                                 EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t store(HistoryOStream &ostream,
+                                   EventsHistory *__marto_unused(hist)) {
         for (unsigned i = 0; i < 6; ++i) {
             if (!(bool)(ostream << g->Bg[i])) {
-                return EVENT_STORE_ERROR;
+                return HISTORY_DATA_STORE_ERROR;
             }
         }
-        return EVENT_STORED;
+        return HISTORY_DATA_STORED;
     };
 };
 

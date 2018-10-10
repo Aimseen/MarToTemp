@@ -18,9 +18,9 @@ class HistoryOutOfBound : public std::runtime_error {
 };
 
 /** Exception launched when trying to read a event not yet all written */
-class HistoryIncompleteEvent : public std::runtime_error {
+class HistoryIncompleteObject : public std::runtime_error {
   public:
-    HistoryIncompleteEvent(std::string s) : std::runtime_error(s){};
+    HistoryIncompleteObject(std::string s) : std::runtime_error(s){};
 };
 
 /** Exception launched when trying to access an unknown object */

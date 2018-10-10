@@ -18,7 +18,7 @@ class EventType;
 
 /* except.h */
 class HistoryOutOfBound;
-class HistoryIncompleteEvent;
+class HistoryIncompleteObject;
 class UnknownName;
 class ExistingName;
 class TypeError;
@@ -34,9 +34,9 @@ class EventsIterator;
 class EventsHistory;
 
 /* historyStream.h */
-class EventsStreamBase;
-class EventsIStream;
-class EventsOStream;
+class HistoryStreamBase;
+class HistoryIStream;
+class HistoryOStream;
 
 /* macros.h */
 

@@ -18,26 +18,26 @@ class RandomDeterministicStream : public RandomStream {
                               size_t sid);
 
   public:
-    virtual event_access_t load(EventsIStream &istream,
-                                EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t load(HistoryIStream &istream,
+                                  EventsHistory *__marto_unused(hist)) {
         if (!(bool)(istream >> stream_id)) {
-            return EVENT_LOAD_ERROR;
+            return HISTORY_DATA_LOAD_ERROR;
         }
         if (!(bool)(istream >> init_pos)) {
-            return EVENT_LOAD_ERROR;
+            return HISTORY_DATA_LOAD_ERROR;
         }
         next_pos = init_pos;
-        return EVENT_LOADED;
+        return HISTORY_DATA_LOADED;
     };
-    virtual event_access_t store(EventsOStream &ostream,
-                                 EventsHistory *__marto_unused(hist)) {
+    virtual history_access_t store(HistoryOStream &ostream,
+                                   EventsHistory *__marto_unused(hist)) {
         if (!(bool)(ostream << stream_id)) {
-            return EVENT_STORE_ERROR;
+            return HISTORY_DATA_STORE_ERROR;
         }
         if (!(bool)(ostream << init_pos)) {
-            return EVENT_STORE_ERROR;
+            return HISTORY_DATA_STORE_ERROR;
         }
-        return EVENT_STORED;
+        return HISTORY_DATA_STORED;
     };
     virtual void setInitialStateFromCurrentState() { init_pos = next_pos; };
     virtual double U01();

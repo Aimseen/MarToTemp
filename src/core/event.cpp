@@ -52,30 +52,30 @@ int EventType::findIndex(string parameterName) {
     return (couple->second);
 }
 
-event_access_t EventType::load(EventsIStream &istream, Event *ev,
-                               EventsHistory *hist) {
+history_access_t EventType::load(HistoryIStream &istream, Event *ev,
+                                 EventsHistory *hist) {
     assert(ev->status == Event::EVENT_STATUS_TYPED);
     assert(ev->_type == this);
     auto fpit = formalParameters.begin();
     auto pit = ev->parameters.begin();
     for (; fpit != formalParameters.end(); fpit++, pit++) {
         auto res = (*fpit)->load(istream, *pit);
-        if (res != EVENT_LOADED) {
+        if (res != HISTORY_DATA_LOADED) {
             return res;
         }
     }
     ev->status = Event::EVENT_STATUS_FILLED;
-    return EVENT_LOADED;
+    return HISTORY_DATA_LOADED;
 }
 
-event_access_t EventType::store(EventsOStream &ostream, Event *ev,
-                                EventsHistory *hist) {
+history_access_t EventType::store(HistoryOStream &ostream, Event *ev,
+                                  EventsHistory *hist) {
     auto fpit = formalParameters.begin();
     auto pit = ev->parameters.begin();
     for (; fpit != formalParameters.end(); fpit++, pit++) {
         (*fpit)->store(ostream, *pit);
     }
-    return EVENT_STORED;
+    return HISTORY_DATA_STORED;
 }
 
 Event::Event() : parameters(), status(EVENT_STATUS_INVALID) {}

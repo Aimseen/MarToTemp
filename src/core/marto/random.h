@@ -39,10 +39,10 @@ class RandomStream {
     virtual ~RandomStream(){};
     // method to load/save the initial internal state into an history
     // in order to replay the whole stream
-    virtual event_access_t load(EventsIStream &istream,
-                                EventsHistory *hist) = 0;
-    virtual event_access_t store(EventsOStream &ostream,
-                                 EventsHistory *hist) = 0;
+    virtual history_access_t load(HistoryIStream &istream,
+                                  EventsHistory *hist) = 0;
+    virtual history_access_t store(HistoryOStream &ostream,
+                                   EventsHistory *hist) = 0;
     /** \brief define the current state as the initial one
      *
      * If the store() method is latter called, the current (at the
@@ -81,8 +81,8 @@ class RandomStreamGenerator {
     virtual void deleteRandomStream(RandomStream *rs) = 0;
 #if 0
     // method to load/save the internal state into an history
-    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) = 0;
-    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) = 0;
+    virtual history_access_t load(HistoryIStream &istream, EventsHistory *hist) = 0;
+    virtual history_access_t store(HistoryOStream &ostream, EventsHistory *hist) = 0;
 #endif
 };
 
@@ -140,10 +140,12 @@ class Random : public RandomStream, RandomStreamGenerator {
     virtual void deleteRandomStream(RandomStream *rs) {
         rsg->deleteRandomStream(rs);
     };
-    virtual event_access_t load(EventsIStream &istream, EventsHistory *hist) {
+    virtual history_access_t load(HistoryIStream &istream,
+                                  EventsHistory *hist) {
         return crs->load(istream, hist);
     };
-    virtual event_access_t store(EventsOStream &ostream, EventsHistory *hist) {
+    virtual history_access_t store(HistoryOStream &ostream,
+                                   EventsHistory *hist) {
         return crs->store(ostream, hist);
     };
     virtual void setInitialStateFromCurrentState() {

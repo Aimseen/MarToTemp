@@ -7,31 +7,31 @@
 
 namespace marto {
 
-/** \brief Base class to read of write events in history */
-class EventsStreamBase {
+/** \brief Base class to read of write content in history */
+class HistoryStreamBase {
     /** \brief forbid copy of this kind of objects */
-    EventsStreamBase(const EventsStreamBase &) = delete;
+    HistoryStreamBase(const HistoryStreamBase &) = delete;
     /** \brief forbid assignment of this kind of objects */
-    EventsStreamBase &operator=(const EventsStreamBase &) = delete;
+    HistoryStreamBase &operator=(const HistoryStreamBase &) = delete;
 
   public:
-    /** \brief type used to store the size of an event in the history
+    /** \brief type used to store the size of an object in the history
      */
-    typedef unsigned int eventsize_t;
+    typedef uint16_t objectsize_t;
 
   protected:
     char *buf;
     size_t bufsize;
-    size_t eventsize;
+    size_t objectsize;
     unsigned int eofbit : 1;
 
     /** \brief Create a object that consumes a bounded buffer
      *
      * It will be inherited by Events[IO]Stream
      */
-    EventsStreamBase(char *buffer, size_t lim)
-        : buf(buffer), bufsize(lim), eventsize(0), eofbit(0){};
-    size_t eventSize() { return eventsize; };
+    HistoryStreamBase(char *buffer, size_t lim)
+        : buf(buffer), bufsize(lim), objectsize(0), eofbit(0){};
+    size_t objectSize() { return objectsize; };
 
   public:
     /** \brief conversion in bool for while loops */
@@ -63,7 +63,7 @@ class EventsStreamBase {
  * * (int)-1 => 010000000
  * * (int)-2 => 010000001
  */
-template <typename T> class EventsStreamBase::CompactInt { // no-forward-decl
+template <typename T> class HistoryStreamBase::CompactInt { // no-forward-decl
   private:
     T val;
 
@@ -73,41 +73,44 @@ template <typename T> class EventsStreamBase::CompactInt { // no-forward-decl
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
     };
     explicit operator T() { return val; }
-    void read(EventsIStream &istream);
-    void write(EventsOStream &ostream) const;
+    void read(HistoryIStream &istream);
+    void write(HistoryOStream &ostream) const;
 };
 
-/** \brief Class to read one event from history */
-class EventsIStream : public EventsStreamBase {
+/** \brief Class to read one object from history */
+class HistoryIStream : public HistoryStreamBase {
   private:
     /** \brief Create a object that will allow read anything in a buffer
      *
-     * This will be created by EventsIterator::read*()
+     * This will be created by EventsIterator::read*() for example
      */
-    EventsIStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
-        eventsize_t evsize;
-        read(evsize);
-        eventsize = evsize;
-        if (marto_unlikely(eventsize == 0)) {
-            /* Event not yet fully written (finalized not called)
+    HistoryIStream(char *buffer, size_t lim) : HistoryStreamBase(buffer, lim) {
+        objectsize_t obsize;
+        read(obsize);
+        objectsize = obsize;
+        if (marto_unlikely(objectsize == 0)) {
+            /* Object not yet fully written (finalized not called)
              * or read fails
              */
-            throw HistoryIncompleteEvent("Event not yet all written");
+            throw HistoryIncompleteObject("Object not yet all written");
         }
-        if (marto_unlikely(eventsize > lim)) {
-            /* the event to read is longer than the buffer in the current chunk!
+        if (marto_unlikely(objectsize > lim)) {
+            /* the object to read is longer than the buffer in the current
+             * chunk!
+             *
+             * This should never occurs
              */
-            throw HistoryOutOfBound("Event too long for the current buffer!");
+            throw HistoryOutOfBound("Object too long for the current buffer!");
         }
-        /* limiting the following reads to the event data */
-        bufsize = eventsize - (buf - buffer);
+        /* limiting the following reads to the object data */
+        bufsize = objectsize - (buf - buffer);
     };
-    friend event_access_t EventsIterator::loadNextEvent(Event *ev);
+    friend history_access_t EventsIterator::loadNextEvent(Event *ev);
     template <typename T>
 #if defined(__clang__)
-    friend class EventsStreamBase::CompactInt;
+    friend class HistoryStreamBase::CompactInt;
 #else
-    friend void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream);
+    friend void HistoryStreamBase::CompactInt<T>::read(HistoryIStream &istream);
 #endif
 
     template <typename T> void read(T &var);
@@ -132,7 +135,7 @@ class EventsIStream : public EventsStreamBase {
      *
      * Integral types are compacted
      */
-    template <typename T> EventsIStream &operator>>(T &var) {
+    template <typename T> HistoryIStream &operator>>(T &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
         readvar<std::is_integral<T>::value>(var);
         return *this;
@@ -140,32 +143,32 @@ class EventsIStream : public EventsStreamBase {
 
     /** \brief >> input stream operator that will compact the value
      */
-    template <typename T> EventsIStream &operator>>(CompactInt<T> &var) {
+    template <typename T> HistoryIStream &operator>>(CompactInt<T> &var) {
         static_assert(std::is_integral<T>::value, "T must be integral");
         var.read(*this);
         return *this;
     }
 };
 
-/** \brief Class to write the content of one event in a buffer
+/** \brief Class to write the content of one object into a chunk
  */
-class EventsOStream : public EventsStreamBase {
+class HistoryOStream : public HistoryStreamBase {
   private:
-    eventsize_t *eventSizePtr;
+    objectsize_t *objectSizePtr;
     /** \brief Create a object that will allow write anything in a buffer
      *
      * This will be created by EventsIterator::store*()
      */
-    EventsOStream(char *buffer, size_t lim) : EventsStreamBase(buffer, lim) {
-        eventSizePtr = write((eventsize_t)0);
+    HistoryOStream(char *buffer, size_t lim) : HistoryStreamBase(buffer, lim) {
+        objectSizePtr = write((objectsize_t)0);
     };
-    friend event_access_t EventsIterator::storeNextEvent(Event *ev);
+    friend history_access_t EventsIterator::storeNextEvent(Event *ev);
     template <typename T>
 #if defined(__clang__)
-    friend class EventsStreamBase::CompactInt;
+    friend class HistoryStreamBase::CompactInt;
 #else
     friend void
-    EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const;
+    HistoryStreamBase::CompactInt<T>::write(HistoryOStream &ostream) const;
 #endif
 
     template <typename T> T *write(const T &value);
@@ -188,19 +191,19 @@ class EventsOStream : public EventsStreamBase {
   public:
     /** \brief classical << output stream operator
      */
-    template <typename T> EventsOStream &operator<<(const T &var) {
+    template <typename T> HistoryOStream &operator<<(const T &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
         writevar<std::is_integral<T>::value>(var);
         return *this;
     }
     /** \brief called when a store is interrupted */
     void abort() { eofbit = 1; }
-    /** \brief finalize the write of the event in the history
+    /** \brief finalize the write of the object in the history
      */
-    event_access_t finalize();
+    history_access_t finalize();
 
   public:
-    template <typename T> EventsOStream &operator<<(const CompactInt<T> &var) {
+    template <typename T> HistoryOStream &operator<<(const CompactInt<T> &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
         var.write(*this);
         return *this;

@@ -84,23 +84,23 @@ class EventsIterator {
      * The event will come from the history or, if none are available,
      * a new one will be generated.
      */
-    event_access_t getNextEvent(Event *ev);
+    history_access_t getNextEvent(Event *ev);
 
     /** \brief Fill ev with the next event, loading from the history
      */
-    event_access_t loadNextEvent(Event *ev);
+    history_access_t loadNextEvent(Event *ev);
 
     /** \brief Generate a new event
      *
      * The event will be written into the history
      */
-    event_access_t generateNextEvent(Event *ev);
+    history_access_t generateNextEvent(Event *ev);
 
     /** \brief Write the event in the history.
      *
      * Some place (for events) must be available at the current position
      */
-    event_access_t storeNextEvent(Event *ev);
+    history_access_t storeNextEvent(Event *ev);
     /* we do not store events reversely. Never. If really required, we
      * should go back for several events and generate and store them
      * forward.
@@ -119,7 +119,7 @@ class EventsIterator {
     /** Load the event data from its serialization
      *
      */
-    event_access_t loadEventContent(EventsIStream &istream, Event *event);
+    history_access_t loadEventContent(HistoryIStream &istream, Event *event);
     /** Stores a compact representation of the event
      *
      *  Note: the store can be aborted (with an exception)
@@ -127,11 +127,13 @@ class EventsIterator {
      *  In this case, storeNextEvent will restart the
      *  call to this function in a new chunk.
      */
-    event_access_t storeEventContent(EventsOStream &ostream, Event *event);
+    history_access_t storeEventContent(HistoryOStream &ostream, Event *event);
 
     /** Look if we are ready to write a new event into the history
+     *
+     * HISTORY_END_DATA is return when this is the case
      */
-    event_access_t readyToStore();
+    history_access_t readyToStore();
 };
 
 /** \brief Class to manage an events history
@@ -168,8 +170,8 @@ class EventsHistory : protected WithConfiguration {
     /// EventsIterator needs to access to firstChunk
     friend EventsIterator::EventsIterator(EventsHistory *hist);
     /// loadEventContent needs to access to the configuration
-    friend event_access_t
-    EventsIterator::loadEventContent(EventsIStream &istream, Event *ev);
+    friend history_access_t
+    EventsIterator::loadEventContent(HistoryIStream &istream, Event *ev);
     EventsChunk *firstChunk; ///< beginning of history
                              // uint32_t _nbEvents; // useful ?
   protected:

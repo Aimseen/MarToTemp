@@ -84,16 +84,16 @@ TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
     int nba = 10;
     int nbd = nba;
     for (int i = 0; i < nba; i++) {
-        ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+        ASSERT_EQ(HISTORY_DATA_STORED, itw->storeNextEvent(e));
     }
     e->generate(etb, nullptr);
     for (int i = 0; i < nbd; i++) {
-        ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+        ASSERT_EQ(HISTORY_DATA_STORED, itw->storeNextEvent(e));
     }
     e->generate(eta, nullptr);
-    ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+    ASSERT_EQ(HISTORY_DATA_STORED, itw->storeNextEvent(e));
     e->generate(etb, nullptr);
-    ASSERT_EQ(EVENT_STORED, itw->storeNextEvent(e));
+    ASSERT_EQ(HISTORY_DATA_STORED, itw->storeNextEvent(e));
 
     // Creating state for simulation
     Point *state_pt = new Point(c);
@@ -102,7 +102,7 @@ TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
     while (true) {
         std::cout << state_pt << std::endl;
         e->apply(state_pt);
-        if (itr->loadNextEvent(e) == UNDEFINED_EVENT)
+        if (itr->loadNextEvent(e) == HISTORY_END_DATA)
             break; // end of history
     }
     for (auto s : state_pt->states()) {

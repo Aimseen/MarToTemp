@@ -132,14 +132,14 @@ class EventType : protected WithConfiguration {
      *
      * \return EVENT_LOADED if the load is successful
      */
-    virtual event_access_t load(EventsIStream &istream, Event *event,
-                                EventsHistory *hist);
+    virtual history_access_t load(HistoryIStream &istream, Event *event,
+                                  EventsHistory *hist);
     /** \brief store actual parameters of an event into history
      *
      * \return EVENT_STORED if the store is successful
      */
-    virtual event_access_t store(EventsOStream &ostream, Event *event,
-                                 EventsHistory *hist);
+    virtual history_access_t store(HistoryOStream &ostream, Event *event,
+                                   EventsHistory *hist);
 
   public:
     /** Code of this kind of event */
