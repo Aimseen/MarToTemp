@@ -13,6 +13,9 @@ noinst_SCRIPTS=run-example
 EXTRA_DIST=NEWS run-example.in
 CLEANFILES=run-example
 
+# Workaround a libtool bug which can left this file after a 'make distclean'
+DISTCLEANFILES=libltdl/.deps/lt__strl.Plo
+
 edit = sed \
 	-e 's|@LIBTOOL[@]|$(LIBTOOL)|g' \
 	-e 's|@abs_top_builddir[@]|$(abs_top_builddir)|g' \
