@@ -5,9 +5,7 @@
 
 #ifdef __cplusplus
 
-// generated with:
-// for f in $(ls src/core/marto/*.h | sort ) ; do echo "/* $(basename $f) */";
-// grep '^class.*{' $f | sed -e 's,^\(class [^ :{]*\)[ :{].*,\1;,' ; done
+// generated from the main Makefile with the update-forward-decl-header target
 
 namespace marto {
 
@@ -15,48 +13,67 @@ namespace marto {
 template <typename T> class Allocator;
 
 /* event.h */
-class EventType;
 class Event;
-
-/* eventsHistory.h */
-class EventsChunk;
-class EventsIterator;
-class EventsStreamBase;
-class EventsIStream;
-class EventsOStream;
-class EventsHistory;
+class EventType;
 
 /* except.h */
 class HistoryOutOfBound;
 class HistoryIncompleteEvent;
+class UnknownName;
+class ExistingName;
+class TypeError;
+class DLOpenError;
 
 /* global.h */
 class Configuration;
-class Global;
+class WithConfiguration;
+
+/* history.h */
+class EventsChunk;
+class EventsIterator;
+class EventsHistory;
+
+/* historyStream.h */
+class EventsStreamBase;
+class EventsIStream;
+class EventsOStream;
+
+/* macros.h */
 
 /* parameters.h */
 class FormalParameterValues;
-template <typename T> class FormalParameterValuesTyped;
-template <typename T> class FormalConstantList;
-template <typename T> class FormalDistribution;
-template <typename T> class FormalDistributionFixedList;
-template <typename T> class FormalDistributionVariadicList;
+template <typename T>
+class FormalParameterValuesTyped;
+template <typename T>
+class FormalConstantList;
+template <typename T>
+class FormalDistribution;
+template <typename T>
+class FormalDistributionFixedList;
+template <typename T>
+class FormalDistributionVariadicList;
 class ParameterValues;
 
 /* queue.h */
 class QueueConfig;
+class StateLessQueueConfig;
 class Queue;
-template <typename QC> class TypedQueue;
+template <class QC> class TypedQueue;
 class StandardQueue;
+class OutsideQueue;
+
+/* randomDeterministic.h */
+class RandomDeterministicStreamGenerator;
+class RandomDeterministic;
 
 /* random.h */
 class RandomStream;
 class RandomStreamGenerator;
 class RandomFabric;
-class RandomTest;
 class Random;
 
 /* randomLecuyer.h */
+class RandomLecuyerStreamGenerator;
 class RandomLecuyer;
 
 /* state.h */
@@ -68,6 +85,9 @@ class Set;
 
 /* transition.h */
 class Transition;
+
+/* types.h */
+
 } // namespace marto
 #endif
 #endif

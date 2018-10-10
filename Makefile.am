@@ -33,6 +33,7 @@ run-example: Makefile
 
 run-example: run-example.in
 
+.PHONY: reindent
 reindent:
 	true ## indent really breaks some C++ constructions :-(
 	true #indent -kr -brf -l100 -lc100 -nut \
@@ -40,3 +41,17 @@ reindent:
 	true #astyle $(srcdir)/src/*/*.cpp $(srcdir)/src/*/*.h $(srcdir)/src/*/*/*.h
 	clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4}" -i \
 		$$(find $(srcdir)/src -iname RngStream.h -prune -o \( -iname "*.h" -o -iname "*.cpp" \) -print)
+
+.PHONY: update-forward-decl-header
+update-forward-decl-header: reindent
+	for f in $$(ls $(srcdir)/src/core/marto/*.h | sort | grep -v forwardDecl.h | grep -v -- '-impl.h' ) ; do \
+		echo ; \
+		echo "/* $$(basename $$f) */"; \
+		grep '^\(template .*\)\?class.*\|^template.*>$$' $$f | \
+			grep -v 'no-forward-decl' | \
+			sed -e 's,^\(\(template .*\)\?class [^ {]*\)[ {].*,\1;,' ; \
+	done > $@
+	lead='^namespace marto {$$' ; \
+	tail='^}' ; \
+	nl="$$(echo -e '\n ')" ; \
+	sed -e "/$$lead/,/$$tail/{ /$$lead/{p; r $@$$nl}; /$$tail/s/^/\n/p; d }" -i $(srcdir)/src/core/marto/forwardDecl.h
