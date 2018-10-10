@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <marto/event.h>
-#include <marto/eventsHistory.h>
+#include <marto/history.h>
+#include <marto/historyStream.h>
 
 #include <cassert>
 

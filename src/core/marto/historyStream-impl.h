@@ -1,11 +1,11 @@
 /* -*-c++-*- C++ mode for emacs */
 /* Events History template implementation */
-#ifndef MARTO_EVENTS_HISTORY_IMPL_H
-#define MARTO_EVENTS_HISTORY_IMPL_H
+#ifndef MARTO_HISTORY_STREAM_IMPL_H
+#define MARTO_HISTORY_STREAM_IMPL_H
 
 #ifdef __cplusplus
 
-#ifndef MARTO_EVENTS_HISTORY_H
+#ifndef MARTO_HISTORY_STREAM_H
 #error "Do not include this file directly"
 #endif
 

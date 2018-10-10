@@ -6,11 +6,12 @@ nobase_include_HEADERS=\
       marto/allocator-impl.h \
       marto/event.h \
       marto/event-impl.h \
-      marto/eventsHistory.h \
-      marto/eventsHistory-impl.h \
       marto/except.h \
       marto/forwardDecl.h \
       marto/global.h \
+      marto/history.h \
+      marto/historyStream.h \
+      marto/historyStream-impl.h \
       marto/macros.h \
       marto/parameters.h \
       marto/parameters-impl.h \
@@ -40,8 +41,8 @@ libmarto_la_SOURCES=\
 	state.cpp \
 	transition.cpp \
 	event.cpp \
-	eventsHistory.cpp \
 	global.cpp \
+	history.cpp \
 	parameters.cpp \
 	queue.cpp \
         RngStream.h \
