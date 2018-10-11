@@ -79,9 +79,22 @@ class EventsIterator {
     friend class EventsHistory;
 
   public:
+    /** \brief Fill ev with the next event
+     *
+     * The event will come from the history or, if none are available,
+     * a new one will be generated.
+     */
+    event_access_t getNextEvent(Event *ev);
+
     /** \brief Fill ev with the next event, loading from the history
      */
     event_access_t loadNextEvent(Event *ev);
+
+    /** \brief Generate a new event
+     *
+     * The event will be written into the history
+     */
+    event_access_t generateNextEvent(Event *ev);
 
     /** \brief Write the event in the history.
      *
@@ -115,6 +128,10 @@ class EventsIterator {
      *  call to this function in a new chunk.
      */
     event_access_t storeEventContent(EventsOStream &ostream, Event *event);
+
+    /** Look if we are ready to write a new event into the history
+     */
+    event_access_t readyToStore();
 };
 
 /** \brief Class to manage an events history
