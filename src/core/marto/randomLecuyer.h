@@ -42,7 +42,7 @@ class RandomLecuyerStreamGenerator;
 class RandomLecuyer : public RandomFabric {
     friend RandomLecuyerStreamGenerator;
 
-  protected:
+  public: // FIXME: would be better protected or private
     double nextSeed[6];
 
   protected:
@@ -50,7 +50,9 @@ class RandomLecuyer : public RandomFabric {
 
   public:
     virtual ~RandomLecuyer(){};
-    virtual RandomStreamGenerator *newRandomStreamGenerator();
+    virtual RandomHistoryStreamGenerator *newRandomStreamGenerator();
+    virtual RandomHistoryStreamGenerator *
+    newRandomStreamGenerator(HistoryIStream &istream);
     virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
 };
 } // namespace marto

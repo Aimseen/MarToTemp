@@ -67,8 +67,11 @@ class RandomDeterministicStreamGenerator;
 class RandomDeterministic;
 
 /* random.h */
+class RandomHistory;
 class RandomStream;
+class RandomHistoryStream;
 class RandomStreamGenerator;
+class RandomHistoryStreamGenerator;
 class RandomFabric;
 class Random;
 

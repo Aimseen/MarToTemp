@@ -19,6 +19,28 @@ Objective :
 
 namespace marto {
 
+/** This class formalize the interraction between Random* object and the history
+ */
+class RandomHistory {
+  public:
+    /** \brief replace the current state by the one from the history
+     */
+    virtual history_access_t load(HistoryIStream &istream) = 0;
+    /** \brief store the marked state into the history
+     *
+     * by default, the initial state is marked
+     */
+    virtual history_access_t storeMarkedState(HistoryOStream &ostream) = 0;
+    /** \brief mark the current state
+     *
+     * If the storeMarkedState() method is latter called, the current
+     * (at the time of the markCurrentState() call) state will be
+     * saved, not the future (at the time of storeMarkedState call)
+     * state.
+     */
+    virtual void markCurrentState() = 0;
+};
+
 /** \brief abstract class to obtain a serie of random numbers
  *
  * The initial state can be saved/restored into/from an history
@@ -37,19 +59,6 @@ class RandomStream {
 
   public:
     virtual ~RandomStream(){};
-    // method to load/save the initial internal state into an history
-    // in order to replay the whole stream
-    virtual history_access_t load(HistoryIStream &istream,
-                                  EventsHistory *hist) = 0;
-    virtual history_access_t store(HistoryOStream &ostream,
-                                   EventsHistory *hist) = 0;
-    /** \brief define the current state as the initial one
-     *
-     * If the store() method is latter called, the current (at the
-     * time of the setInitialStateFromCurrentState call) state will be
-     * saved, not the future (at the time of store call) state.
-     */
-    virtual void setInitialStateFromCurrentState() = 0;
     /** \brief uniform random value in [0,1) */
     virtual double U01() = 0;
     /** \brief uniform random value in [inf,sup) */
@@ -60,13 +69,18 @@ class RandomStream {
     virtual long Iab(long min, long max) { return (long)Uab(min, max + 1); };
 };
 
+/** \brief abstract class whose state can be load/stored from/to an history
+ */
+class RandomHistoryStream : public virtual RandomStream,
+                            public virtual RandomHistory {};
+
 /** \brief abstract class to obtain different (independant) random streams
  *
  * \note: there will be one RandomStreamGenerator per history chunk
  * The first stream will be used for classical event in the chunk
  * Next streams will be used for non-bounded parameters
  */
-class RandomStreamGenerator {
+class RandomStreamGenerator : public virtual RandomHistory {
     /** \brief forbid copy of this kind of objects */
     RandomStreamGenerator(const RandomStreamGenerator &) = delete;
     /** \brief forbid assignment of this kind of objects */
@@ -78,12 +92,38 @@ class RandomStreamGenerator {
   public:
     virtual ~RandomStreamGenerator(){};
     virtual RandomStream *newRandomStream() = 0;
-    virtual void deleteRandomStream(RandomStream *rs) = 0;
-#if 0
-    // method to load/save the internal state into an history
-    virtual history_access_t load(HistoryIStream &istream, EventsHistory *hist) = 0;
-    virtual history_access_t store(HistoryOStream &ostream, EventsHistory *hist) = 0;
-#endif
+    virtual RandomStream *newRandomStream(HistoryIStream &istream) = 0;
+    virtual void deleteRandomStream(RandomStream *rs) { delete (rs); };
+};
+
+/** \brief same as RandomStreamGenerator but with streams history-aware
+ *
+ */
+class RandomHistoryStreamGenerator : public RandomStreamGenerator {
+    /** \brief forbid copy of this kind of objects */
+    RandomHistoryStreamGenerator(const RandomHistoryStreamGenerator &) = delete;
+    /** \brief forbid assignment of this kind of objects */
+    RandomHistoryStreamGenerator &
+    operator=(const RandomHistoryStreamGenerator &) = delete;
+
+  protected:
+    RandomHistoryStreamGenerator() : RandomStreamGenerator(){};
+
+  public:
+    virtual ~RandomHistoryStreamGenerator(){};
+    virtual RandomHistoryStream *newRandomHistoryStream() = 0;
+    virtual RandomHistoryStream *
+    newRandomHistoryStream(HistoryIStream &istream) = 0;
+    virtual void deleteRandomHistoryStream(RandomStream *rs) { delete (rs); };
+    virtual RandomStream *newRandomStream() {
+        return newRandomHistoryStream();
+    };
+    virtual RandomStream *newRandomStream(HistoryIStream &istream) {
+        return newRandomHistoryStream(istream);
+    };
+    virtual void deleteRandomStream(RandomStream *rs) {
+        deleteRandomHistoryStream(rs);
+    };
 };
 
 /** \brief abstract class that must be provided to the config
@@ -103,8 +143,12 @@ class RandomFabric {
 
   public:
     virtual ~RandomFabric(){};
-    virtual RandomStreamGenerator *newRandomStreamGenerator() = 0;
-    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) = 0;
+    virtual RandomHistoryStreamGenerator *newRandomStreamGenerator() = 0;
+    virtual RandomHistoryStreamGenerator *
+    newRandomStreamGenerator(HistoryIStream &istream) = 0;
+    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg) {
+        delete rsg;
+    };
 };
 
 /** \brief multi-purpose object used for the generation of random values in the
@@ -121,43 +165,69 @@ class RandomFabric {
  * on the same chunk should have their own local copies based on the state saved
  * at the beginning of the chunk.
  */
-class Random : public RandomStream, RandomStreamGenerator {
+class Random : public RandomHistoryStream, RandomStreamGenerator {
     /** \brief forbid copy of this kind of objects */
     Random(const Random &) = delete;
     /** \brief forbid assignment of this kind of objects */
     Random &operator=(const Random &) = delete;
     friend marto::Configuration;
-    /** \brief constructor */
-    Random(RandomStreamGenerator *v_rsg)
-        : RandomStream(), RandomStreamGenerator(), rsg(v_rsg) {
-        crs = newRandomStream();
+    /** \brief build a Random object from a RandomFabric
+     *
+     * A RandomStreamGenerator is allocated and used internally.
+     *
+     * \param RandomFabric the fabric where to get a RandomStreamGenerator
+     * object
+     */
+    Random(RandomFabric *fabric)
+        : RandomHistoryStream(), RandomStreamGenerator() {
+        rsg = fabric->newRandomStreamGenerator();
+        crs = rsg->newRandomHistoryStream();
+        markCurrentState();
     };
-    ~Random() { rsg->deleteRandomStream(crs); }
+    Random(RandomFabric *fabric, HistoryIStream &istream)
+        : RandomHistoryStream(), RandomStreamGenerator() {
+        rsg = fabric->newRandomStreamGenerator(istream);
+        crs = rsg->newRandomHistoryStream(istream);
+    };
+    ~Random() {
+        delete crs;
+        delete rsg;
+    }
 
   public:
     RandomStream *currentRandomStream() { return crs; };
     virtual RandomStream *newRandomStream() { return rsg->newRandomStream(); };
+    virtual RandomStream *newRandomStream(HistoryIStream &istream) {
+        return rsg->newRandomStream(istream);
+    };
     virtual void deleteRandomStream(RandomStream *rs) {
         rsg->deleteRandomStream(rs);
     };
-    virtual history_access_t load(HistoryIStream &istream,
-                                  EventsHistory *hist) {
-        return crs->load(istream, hist);
+    virtual history_access_t load(HistoryIStream &istream) {
+        auto res = rsg->load(istream);
+        if (res != HISTORY_DATA_LOADED) {
+            return res;
+        }
+        return crs->load(istream);
     };
-    virtual history_access_t store(HistoryOStream &ostream,
-                                   EventsHistory *hist) {
-        return crs->store(ostream, hist);
+    virtual history_access_t storeMarkedState(HistoryOStream &ostream) {
+        auto res = rsg->storeMarkedState(ostream);
+        if (res != HISTORY_DATA_STORED) {
+            return res;
+        }
+        return crs->storeMarkedState(ostream);
     };
-    virtual void setInitialStateFromCurrentState() {
-        return crs->setInitialStateFromCurrentState();
+    virtual void markCurrentState() {
+        rsg->markCurrentState();
+        crs->markCurrentState();
     };
     virtual double U01() { return crs->U01(); };
     virtual double Uab(double inf, double sup) { return crs->Uab(inf, sup); };
     virtual long Iab(long min, long max) { return crs->Iab(min, max); };
 
   private:
-    RandomStream *crs;
-    RandomStreamGenerator *rsg;
+    RandomHistoryStream *crs;
+    RandomHistoryStreamGenerator *rsg;
 };
 } // namespace marto
 

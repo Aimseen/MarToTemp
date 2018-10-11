@@ -28,8 +28,9 @@ class RandomDeterministic : public RandomFabric {
   public:
     ~RandomDeterministic(){};
     RandomDeterministic(std::vector<std::vector<double> *> *s) : streams(s){};
-    virtual RandomStreamGenerator *newRandomStreamGenerator();
-    virtual void deleteRandomStreamGenerator(RandomStreamGenerator *rsg);
+    virtual RandomHistoryStreamGenerator *newRandomStreamGenerator();
+    virtual RandomHistoryStreamGenerator *
+    newRandomStreamGenerator(HistoryIStream &istream);
 };
 
 } // namespace marto

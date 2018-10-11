@@ -4,71 +4,110 @@
 namespace marto {
 class RandomDeterministicStreamGenerator;
 
-class RandomDeterministicStream : public RandomStream {
+class RandomDeterministicStream : public RandomHistoryStream {
     friend RandomDeterministicStreamGenerator;
 
   private:
     RandomDeterministicStreamGenerator *sgen;
     size_t stream_id;
     size_t next_pos;
-    size_t init_pos;
+    size_t marked_pos;
 
   protected:
     RandomDeterministicStream(RandomDeterministicStreamGenerator *s,
                               size_t sid);
+    RandomDeterministicStream(RandomDeterministicStreamGenerator *s,
+                              HistoryIStream &istream);
 
   public:
-    virtual history_access_t load(HistoryIStream &istream,
-                                  EventsHistory *__marto_unused(hist)) {
-        if (!(bool)(istream >> stream_id)) {
-            return HISTORY_DATA_LOAD_ERROR;
-        }
-        if (!(bool)(istream >> init_pos)) {
-            return HISTORY_DATA_LOAD_ERROR;
-        }
-        next_pos = init_pos;
-        return HISTORY_DATA_LOADED;
-    };
-    virtual history_access_t store(HistoryOStream &ostream,
-                                   EventsHistory *__marto_unused(hist)) {
-        if (!(bool)(ostream << stream_id)) {
-            return HISTORY_DATA_STORE_ERROR;
-        }
-        if (!(bool)(ostream << init_pos)) {
-            return HISTORY_DATA_STORE_ERROR;
-        }
-        return HISTORY_DATA_STORED;
-    };
-    virtual void setInitialStateFromCurrentState() { init_pos = next_pos; };
+    virtual history_access_t load(HistoryIStream &istream);
+    virtual history_access_t storeMarkedState(HistoryOStream &ostream);
+    virtual void markCurrentState() { marked_pos = next_pos; };
     virtual double U01();
     virtual double Uab(double inf, double sup);
     virtual long Iab(long min, long max);
 };
 
-class RandomDeterministicStreamGenerator : public RandomStreamGenerator {
+class RandomDeterministicStreamGenerator : public RandomHistoryStreamGenerator {
     friend RandomDeterministicStream;
     friend RandomDeterministic;
 
   private:
     std::vector<std::vector<double> *> *_streams;
     size_t next_stream_id;
+    size_t marked_next_stream_id;
 
   protected:
     RandomDeterministicStreamGenerator(std::vector<std::vector<double> *> *s)
-        : _streams(s), next_stream_id(0){};
+        : _streams(s), next_stream_id(0) {
+        markCurrentState();
+    };
+    RandomDeterministicStreamGenerator(std::vector<std::vector<double> *> *s,
+                                       HistoryIStream &istream)
+        : _streams(s) {
+        load(istream);
+    };
     std::vector<double> *stream(size_t s_id) { return _streams->at(s_id); };
 
   public:
-    virtual RandomStream *newRandomStream() {
+    virtual RandomHistoryStream *newRandomHistoryStream() {
         return new RandomDeterministicStream(this, next_stream_id++);
     };
-    virtual void deleteRandomStream(RandomStream *rs) { delete rs; };
+    virtual RandomHistoryStream *
+    newRandomHistoryStream(HistoryIStream &istream) {
+        return new RandomDeterministicStream(this, istream);
+    };
+    virtual history_access_t load(HistoryIStream &istream) {
+        if (!(bool)(istream >> next_stream_id)) {
+            return HISTORY_DATA_LOAD_ERROR;
+        }
+        markCurrentState();
+        return HISTORY_DATA_LOADED;
+    };
+    virtual history_access_t storeMarkedState(HistoryOStream &ostream) {
+        if (!(bool)(ostream << marked_next_stream_id)) {
+            return HISTORY_DATA_STORE_ERROR;
+        }
+        return HISTORY_DATA_STORED;
+    };
+    virtual void markCurrentState() { marked_next_stream_id = next_stream_id; };
 };
 
 RandomDeterministicStream::RandomDeterministicStream(
     RandomDeterministicStreamGenerator *s, size_t sid)
-    : sgen(s), stream_id(sid), next_pos(0), init_pos(0) {
+    : sgen(s), stream_id(sid), next_pos(0) {
     sgen->stream(stream_id);
+    markCurrentState();
+};
+
+RandomDeterministicStream::RandomDeterministicStream(
+    RandomDeterministicStreamGenerator *s, HistoryIStream &istream)
+    : sgen(s), stream_id(0), next_pos(0) {
+    load(istream);
+    markCurrentState();
+};
+
+history_access_t RandomDeterministicStream::load(HistoryIStream &istream) {
+    if (!(bool)(istream >> stream_id)) {
+        return HISTORY_DATA_LOAD_ERROR;
+    }
+    sgen->stream(stream_id);
+    if (!(bool)(istream >> marked_pos)) {
+        return HISTORY_DATA_LOAD_ERROR;
+    }
+    markCurrentState();
+    return HISTORY_DATA_LOADED;
+};
+
+history_access_t
+RandomDeterministicStream::storeMarkedState(HistoryOStream &ostream) {
+    if (!(bool)(ostream << stream_id)) {
+        return HISTORY_DATA_STORE_ERROR;
+    }
+    if (!(bool)(ostream << marked_pos)) {
+        return HISTORY_DATA_STORE_ERROR;
+    }
+    return HISTORY_DATA_STORED;
 };
 
 double RandomDeterministicStream::U01() {
@@ -105,12 +144,13 @@ long RandomDeterministicStream::Iab(long min, long max) {
     return value;
 };
 
-RandomStreamGenerator *RandomDeterministic::newRandomStreamGenerator() {
+RandomHistoryStreamGenerator *RandomDeterministic::newRandomStreamGenerator() {
     return new RandomDeterministicStreamGenerator(streams);
 }
 
-void RandomDeterministic::deleteRandomStreamGenerator(
-    RandomStreamGenerator *rsg) {
-    delete rsg;
-};
+RandomHistoryStreamGenerator *
+RandomDeterministic::newRandomStreamGenerator(HistoryIStream &istream) {
+    return new RandomDeterministicStreamGenerator(streams, istream);
+}
+
 }; // namespace marto

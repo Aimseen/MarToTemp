@@ -96,9 +96,7 @@ EventType *Configuration::getRandomEventType(Random *g) {
     assert(partialRatesSum < r && false);
 }
 
-Random *Configuration::newRandom() {
-    return new Random(randomFabric->newRandomStreamGenerator());
-}
+Random *Configuration::newRandom() { return new Random(randomFabric); }
 
 void Configuration::loadTransitionLibrary(std::string libname,
                                           loadLibraryCallback_t cb) {
