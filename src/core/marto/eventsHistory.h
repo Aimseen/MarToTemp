@@ -214,7 +214,11 @@ class EventsIStream : public EventsStreamBase {
     };
     friend event_access_t EventsIterator::loadNextEvent(Event *ev);
     template <typename T>
+#if defined(__clang__)
+    friend class EventsStreamBase::CompactInt;
+#else
     friend void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream);
+#endif
 
     template <typename T> void read(T &var);
 
@@ -267,8 +271,12 @@ class EventsOStream : public EventsStreamBase {
     };
     friend event_access_t EventsIterator::storeNextEvent(Event *ev);
     template <typename T>
+#if defined(__clang__)
+    friend class EventsStreamBase::CompactInt;
+#else
     friend void
     EventsStreamBase::CompactInt<T>::write(EventsOStream &ostream) const;
+#endif
 
     template <typename T> T *write(const T &value);
 

@@ -36,7 +36,7 @@ void EventsStreamBase::CompactInt<T>::read(EventsIStream &istream) {
     }
     while (sval & 128) {
         istream.read(sval);
-        uval |= ((typeof(uval))(sval & 127)) << bits;
+        uval |= ((__typeof__(uval))(sval & 127)) << bits;
         bits += 7;
     }
     if (neg) {
