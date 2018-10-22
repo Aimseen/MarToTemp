@@ -22,19 +22,19 @@ namespace marto {
  *
  * These chunks will be linked in memory to create an history.
  *
- * The chunk notion should be transparent to the user of EventsHistory.
+ * The chunk notion should be transparent to the user of History.
  *
  * Chunk are also used when some events must be inserted into an existing
  * history (not yet implemented)
  */
-class EventsChunk {
-    friend EventsIterator;
-    friend EventsHistory;
+class HistoryChunk {
+    friend HistoryIterator;
+    friend History;
 
   private:
-    EventsChunk(uint32_t capacity, EventsChunk *prev, EventsChunk *next,
-                EventsHistory *hist);
-    ~EventsChunk();
+    HistoryChunk(uint32_t capacity, HistoryChunk *prev, HistoryChunk *next,
+                 /*Random *rand, */ History *hist);
+    ~HistoryChunk();
     bool allocOwner; ///< true if bufferMemory is malloc'ed
     char *bufferMemory;
     char
@@ -43,10 +43,10 @@ class EventsChunk {
     char *bufferEnd;         ///< end of history chunk;
     uint32_t eventsCapacity; ///< maximum number of allowed events in this chunk
     /// and possible additional chunks
-    uint32_t nbEvents;      ///< current number of events in the chunk
-    EventsChunk *nextChunk; ///< always later in simulated time
-    EventsChunk *prevChunk; ///< always earlier in simulated time
-    EventsHistory *history; ///< history this chunk belong to
+    uint32_t nbEvents;       ///< current number of events in the chunk
+    HistoryChunk *nextChunk; ///< always later in simulated time
+    HistoryChunk *prevChunk; ///< always earlier in simulated time
+    History *history;        ///< history this chunk belong to
 
     /** \brief return the next chunk in the history
      *
@@ -55,7 +55,7 @@ class EventsChunk {
      * \note this accessor is provided as synchronization will be required
      * when simulating concurrent trajectories (not yet implemented)
      */
-    EventsChunk *getNextChunk();
+    HistoryChunk *getNextChunk();
     /** \brief allocate a new chunk in the history
      *
      * needed when current chunk is full
@@ -64,7 +64,7 @@ class EventsChunk {
      * The capacity of the current chunk is adjusted its current number of
      * events
      */
-    EventsChunk *allocateNextChunk();
+    HistoryChunk *allocateNextChunk();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -72,11 +72,11 @@ class EventsChunk {
  *
  * \note some parallel version will be to be implemented
  */
-class EventsIterator {
+class HistoryIterator {
   private:
-    EventsIterator(EventsHistory *hist);
-    // friend EventsIterator *EventsHistory::iterator();
-    friend class EventsHistory;
+    HistoryIterator(History *hist);
+    // friend Iterator *Historyiterator();
+    friend class History;
 
   public:
     /** \brief Fill ev with the next event
@@ -109,9 +109,9 @@ class EventsIterator {
     */
 
   private:
-    EventsChunk *setNewChunk(EventsChunk *chunk);
+    HistoryChunk *setNewChunk(HistoryChunk *chunk);
 
-    EventsChunk *curChunk;
+    HistoryChunk *curChunk;
     char *position; ///< current position in the chunk buffer
     uint32_t
         eventNumber; ///< # event in the current chunk to be read or written
@@ -138,12 +138,12 @@ class EventsIterator {
 
 /** \brief Class to manage an events history
  */
-class EventsHistory : protected WithConfiguration {
+class History : protected WithConfiguration {
   public:
     /** \brief Initialize a new history of events */
-    EventsHistory(Configuration *conf);
+    History(Configuration *conf);
     /** \brief Get an iterator positioned at the begining of the history */
-    EventsIterator *iterator();
+    HistoryIterator *iterator();
 
     /** \brief Add some space in history
      *
@@ -167,18 +167,18 @@ class EventsHistory : protected WithConfiguration {
     // advances to next stream
 
   private:
-    /// EventsIterator needs to access to firstChunk
-    friend EventsIterator::EventsIterator(EventsHistory *hist);
+    /// Iterator needs to access to firstChunk
+    friend HistoryIterator::HistoryIterator(History *hist);
     /// loadEventContent needs to access to the configuration
     friend history_access_t
-    EventsIterator::loadEventContent(HistoryIStream &istream, Event *ev);
-    EventsChunk *firstChunk; ///< beginning of history
-                             // uint32_t _nbEvents; // useful ?
+    HistoryIterator::loadEventContent(HistoryIStream &istream, Event *ev);
+    HistoryChunk *firstChunk; ///< beginning of history
+                              // uint32_t _nbEvents; // useful ?
   protected:
     /** \brief Allocate Memory for a chunk
      * \param size must be filled with the size of the allocated buffer if not
      * NULL
-     * \return address of a buffer that can be used by an EventsChunk
+     * \return address of a buffer that can be used by an Chunk
      *
      * The default implementation allocates 4096 bytes but any derived
      * class can choose different sizes
@@ -191,7 +191,7 @@ class EventsHistory : protected WithConfiguration {
         }
         return buffer;
     }
-    friend class EventsChunk;
+    friend class HistoryChunk;
 };
 } // namespace marto
 

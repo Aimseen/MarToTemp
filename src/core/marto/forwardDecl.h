@@ -31,9 +31,9 @@ class Configuration;
 class WithConfiguration;
 
 /* history.h */
-class EventsChunk;
-class EventsIterator;
-class EventsHistory;
+class HistoryChunk;
+class HistoryIterator;
+class History;
 
 /* historyStream.h */
 class HistoryStreamBase;
@@ -44,16 +44,11 @@ class HistoryOStream;
 
 /* parameters.h */
 class FormalParameterValues;
-template <typename T>
-class FormalParameterValuesTyped;
-template <typename T>
-class FormalConstantList;
-template <typename T>
-class FormalDistribution;
-template <typename T>
-class FormalDistributionFixedList;
-template <typename T>
-class FormalDistributionVariadicList;
+template <typename T> class FormalParameterValuesTyped;
+template <typename T> class FormalConstantList;
+template <typename T> class FormalDistribution;
+template <typename T> class FormalDistributionFixedList;
+template <typename T> class FormalDistributionVariadicList;
 class ParameterValues;
 
 /* queue.h */

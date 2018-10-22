@@ -27,7 +27,7 @@ class HistoryStreamBase {
 
     /** \brief Create a object that consumes a bounded buffer
      *
-     * It will be inherited by Events[IO]Stream
+     * It will be inherited by History[IO]Stream
      */
     HistoryStreamBase(char *buffer, size_t lim)
         : buf(buffer), bufsize(lim), objectsize(0), eofbit(0){};
@@ -82,7 +82,7 @@ class HistoryIStream : public HistoryStreamBase {
   private:
     /** \brief Create a object that will allow read anything in a buffer
      *
-     * This will be created by EventsIterator::read*() for example
+     * This will be created by HistoryIterator::read*() for example
      */
     HistoryIStream(char *buffer, size_t lim) : HistoryStreamBase(buffer, lim) {
         objectsize_t obsize;
@@ -105,7 +105,7 @@ class HistoryIStream : public HistoryStreamBase {
         /* limiting the following reads to the object data */
         bufsize = objectsize - (buf - buffer);
     };
-    friend history_access_t EventsIterator::loadNextEvent(Event *ev);
+    friend history_access_t HistoryIterator::loadNextEvent(Event *ev);
     template <typename T>
 #if defined(__clang__)
     friend class HistoryStreamBase::CompactInt;
@@ -157,12 +157,12 @@ class HistoryOStream : public HistoryStreamBase {
     objectsize_t *objectSizePtr;
     /** \brief Create a object that will allow write anything in a buffer
      *
-     * This will be created by EventsIterator::store*()
+     * This will be created by HistoryIterator::store*()
      */
     HistoryOStream(char *buffer, size_t lim) : HistoryStreamBase(buffer, lim) {
         objectSizePtr = write((objectsize_t)0);
     };
-    friend history_access_t EventsIterator::storeNextEvent(Event *ev);
+    friend history_access_t HistoryIterator::storeNextEvent(Event *ev);
     template <typename T>
 #if defined(__clang__)
     friend class HistoryStreamBase::CompactInt;

@@ -29,7 +29,7 @@ class SimpleForwardBaseTest : public ::testing::Test {
         //  for testing larger states
         new StandardQueue(c, "Q2", 10); // unused in MM1 test
         e = new Event(); // only one that will change all the time
-        h = new EventsHistory(c);
+        h = new History(c);
     }
 
     virtual ~SimpleForwardBaseTest() {
@@ -55,7 +55,7 @@ class SimpleForwardBaseTest : public ::testing::Test {
     Configuration *c;
     EventType *eta, *etb;
     Event *e;
-    EventsHistory *h;
+    History *h;
 };
 
 TEST_F(SimpleForwardBaseTest, StateTest) {

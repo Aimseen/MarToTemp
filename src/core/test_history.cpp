@@ -14,12 +14,11 @@ class TransitionTest : public Transition {
     }
 };
 
-class TestEventsHistory : public EventsHistory {
+class TestHistory : public History {
   public:
     size_t chunkSize = 100;
     size_t nbAllocatedChunk;
-    TestEventsHistory(Configuration *c)
-        : EventsHistory(c), nbAllocatedChunk(0){};
+    TestHistory(Configuration *c) : History(c), nbAllocatedChunk(0){};
     virtual char *allocChunkBuffer(size_t *size) {
         char *buffer = (char *)malloc(chunkSize);
         if (size) {
@@ -32,9 +31,9 @@ class TestEventsHistory : public EventsHistory {
 
 /** Common base for history tests (in the google framework)
  */
-class EventsHistoryBaseTest : public ::testing::Test {
+class HistoryBaseTest : public ::testing::Test {
   protected:
-    EventsHistoryBaseTest() {
+    HistoryBaseTest() {
         c = new Configuration();
         new TransitionTest(c, "TransitionTest");
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
@@ -43,10 +42,10 @@ class EventsHistoryBaseTest : public ::testing::Test {
         v.push_back(6);
         et->registerParameter("to", new FormalConstantList<int>(2, v));
         e = new Event();
-        h = new TestEventsHistory(c);
+        h = new TestHistory(c);
     }
 
-    virtual ~EventsHistoryBaseTest() {
+    virtual ~HistoryBaseTest() {
         // You can do clean-up work that doesn't throw exceptions here.
     }
 
@@ -68,18 +67,18 @@ class EventsHistoryBaseTest : public ::testing::Test {
     Configuration *c;
     EventType *et;
     Event *e;
-    TestEventsHistory *h;
+    TestHistory *h;
 };
 
 // Tests that writing a undefined event correctly fails
-TEST_F(EventsHistoryBaseTest, writeUndefinedEvent) {
+TEST_F(HistoryBaseTest, writeUndefinedEvent) {
     auto it = h->iterator();
     ASSERT_TRUE(it);
     ASSERT_EQ(HISTORY_STORE_INVALID_EVENT, it->storeNextEvent(e));
 }
 
 // Tests that it is possible to read/write events in a history
-TEST_F(EventsHistoryBaseTest, readWriteEvents) {
+TEST_F(HistoryBaseTest, readWriteEvents) {
     auto itw = h->iterator();
     ASSERT_TRUE(itw);
     // Fixme : generator
@@ -127,7 +126,7 @@ TEST_F(EventsHistoryBaseTest, readWriteEvents) {
 }
 
 // Tests with various chunkSizes to check limit conditions.
-TEST_F(EventsHistoryBaseTest, chunkSize) {
+TEST_F(HistoryBaseTest, chunkSize) {
     auto itw = h->iterator();
     ASSERT_TRUE(itw);
     // Fixme : generator
@@ -194,8 +193,7 @@ class TestEventType : public EventType {
             ASSERT_TRUE(ostream << val);
         }
     }
-    virtual history_access_t load(HistoryIStream &istream, Event *event,
-                                  EventsHistory *hist) {
+    virtual history_access_t load(HistoryIStream &istream, Event *event) {
         _load<int8_t>(istream);
         _load<uint8_t>(istream);
         _load<int16_t>(istream);
@@ -204,10 +202,9 @@ class TestEventType : public EventType {
         _load<uint32_t>(istream);
         _load<int64_t>(istream);
         _load<uint64_t>(istream);
-        return EventType::load(istream, event, hist);
+        return EventType::load(istream, event);
     }
-    virtual history_access_t store(HistoryOStream &ostream, Event *event,
-                                   EventsHistory *hist) {
+    virtual history_access_t store(HistoryOStream &ostream, Event *event) {
         _store<int8_t>(ostream);
         _store<uint8_t>(ostream);
         _store<int16_t>(ostream);
@@ -216,12 +213,12 @@ class TestEventType : public EventType {
         _store<uint32_t>(ostream);
         _store<int64_t>(ostream);
         _store<uint64_t>(ostream);
-        return EventType::store(ostream, event, hist);
+        return EventType::store(ostream, event);
     }
 };
 
 // Tests when storing different values
-TEST_F(EventsHistoryBaseTest, values) {
+TEST_F(HistoryBaseTest, values) {
     EventType *testet =
         new TestEventType(c, "My test event", 42.0, "TransitionTest");
     std::vector<int> v;

@@ -20,9 +20,9 @@ class TransitionTest : public Transition {
 };
 
 // The fixture for testing class Foo.
-class EventsHistoryBaseTest : public ::testing::Test {
+class HistoryBaseTest : public ::testing::Test {
   protected:
-    EventsHistoryBaseTest() {
+    HistoryBaseTest() {
         c = new Configuration();
         new TransitionTest(c, "TransitionTest");
         et = new EventType(c, "My super event", 42.0, "TransitionTest");
@@ -31,10 +31,10 @@ class EventsHistoryBaseTest : public ::testing::Test {
         v.push_back(6);
         et->registerParameter("to", new FormalConstantList<int>(2, v));
         e = new Event();
-        h = new EventsHistory(c);
+        h = new History(c);
     }
 
-    virtual ~EventsHistoryBaseTest() {
+    virtual ~HistoryBaseTest() {
         // You can do clean-up work that doesn't throw exceptions here.
     }
 
@@ -56,7 +56,7 @@ class EventsHistoryBaseTest : public ::testing::Test {
     Configuration *c;
     EventType *et;
     Event *e;
-    EventsHistory *h;
+    History *h;
 };
 
 TEST(Event, RegisterConstantParameters) {
@@ -156,7 +156,7 @@ TEST(Event, StoreAndLoadEventsWithConstantParameters) {
     EventType *et2 = new EventType(c, "Event type 2", 42.0, "TransitionTest");
     std::vector<int> v2 = {15, 16, 17};
     et2->registerParameter("from", new FormalConstantList<int>(3, v2));
-    EventsHistory *h = new EventsHistory(c);
+    History *h = new History(c);
     auto it = h->iterator();
     ASSERT_TRUE(it);
 

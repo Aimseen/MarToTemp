@@ -70,7 +70,7 @@ class Event {
     EventType *_type;
     enum eventStatus status;
 
-    friend EventsIterator;
+    friend HistoryIterator;
     void loaded() { status = EVENT_STATUS_FILLED; }
 
     /** \brief setup the EventType of the event
@@ -86,7 +86,7 @@ class Event {
 
 class EventType : protected WithConfiguration {
     friend class Event;
-    friend class EventsIterator;
+    friend class HistoryIterator;
 
   public:
     /** \brief create a new EventType in the configuration
@@ -132,14 +132,12 @@ class EventType : protected WithConfiguration {
      *
      * \return EVENT_LOADED if the load is successful
      */
-    virtual history_access_t load(HistoryIStream &istream, Event *event,
-                                  EventsHistory *hist);
+    virtual history_access_t load(HistoryIStream &istream, Event *event);
     /** \brief store actual parameters of an event into history
      *
      * \return EVENT_STORED if the store is successful
      */
-    virtual history_access_t store(HistoryOStream &ostream, Event *event,
-                                   EventsHistory *hist);
+    virtual history_access_t store(HistoryOStream &ostream, Event *event);
 
   public:
     /** Code of this kind of event */

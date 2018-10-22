@@ -8,8 +8,9 @@
 namespace marto {
 // EventsChunk
 
-EventsChunk::EventsChunk(uint32_t capacity, EventsChunk *prev,
-                         EventsChunk *next, EventsHistory *hist)
+HistoryChunk::HistoryChunk(uint32_t capacity, HistoryChunk *prev,
+                           HistoryChunk *next,
+                           /*Random *rand, */ History *hist)
     : allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next),
       prevChunk(prev), history(hist) {
     size_t bufferSize;
@@ -17,9 +18,14 @@ EventsChunk::EventsChunk(uint32_t capacity, EventsChunk *prev,
     assert(bufferMemory != nullptr);
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + bufferSize;
+    // if (rand == nullptr) {
+    //    //TODO
+    //} else {
+    //
+    //}
 }
 
-EventsChunk::~EventsChunk() {
+HistoryChunk::~HistoryChunk() {
     if (allocOwner) {
         // TODO: a reference counter should probably be used when/if we use
         // the same buffer fore different chunks
@@ -27,16 +33,17 @@ EventsChunk::~EventsChunk() {
     }
 }
 
-EventsChunk *EventsChunk::getNextChunk() { return nextChunk; }
+HistoryChunk *HistoryChunk::getNextChunk() { return nextChunk; }
 
-EventsChunk *EventsChunk::allocateNextChunk() {
+HistoryChunk *HistoryChunk::allocateNextChunk() {
     uint32_t capacity;
     if (marto_unlikely(eventsCapacity == UINT32_MAX)) {
         capacity = UINT32_MAX;
     } else {
         capacity = eventsCapacity - nbEvents;
     }
-    EventsChunk *newChunk = new EventsChunk(capacity, this, nextChunk, history);
+    HistoryChunk *newChunk =
+        new HistoryChunk(capacity, this, nextChunk, history);
     if (nextChunk) {
         nextChunk->prevChunk = newChunk;
     }
@@ -45,13 +52,13 @@ EventsChunk *EventsChunk::allocateNextChunk() {
     return nextChunk;
 }
 
-// EventsIterator
+// HistoryIterator
 
-EventsIterator::EventsIterator(EventsHistory *hist) {
+HistoryIterator::HistoryIterator(History *hist) {
     setNewChunk(hist->firstChunk);
 }
 
-EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {
+HistoryChunk *HistoryIterator::setNewChunk(HistoryChunk *chunk) {
     curChunk = chunk;
     if (marto_unlikely(chunk == nullptr)) {
         return nullptr;
@@ -61,7 +68,7 @@ EventsChunk *EventsIterator::setNewChunk(EventsChunk *chunk) {
     return chunk;
 };
 
-history_access_t EventsIterator::loadNextEvent(Event *ev) {
+history_access_t HistoryIterator::loadNextEvent(Event *ev) {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk()) == nullptr)) {
@@ -83,7 +90,7 @@ history_access_t EventsIterator::loadNextEvent(Event *ev) {
     return evRead;
 }
 
-history_access_t EventsIterator::readyToStore() {
+history_access_t HistoryIterator::readyToStore() {
     assert(curChunk != nullptr);
     while (marto_unlikely(eventNumber >= curChunk->eventsCapacity)) {
         if (marto_unlikely(setNewChunk(curChunk->getNextChunk()) == nullptr)) {
@@ -97,14 +104,14 @@ history_access_t EventsIterator::readyToStore() {
     return HISTORY_END_DATA;
 }
 
-history_access_t EventsIterator::generateNextEvent(Event *ev) {
+history_access_t HistoryIterator::generateNextEvent(Event *ev) {
     if (readyToStore() != HISTORY_END_DATA) {
         return HISTORY_DATA_STORE_ERROR;
     }
     // TODO
 }
 
-history_access_t EventsIterator::getNextEvent(Event *ev) {
+history_access_t HistoryIterator::getNextEvent(Event *ev) {
     history_access_t ret;
     ret = loadNextEvent(ev);
     if (ret == HISTORY_END_DATA) {
@@ -113,7 +120,7 @@ history_access_t EventsIterator::getNextEvent(Event *ev) {
     return ret;
 }
 
-history_access_t EventsIterator::storeNextEvent(Event *ev) {
+history_access_t HistoryIterator::storeNextEvent(Event *ev) {
     bool new_chunk = false;
     do {
         /* We must be at the end of a chunk */
@@ -158,15 +165,15 @@ history_access_t EventsIterator::storeNextEvent(Event *ev) {
     } while (true); // start over after creating new chunk
 }
 
-history_access_t EventsIterator::storeEventContent(HistoryOStream &ostream,
-                                                   Event *ev) {
+history_access_t HistoryIterator::storeEventContent(HistoryOStream &ostream,
+                                                    Event *ev) {
     assert(ev != nullptr);
     if (marto_unlikely(!ev->valid())) {
         return HISTORY_STORE_INVALID_EVENT;
     }
     EventType *type = ev->type();
     if (ostream << type->code()) {
-        return type->store(ostream, ev, curChunk->history);
+        return type->store(ostream, ev);
     }
     return HISTORY_DATA_STORE_ERROR;
 }
@@ -175,41 +182,41 @@ history_access_t EventsIterator::storeEventContent(HistoryOStream &ostream,
    (example of event type : arrival in queue 1)
    it is read from a table built from user config file
  */
-history_access_t EventsIterator::loadEventContent(HistoryIStream &istream,
-                                                  Event *ev) {
+history_access_t HistoryIterator::loadEventContent(HistoryIStream &istream,
+                                                   Event *ev) {
     Event::code_t code;
     assert(ev != nullptr);
     ev->clear();
     if (istream >> code) { // eventype is encoded in the first integer of the
         // event buffer.
-        EventsHistory *hist = curChunk->history;
+        History *hist = curChunk->history;
         EventType *type = hist->config()->getEventType(code);
         if (ev->setType(type)) {
-            return type->load(istream, ev, hist);
+            return type->load(istream, ev);
         }
     }
     return HISTORY_DATA_LOAD_ERROR;
 }
 
-// EventsHistory
+// History
 
-EventsHistory::EventsHistory(Configuration *conf)
+History::History(Configuration *conf)
     : WithConfiguration(conf), firstChunk(nullptr) {}
 
-EventsIterator *EventsHistory::iterator() {
+HistoryIterator *History::iterator() {
     if (firstChunk == nullptr) {
         // Empty history, creating a chunk
         // no need to restrict the number of events
-        firstChunk = new EventsChunk(UINT32_MAX, nullptr, nullptr, this);
+        firstChunk = new HistoryChunk(UINT32_MAX, nullptr, nullptr, this);
     }
-    return new EventsIterator(this);
+    return new HistoryIterator(this);
 }
 
-void EventsHistory::backward(uint32_t nbEvents) {
+void History::backward(uint32_t nbEvents) {
     if (nbEvents == 0) {
         return;
     }
-    EventsChunk *chunk = new EventsChunk(nbEvents, nullptr, firstChunk, this);
+    HistoryChunk *chunk = new HistoryChunk(nbEvents, nullptr, firstChunk, this);
     if (firstChunk) {
         firstChunk->prevChunk = chunk;
     }

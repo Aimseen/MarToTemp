@@ -52,8 +52,7 @@ int EventType::findIndex(string parameterName) {
     return (couple->second);
 }
 
-history_access_t EventType::load(HistoryIStream &istream, Event *ev,
-                                 EventsHistory *hist) {
+history_access_t EventType::load(HistoryIStream &istream, Event *ev) {
     assert(ev->status == Event::EVENT_STATUS_TYPED);
     assert(ev->_type == this);
     auto fpit = formalParameters.begin();
@@ -68,8 +67,7 @@ history_access_t EventType::load(HistoryIStream &istream, Event *ev,
     return HISTORY_DATA_LOADED;
 }
 
-history_access_t EventType::store(HistoryOStream &ostream, Event *ev,
-                                  EventsHistory *hist) {
+history_access_t EventType::store(HistoryOStream &ostream, Event *ev) {
     auto fpit = formalParameters.begin();
     auto pit = ev->parameters.begin();
     for (; fpit != formalParameters.end(); fpit++, pit++) {
