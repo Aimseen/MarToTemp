@@ -49,9 +49,10 @@ update-forward-decl-header: reindent
 		echo "/* $$(basename $$f) */"; \
 		grep '^\(template .*\)\?class.*\|^template.*>$$' $$f | \
 			grep -v 'no-forward-decl' | \
-			sed -e 's,^\(\(template .*\)\?class [^ {]*\)[ {].*,\1;,' ; \
+			sed -e 's,^\(\(template .*\)\?class [^ {]*\)[ {].*,\1;,' \
+				-e 's/^class \([^ ]*\)::\([^:]*\)/namespace \1 { class \2 }/' ; \
 	done > $@
-	lead='^namespace marto {$$' ; \
-	tail='^}' ; \
+	lead='^[/][/] Start of auto-generated part' ; \
+	tail='^[/][/] End of auto-generated part' ; \
 	nl="$$(echo -e '\n ')" ; \
 	sed -e "/$$lead/,/$$tail/{ /$$lead/{p; r $@$$nl}; /$$tail/s/^/\n/p; d }" -i $(srcdir)/src/core/marto/forwardDecl.h

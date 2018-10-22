@@ -9,6 +9,8 @@
 
 namespace marto {
 
+// Start of auto-generated part. DO NOT MODIFY.
+
 /* allocator.h */
 template <typename T> class Allocator;
 
@@ -90,6 +92,8 @@ class Set;
 class Transition;
 
 /* types.h */
+
+// End of auto-generated part. DO NOT MODIFY.
 
 } // namespace marto
 #endif
