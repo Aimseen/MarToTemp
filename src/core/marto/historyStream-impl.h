@@ -83,7 +83,7 @@ void HistoryStreamBase::CompactInt<T>::writeToHOS(HistoryOStream &ostream) const
     } while (sval || uval);
 }
 
-template <typename T, size_t sizeof_T = sizeof(T), size_t alignof_T = alignof(T)>
+template <typename T, size_t sizeof_T, size_t alignof_T>
 typename std::enable_if<alignof_T != 1>::type
 HistoryIStream::read(T &var) {
     if (marto_unlikely(bufsize == 0)) {
@@ -109,7 +109,7 @@ HistoryIStream::read(T &var) {
     var = *(T *)ptr;
 }
 
-template <typename T, size_t sizeof_T = sizeof(T), size_t alignof_T = alignof(T)>
+template <typename T, size_t sizeof_T, size_t alignof_T>
 typename std::enable_if<alignof_T == 1>::type
 HistoryIStream::read(T &var) {
     if (marto_unlikely(bufsize == 0)) {
