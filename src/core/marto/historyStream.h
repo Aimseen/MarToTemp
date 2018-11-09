@@ -5,7 +5,28 @@
 
 #ifdef __cplusplus
 
+#include <type_traits>
+
 namespace marto {
+
+/** \brief an abstract class for object that can be writen into a HistoryOStream
+ */
+class IsWritable {
+  public:
+    virtual void writeToHOS(HistoryOStream &ostream) const = 0;
+};
+
+/** \brief an abstract class for object that can be read from a HistoryIStream
+ */
+class IsReadable {
+  public:
+    virtual void readFromHIS(HistoryIStream &istream) = 0;
+};
+
+/** \brief an abstract class for object that can be written/read from a HistoryStream
+ */
+class IsStreamable : public IsReadable, public IsWritable {
+};
 
 /** \brief Base class to read of write content in history */
 class HistoryStreamBase {
@@ -63,7 +84,7 @@ class HistoryStreamBase {
  * * (int)-1 => 010000000
  * * (int)-2 => 010000001
  */
-template <typename T> class HistoryStreamBase::CompactInt { // no-forward-decl
+template <typename T> class HistoryStreamBase::CompactInt : public IsStreamable { // no-forward-decl
   private:
     T val;
 
@@ -73,8 +94,8 @@ template <typename T> class HistoryStreamBase::CompactInt { // no-forward-decl
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
     };
     explicit operator T() { return val; }
-    void read(HistoryIStream &istream);
-    void write(HistoryOStream &ostream) const;
+    void readFromHIS(HistoryIStream &istream);
+    void writeToHOS(HistoryOStream &ostream) const;
 };
 
 /** \brief Class to read one object from history */
@@ -106,14 +127,13 @@ class HistoryIStream : public HistoryStreamBase {
         bufsize = objectsize - (buf - buffer);
     };
     friend history_access_t HistoryIterator::loadNextEvent(Event *ev);
-    template <typename T>
-#if defined(__clang__)
-    friend class HistoryStreamBase::CompactInt;
-#else
-    friend void HistoryStreamBase::CompactInt<T>::read(HistoryIStream &istream);
-#endif
 
-    template <typename T> void read(T &var);
+    template <typename T, size_t sizeof_T = sizeof(T), size_t alignof_T = alignof(T)>
+    typename std::enable_if<alignof_T != 1>::type
+    read(T &var);
+    template <typename T, size_t sizeof_T = sizeof(T), size_t alignof_T = alignof(T)>
+    typename std::enable_if<alignof_T == 1>::type
+    read(T &var);
 
     /* convolution as partial template specialization is not allowed for
      * function Idea taken from
@@ -122,7 +142,7 @@ class HistoryIStream : public HistoryStreamBase {
     template <bool is_integral, typename T>
     inline typename std::enable_if<is_integral, void>::type readvar(T &var) {
         CompactInt<T> cval;
-        cval.read(*this);
+        *this >> cval;
         var = (T)cval;
     }
     template <bool is_integral, typename T>
@@ -135,19 +155,19 @@ class HistoryIStream : public HistoryStreamBase {
      *
      * Integral types are compacted
      */
-    template <typename T> HistoryIStream &operator>>(T &var) {
-        static_assert(std::is_arithmetic<T>::value, "T must be numeric");
-        readvar<std::is_integral<T>::value>(var);
-        return *this;
-    }
+    template <typename T> inline HistoryIStream &operator>>(T &var);
 
-    /** \brief >> input stream operator that will compact the value
+    /** \brief >> input stream operator for CompactInt objects
      */
-    template <typename T> HistoryIStream &operator>>(CompactInt<T> &var) {
-        static_assert(std::is_integral<T>::value, "T must be integral");
-        var.read(*this);
-        return *this;
-    }
+    template <typename T> inline HistoryIStream &operator>>(CompactInt<T> &var);
+
+    /** \brief >> input stream operator for IsReadable objects
+     */
+    //template<>
+    //HistoryIStream &operator>>(IsReadable &var) {
+    //    var.read(*this);
+    //    return *this;
+    //}
 };
 
 /** \brief Class to write the content of one object into a chunk
@@ -168,7 +188,7 @@ class HistoryOStream : public HistoryStreamBase {
     friend class HistoryStreamBase::CompactInt;
 #else
     friend void
-    HistoryStreamBase::CompactInt<T>::write(HistoryOStream &ostream) const;
+    HistoryStreamBase::CompactInt<T>::writeToHOS(HistoryOStream &ostream) const;
 #endif
 
     template <typename T> T *write(const T &value);
@@ -205,7 +225,7 @@ class HistoryOStream : public HistoryStreamBase {
   public:
     template <typename T> HistoryOStream &operator<<(const CompactInt<T> &var) {
         static_assert(std::is_arithmetic<T>::value, "T must be numeric");
-        var.write(*this);
+        var.writeToHOS(*this);
         return *this;
     }
 };
