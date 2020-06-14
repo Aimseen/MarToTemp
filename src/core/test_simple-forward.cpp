@@ -109,4 +109,21 @@ TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
         ASSERT_EQ(s, 0);
     }
 }
+TEST_F(SimpleForwardBaseTest, TransitionTestApply){
+
+    // Creating state for simulation
+    Point *state_pt = new Point(c);
+    // reading history and updating state
+    auto itr = h->iterator();
+    //generate eta registerd param "to"
+    e->generate(eta, nullptr);
+    //apply the event 5 times to the point
+    std::cout << state_pt << std::endl;
+    e->apply(state_pt);
+    //Check if the transition occured correctly by getting the state of eache queues
+    int i =0;
+    for (auto s : state_pt->states()) {
+        ASSERT_EQ(s, 1);
+    }
+  }
 } // namespace
