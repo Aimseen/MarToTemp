@@ -162,4 +162,46 @@ TEST_F(SimpleForwardBaseTest, TransitionArrivalRejectTest){
     }
     ASSERT_EQ(sum, 1);
   }*/
+
+TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
+  Configuration* cLocal = new Configuration();
+  cLocal->loadTransitionLibrary();
+  std::cerr << "Transitions library loaded" << std::endl;
+  EventType* etd = new EventType(cLocal, "rnqr", 1, "routingNQueuesReject");
+  auto from0 = new StandardQueue(cLocal, "Q1", 10);
+  auto from1 = new StandardQueue(cLocal, "Q2", 10);
+  auto from2 = new StandardQueue(cLocal, "Q3", 10);
+
+  auto to0 = new StandardQueue(cLocal, "Q4", 10);
+  auto to1 = new StandardQueue(cLocal, "Q5", 10);
+  auto to2 = new StandardQueue(cLocal, "Q6", 10);
+
+  std::vector<queue_id_t> fromVector;
+  fromVector.push_back(from0->id());
+  fromVector.push_back(from1->id());
+  fromVector.push_back(from2->id());
+
+  std::vector<queue_id_t> toVector;
+  toVector.push_back(to0->id());
+  toVector.push_back(to1->id());
+  toVector.push_back(to2->id());
+
+  etd->registerParameter("to", new FormalConstantList<queue_id_t>(3, toVector));
+  etd->registerParameter("from", new FormalConstantList<queue_id_t>(3, fromVector));
+
+  // from0->addClient(3);
+  // from1->addClient(3);
+  // from2->addClient(3);
+
+  e->generate(etd, nullptr);
+  Point *state_pt = new Point(cLocal);
+  e->apply(state_pt);
+
+  for (int i=0; i < 3 ; ++i){
+    ASSERT_EQ(state_pt->states().at(i), 2);
+  }
+  for (int i=3; i < 6 ; ++i){
+    ASSERT_EQ(state_pt->states().at(i), 3);
+  }
+}
 } // namespace
