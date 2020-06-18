@@ -19,13 +19,12 @@ class SimpleForwardBaseTest : public ::testing::Test {
         // let us first test the MM1
         eta = new EventType(c, "Arrival MM1", 0.5, "ArrivalReject");
         etb = new EventType(c, "Departure MM1", 1, "Departure");
+        etc = new EventType(c, "Transition MM1", 1, "TransitionTest");
         auto q = new StandardQueue(c, "Q1", 10);
-        std::vector<queue_id_t>
-            v; // event parameters ; same for both eventTypes here
+        std::vector<queue_id_t>v; // event parameters ; same for both eventTypes here
         v.push_back(q->id()); // only one queue symbolized with its id
         eta->registerParameter("to", new FormalConstantList<queue_id_t>(1, v));
-        etb->registerParameter("from",
-                               new FormalConstantList<queue_id_t>(1, v));
+        etb->registerParameter("from", new FormalConstantList<queue_id_t>(1, v));
         //  for testing larger states
         new StandardQueue(c, "Q2", 10); // unused in MM1 test
         e = new Event(); // only one that will change all the time
@@ -52,10 +51,10 @@ class SimpleForwardBaseTest : public ::testing::Test {
         // before the destructor).
     }
 
-    Configuration *c;
-    EventType *eta, *etb;
-    Event *e;
-    History *h;
+  Configuration *c;
+  EventType *eta, *etb, *etc;
+  Event *e;
+  History *h;
 };
 
 TEST_F(SimpleForwardBaseTest, StateTest) {
@@ -78,7 +77,7 @@ TEST_F(SimpleForwardBaseTest, StateTest) {
 TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
     auto itw = h->iterator();
     ASSERT_TRUE(itw);
-    // Fixme : generator
+    // Fixme : generator //TO DO voir avec vincent
     // we fill the history in advance with arrivals and departures.
     e->generate(eta, nullptr);
     int nba = 10;
@@ -109,21 +108,58 @@ TEST_F(SimpleForwardBaseTest, SimpleForwardMM1) {
         ASSERT_EQ(s, 0);
     }
 }
-TEST_F(SimpleForwardBaseTest, TransitionTestApply){
+TEST_F(SimpleForwardBaseTest, TransitionSimpleTest){
 
     // Creating state for simulation
     Point *state_pt = new Point(c);
-    // reading history and updating state
-    auto itr = h->iterator();
-    //generate eta registerd param "to"
-    e->generate(eta, nullptr);
-    //apply the event 5 times to the point
+    //generate etc (adding one token to each queue)
+    e->generate(etc, nullptr);
+    //apply the event "to" the point
     std::cout << state_pt << std::endl;
     e->apply(state_pt);
     //Check if the transition occured correctly by getting the state of eache queues
-    int i =0;
     for (auto s : state_pt->states()) {
         ASSERT_EQ(s, 1);
     }
   }
+
+TEST_F(SimpleForwardBaseTest, TransitionArrivalRejectTest){
+  // Creating state for simulation
+  Point *state_pt = new Point(c);
+  //generate eta (arrivalReject)
+  e->generate(eta, nullptr);
+  //apply the event "to" the point
+  std::cout << state_pt << std::endl;
+  e->apply(state_pt);
+  //Check if the transition occured correctly by getting the state of eache queues
+  int sum = 0;
+  for (auto s : state_pt->states()) {
+    sum += s;
+  }
+  ASSERT_EQ(sum, 1);
+}
+
+  /* TEST_F(SimpleForwardBaseTest, TransitionDepartureTest){
+    // Creating state for simulation
+    Point *state_pt = new Point(c);
+    auto itQueues = state_pt->begin();
+    itQueues->addClient(3);
+    itQueues++;
+    itQueues->addClient(3);
+
+    for (auto s : state_pt->states()) {
+      ASSERT_EQ(s, 3);
+    }
+    //generate eta (arrivalReject)
+    e->generate(etb, nullptr);
+    //apply the event "to" the point
+    std::cout << state_pt << std::endl;
+    e->apply(state_pt);
+    //Check if the transition occured correctly by getting the state of eache queues
+    int sum = 0;
+    for (auto s : state_pt->states()) {
+      sum += s;
+    }
+    ASSERT_EQ(sum, 1);
+  }*/
 } // namespace

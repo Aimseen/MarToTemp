@@ -22,9 +22,9 @@ class_std_transition(JSQ2) {
 
         if (!p->at(from)->isEmpty()) {
             if (p->at(to0)->compareTo(p->at(to1)) > 0)
-                p->at(to0)->addClient();
-            else
                 p->at(to1)->addClient();
+            else
+                p->at(to0)->addClient();
             p->at(from)->removeClient();
         }
         return p;
