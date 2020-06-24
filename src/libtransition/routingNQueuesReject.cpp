@@ -12,23 +12,23 @@ class_std_transition(routingNQueuesReject) {
     auto *fromList = ev->getParameter("from");
     auto *toList = ev->getParameter("to");
 
-    auto itf = fromList->begin();
-    auto itt = toList->begin();
-
     int count = 0;
-    while (itf != fromList->end()){
-      if (!p->at(itf)->isEmpty()) {
-        p->at(itf)->removeClient();
+    for(unsigned int i=0; i<fromList->size(); ++i){
+      auto index = fromList->get<queue_id_t>(i);
+      if (!p->at(index)->isEmpty()) {
+        p->at(index)->removeClient();
         count++;
       }
-      itf++;
     }
 
-    while (itt != fromList->end()){
-      while(!p->at(itt)->isFull()){
-        p->at(itt)->addClient();
+    int countdown;
+    for(unsigned int i=0; i<toList->size(); ++i){
+      auto index = toList->get<queue_id_t>(i);
+      countdown = count;
+      while(!p->at(index)->isFull() && countdown>0){
+        p->at(index)->addClient();
+        countdown--;
       }
-      itt++;
     }
 
     return p;

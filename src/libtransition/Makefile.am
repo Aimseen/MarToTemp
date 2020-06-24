@@ -14,6 +14,7 @@ std_transitions_la_SOURCES=\
 	arrivalReject.cpp \
 	departure.cpp \
 	jsq2.cpp \
+	routingNQueuesReject.cpp \
 	std_transitions.cpp \
 	std_transitions.h
 

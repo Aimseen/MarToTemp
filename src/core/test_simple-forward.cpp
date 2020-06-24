@@ -139,18 +139,18 @@ TEST_F(SimpleForwardBaseTest, TransitionArrivalRejectTest){
   ASSERT_EQ(sum, 1);
 }
 
-  /* TEST_F(SimpleForwardBaseTest, TransitionDepartureTest){
+  TEST_F(SimpleForwardBaseTest, TransitionDepartureTest){
     // Creating state for simulation
     Point *state_pt = new Point(c);
     auto itQueues = state_pt->begin();
-    itQueues->addClient(3);
+    (*itQueues)->addClient(3);
     itQueues++;
-    itQueues->addClient(3);
+    (*itQueues)->addClient(3);
 
     for (auto s : state_pt->states()) {
       ASSERT_EQ(s, 3);
     }
-    //generate eta (arrivalReject)
+    //generate etb (Departure)
     e->generate(etb, nullptr);
     //apply the event "to" the point
     std::cout << state_pt << std::endl;
@@ -160,8 +160,8 @@ TEST_F(SimpleForwardBaseTest, TransitionArrivalRejectTest){
     for (auto s : state_pt->states()) {
       sum += s;
     }
-    ASSERT_EQ(sum, 1);
-  }*/
+    ASSERT_EQ(sum, 5);
+  }
 
 TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
   Configuration* cLocal = new Configuration();
@@ -189,19 +189,28 @@ TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
   etd->registerParameter("to", new FormalConstantList<queue_id_t>(3, toVector));
   etd->registerParameter("from", new FormalConstantList<queue_id_t>(3, fromVector));
 
-  // from0->addClient(3);
-  // from1->addClient(3);
-  // from2->addClient(3);
-
   e->generate(etd, nullptr);
   Point *state_pt = new Point(cLocal);
+
+  auto itQueues = state_pt->begin();
+  (*itQueues)->addClient(3);
+  itQueues++;
+  (*itQueues)->addClient(3);
+  itQueues++;
+  (*itQueues)->addClient(3);
+
+  int sum = 0;
+  for (auto s : state_pt->states()) {
+    sum += s;
+  }
+  ASSERT_EQ(sum, 9);
+
   e->apply(state_pt);
 
-  for (int i=0; i < 3 ; ++i){
-    ASSERT_EQ(state_pt->states().at(i), 2);
+  sum = 0;
+  for (auto s : state_pt->states()) {
+    sum += s;
   }
-  for (int i=3; i < 6 ; ++i){
-    ASSERT_EQ(state_pt->states().at(i), 3);
-  }
+  ASSERT_EQ(sum, 15);
 }
 } // namespace
