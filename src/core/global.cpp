@@ -59,7 +59,16 @@ EventType *Configuration::registerEventType(EventType *eventType) {
             Event::code_t code = eventTypesVector.size();
             eventTypesVector.push_back(eventType);
             eventType->setCode(code);
-            this->ratesSum += eventType->rate;
+            //free(thresholdTable);
+            thresholdTable = (double*) malloc(code * sizeof(double));
+            int i=0;
+            double partialSum=0.0;
+            for(auto et : eventTypesVector){
+              partialSum += et->rate;
+              thresholdTable[i] = partialSum;
+              ++i;
+            }
+            this->ratesSum = partialSum;;
         });
 }
 
@@ -86,14 +95,20 @@ EventType *Configuration::getEventType(unsigned num) {
 
 EventType *Configuration::getRandomEventType(Random *g) {
     double r = g->Uab(0.0, ratesSum);
-    double partialRatesSum = 0.0;
-    for (auto et : eventTypesVector) {
-        partialRatesSum += et->rate;
-        if (partialRatesSum >= r) {
-            return et;
-        }
+
+    int index = 0;
+    while(r>=thresholdTable[index]){
+      ++index;
     }
-    assert(partialRatesSum < r && false);
+    // double partialRatesSum = 0.0;
+    // for (auto et : eventTypesVector) {
+    //     partialRatesSum += et->rate;
+    //     if (partialRatesSum >= r) {
+    //         return et;
+    //     }
+    // }
+    //assert(partialRatesSum < r && false);
+    return eventTypesVector.at(index);
 }
 
 Random *Configuration::newRandom() { return new Random(randomFabric); }

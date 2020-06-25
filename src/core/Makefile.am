@@ -27,7 +27,7 @@ nobase_include_HEADERS=\
 lib_LTLIBRARIES= libmarto.la
 
 check_PROGRAMS=test_core test_setup test_history test_parameters #test_transition
-check_PROGRAMS+=test_random test_simple-forward
+check_PROGRAMS+=test_random test_simple-forward test_generateRandomEventType
 
 libmarto_la_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) -D_GNU_SOURCE $(MARTOLIB_BUILD_CPPFLAGS) \
   -I$(srcdir) \
@@ -79,3 +79,7 @@ test_simple_forward_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)
 
 #test_transition_SOURCES=test_transition.cpp
 #test_transition_LDADD=libmarto.la
+
+test_generateRandomEventType_SOURCES=test_generateRandomEventType.cpp test_transition.h
+test_generateRandomEventType_CPPFLAGS=$(AM_CPPFLAGS) $(CPPFLAGS) $(GTESTPROGS_BUILD_CPPFLAGS)
+test_generateRandomEventType_LDADD=libmarto.la $(GTESTPROGS_BUILD_LDFLAGS)

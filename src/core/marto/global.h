@@ -45,6 +45,7 @@ class Configuration {
     /** \brief sum of rates of all registered eventTypes
      */
     double ratesSum;
+    double *thresholdTable;
 
   public:
     /** \brief constructor with an explicit RandomFabric */
