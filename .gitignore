@@ -15,6 +15,7 @@ Makefile.in
 *.h.orig
 # copies by emacs
 *~
+.#*
 
 /tests/marto/check-headers/*/*.c++
 /tests/testsuite
