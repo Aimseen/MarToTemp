@@ -52,9 +52,11 @@ class Configuration {
     Configuration(RandomFabric *r)
         : transitionsMap(), eventTypesMap(), eventTypesVector(),
           queueConfigsMap(), queueConfigsVector(), randomFabric(r),
-          ratesSum(0.0){};
+          ratesSum(0.0), thesholTable(nullptr){};
     /** \brief constructor with our RandomFabric (based on Lecuyer) */
     Configuration();
+
+    ~Configuration();
     /** \brief retrieve the eventType by its number
      */
     EventType *getEventType(unsigned num);

@@ -13,6 +13,8 @@ namespace marto {
 
 Configuration::Configuration() : Configuration(new RandomLecuyer()) {}
 
+Configuration::~Configuration(){free(thresholdTable)}
+
 template <typename T, typename Func, typename TM, typename TMV>
 T *Configuration::_register(TM &map, string name, T *value,
                             Func lambdaIfRegister) {
@@ -59,7 +61,7 @@ EventType *Configuration::registerEventType(EventType *eventType) {
             Event::code_t code = eventTypesVector.size();
             eventTypesVector.push_back(eventType);
             eventType->setCode(code);
-            //free(thresholdTable);
+            if(thesholdTable != nullptr) free(thresholdTable);
             thresholdTable = (double*) malloc(code * sizeof(double));
             int i=0;
             double partialSum=0.0;
@@ -97,6 +99,7 @@ EventType *Configuration::getRandomEventType(Random *g) {
     double r = g->Uab(0.0, ratesSum);
 
     int index = 0;
+    //TODO: Check if dichotomie search is relevant 
     while(r>=thresholdTable[index]){
       ++index;
     }

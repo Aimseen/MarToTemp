@@ -96,7 +96,7 @@ TEST(RandomTest, getRandomEventType) {
     etb = new EventType(c, "Departure MM1", 1, "Departure");
 
     for (double value : s0) {
-        EventType *etexpected = (value <= 0.5) ? eta : etb;
+        EventType *etexpected = (value < 0.5) ? eta : etb;
         EventType *etgot = c->getRandomEventType(r);
         ASSERT_EQ(etexpected, etgot);
     }
