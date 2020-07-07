@@ -52,7 +52,7 @@ class Configuration {
     Configuration(RandomFabric *r)
         : transitionsMap(), eventTypesMap(), eventTypesVector(),
           queueConfigsMap(), queueConfigsVector(), randomFabric(r),
-          ratesSum(0.0), thesholTable(nullptr){};
+          ratesSum(0.0), thresholdTable(nullptr){};
     /** \brief constructor with our RandomFabric (based on Lecuyer) */
     Configuration();
 

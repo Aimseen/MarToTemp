@@ -13,7 +13,7 @@ namespace marto {
 
 Configuration::Configuration() : Configuration(new RandomLecuyer()) {}
 
-Configuration::~Configuration(){free(thresholdTable)}
+  Configuration::~Configuration(){free(thresholdTable);}
 
 template <typename T, typename Func, typename TM, typename TMV>
 T *Configuration::_register(TM &map, string name, T *value,
@@ -61,7 +61,7 @@ EventType *Configuration::registerEventType(EventType *eventType) {
             Event::code_t code = eventTypesVector.size();
             eventTypesVector.push_back(eventType);
             eventType->setCode(code);
-            if(thesholdTable != nullptr) free(thresholdTable);
+            if(thresholdTable != nullptr) free(thresholdTable);
             thresholdTable = (double*) malloc(code * sizeof(double));
             int i=0;
             double partialSum=0.0;

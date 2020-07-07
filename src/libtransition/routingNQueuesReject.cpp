@@ -21,13 +21,11 @@ class_std_transition(routingNQueuesReject) {
       }
     }
 
-    int countdown;
     for(unsigned int i=0; i<toList->size(); ++i){
       auto index = toList->get<queue_id_t>(i);
-      countdown = count;
-      while(!p->at(index)->isFull() && countdown>0){
+      while(!p->at(index)->isFull() && count>0){
         p->at(index)->addClient();
-        countdown--;
+        count--;
       }
     }
 

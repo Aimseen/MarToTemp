@@ -172,8 +172,8 @@ TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
   auto from1 = new StandardQueue(cLocal, "Q2", 10);
   auto from2 = new StandardQueue(cLocal, "Q3", 10);
 
-  auto to0 = new StandardQueue(cLocal, "Q4", 10);
-  auto to1 = new StandardQueue(cLocal, "Q5", 10);
+  auto to0 = new StandardQueue(cLocal, "Q4", 2);
+  auto to1 = new StandardQueue(cLocal, "Q5", 2);
   auto to2 = new StandardQueue(cLocal, "Q6", 10);
 
   std::vector<queue_id_t> fromVector;
@@ -211,6 +211,6 @@ TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
   for (auto s : state_pt->states()) {
     sum += s;
   }
-  ASSERT_EQ(sum, 15);
+  ASSERT_EQ(sum, 9);
 }
 } // namespace

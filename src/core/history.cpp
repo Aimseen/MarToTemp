@@ -8,9 +8,7 @@
 namespace marto {
 // EventsChunk
 
-HistoryChunk::HistoryChunk(uint32_t capacity, HistoryChunk *prev,
-                           HistoryChunk *next,
-                           /*Random *rand, */ History *hist)
+HistoryChunk::HistoryChunk(uint32_t capacity, HistoryChunk *prev, HistoryChunk *next, History *hist)
     : allocOwner(true), eventsCapacity(capacity), nbEvents(0), nextChunk(next),
       prevChunk(prev), history(hist) {
     size_t bufferSize;
@@ -18,11 +16,7 @@ HistoryChunk::HistoryChunk(uint32_t capacity, HistoryChunk *prev,
     assert(bufferMemory != nullptr);
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + bufferSize;
-    // if (rand == nullptr) {
-    //    //TODO
-    //} else {
-    //
-    //}
+    random = history->config()->newRandom();
 }
 
 HistoryChunk::~HistoryChunk() {
@@ -42,8 +36,9 @@ HistoryChunk *HistoryChunk::allocateNextChunk() {
     } else {
         capacity = eventsCapacity - nbEvents;
     }
+    //TODO get random from config instead of nullptr for all calls to constructor
     HistoryChunk *newChunk =
-        new HistoryChunk(capacity, this, nextChunk, history);
+      new HistoryChunk(capacity, this, nextChunk, history);
     if (nextChunk) {
         nextChunk->prevChunk = newChunk;
     }
@@ -105,9 +100,16 @@ history_access_t HistoryIterator::readyToStore() {
 }
 
 history_access_t HistoryIterator::generateNextEvent(Event *ev) {
+    history_access_t ret;
     if (readyToStore() != HISTORY_END_DATA) {
         return HISTORY_DATA_STORE_ERROR;
     }
+    Configuration *c = curChunk->history->config();
+    EventType *et = c->getRandomEventType(curChunk->random);
+    ev->generate(et, curChunk->random);
+    ret = storeNextEvent(ev);
+    return ret;
+
     // TODO
 }
 
@@ -207,7 +209,7 @@ HistoryIterator *History::iterator() {
     if (firstChunk == nullptr) {
         // Empty history, creating a chunk
         // no need to restrict the number of events
-        firstChunk = new HistoryChunk(UINT32_MAX, nullptr, nullptr, this);
+      firstChunk = new HistoryChunk(UINT32_MAX, nullptr, nullptr, this);
     }
     return new HistoryIterator(this);
 }

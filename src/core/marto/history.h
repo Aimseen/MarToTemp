@@ -1,3 +1,4 @@
+
 /* -*-c++-*- C++ mode for emacs */
 /* Events History */
 #ifndef MARTO_HISTORY_H
@@ -32,8 +33,7 @@ class HistoryChunk {
     friend History;
 
   private:
-    HistoryChunk(uint32_t capacity, HistoryChunk *prev, HistoryChunk *next,
-                 /*Random *rand, */ History *hist);
+    HistoryChunk(uint32_t capacity, HistoryChunk *prev, HistoryChunk *next, History *hist);
     ~HistoryChunk();
     bool allocOwner; ///< true if bufferMemory is malloc'ed
     char *bufferMemory;
@@ -47,6 +47,7 @@ class HistoryChunk {
     HistoryChunk *nextChunk; ///< always later in simulated time
     HistoryChunk *prevChunk; ///< always earlier in simulated time
     History *history;        ///< history this chunk belong to
+    Random *random;          ///< random used in this chunk
 
     /** \brief return the next chunk in the history
      *
