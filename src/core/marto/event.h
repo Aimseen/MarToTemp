@@ -87,7 +87,7 @@ class Event {
 class EventType : protected WithConfiguration {
     friend class Event;
     friend class HistoryIterator;
-
+  
   public:
     /** \brief create a new EventType in the configuration
      *
@@ -108,7 +108,7 @@ class EventType : protected WithConfiguration {
      * \return false if 'name' already exists (and then, fp is ignored)
      */
     bool registerParameter(string name, FormalParameterValues *fp);
-
+  
   private:
     friend std::ostream & ::operator<<(std::ostream &out, const EventType &ev);
     // Name for this event type

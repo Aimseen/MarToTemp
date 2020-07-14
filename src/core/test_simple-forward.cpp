@@ -213,4 +213,47 @@ TEST_F(SimpleForwardBaseTest, TransitionRNQRTest){
   }
   ASSERT_EQ(sum, 9);
 }
+  /*
+  TEST_F(SimpleForwardBaseTest, initMaxCapacityTest){
+    // Creating state for simulation
+    Point *state_pt = new Point(c);
+    initLambdaCallback_t f = [](){ return 1;};
+      //QueueConfig *qc = new QueueConfig(c, "a");
+    Point *state_pt2 = new Point(c, f);
+    }*/
+
+  TEST_F(SimpleForwardBaseTest, MM1) {
+    Configuration *cLocal = new Configuration();
+    cLocal->loadTransitionLibrary();
+    std::cerr << "Transitions library loaded" << std::endl;
+    // let us first test the MM1
+    int lambda = 1;
+    int mu = 1;
+    EventType *etaLocal = new EventType(cLocal, "Arrival MM1", lambda, "ArrivalReject");
+    EventType *etbLocal = new EventType(cLocal, "Departure MM1", mu, "Departure");
+    auto q = new StandardQueue(cLocal, "Q1", 10);
+    std::vector<queue_id_t>v; // event parameters ; same for both eventTypes here
+    v.push_back(q->id()); // only one queue symbolized with its id
+    etaLocal->registerParameter("to", new FormalConstantList<queue_id_t>(1, v));
+    etbLocal->registerParameter("from", new FormalConstantList<queue_id_t>(1, v));
+    //  for testing larger states
+    Event *eLocal = new Event(); // only one that will change all the time
+    History *hLocal = new History(cLocal);
+
+
+
+    // Creating state for simulation
+    Point *state_pt = new Point(cLocal);
+    // reading history and updating state
+    auto it = hLocal->iterator();
+    int i=0;
+    while (i<100) {
+      it->getNextEvent(eLocal);
+      std::cout << state_pt << std::endl;
+      eLocal->apply(state_pt);
+      ++i;
+    }
+  }
+
+
 } // namespace

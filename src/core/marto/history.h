@@ -135,6 +135,7 @@ class HistoryIterator {
      * HISTORY_END_DATA is return when this is the case
      */
     history_access_t readyToStore();
+
 };
 
 /** \brief Class to manage an events history
@@ -170,6 +171,9 @@ class History : protected WithConfiguration {
   private:
     /// Iterator needs to access to firstChunk
     friend HistoryIterator::HistoryIterator(History *hist);
+    /// Iterator needs to access to config
+    friend history_access_t
+    HistoryIterator::generateNextEvent(Event *ev);
     /// loadEventContent needs to access to the configuration
     friend history_access_t
     HistoryIterator::loadEventContent(HistoryIStream &istream, Event *ev);

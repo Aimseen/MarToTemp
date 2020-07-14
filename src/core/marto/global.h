@@ -33,6 +33,7 @@ class Configuration {
     std::vector<QueueConfig *> queueConfigsVector; // vector of queue capacities
     friend class Point; //< Point constructor iterates over queueConfigsVector.
                         // TODO: to encapsulate ?
+  
     RandomFabric *randomFabric;
 
     /** \brief private template to factorize the two 'register' methods

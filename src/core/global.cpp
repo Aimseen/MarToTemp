@@ -70,7 +70,7 @@ EventType *Configuration::registerEventType(EventType *eventType) {
               thresholdTable[i] = partialSum;
               ++i;
             }
-            this->ratesSum = partialSum;;
+            this->ratesSum = partialSum;
         });
 }
 
@@ -97,6 +97,9 @@ EventType *Configuration::getEventType(unsigned num) {
 
 EventType *Configuration::getRandomEventType(Random *g) {
     double r = g->Uab(0.0, ratesSum);
+
+    std::cout << "rt: " << ratesSum << std::endl;
+    std::cout << r << std::endl;
 
     int index = 0;
     //TODO: Check if dichotomie search is relevant 

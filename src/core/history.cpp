@@ -16,7 +16,7 @@ HistoryChunk::HistoryChunk(uint32_t capacity, HistoryChunk *prev, HistoryChunk *
     assert(bufferMemory != nullptr);
     bufferStart = bufferMemory;
     bufferEnd = bufferMemory + bufferSize;
-    random = history->config()->newRandom();
+    random = history->config()->newDebugRandom();//TODO Do not use debug here
 }
 
 HistoryChunk::~HistoryChunk() {
